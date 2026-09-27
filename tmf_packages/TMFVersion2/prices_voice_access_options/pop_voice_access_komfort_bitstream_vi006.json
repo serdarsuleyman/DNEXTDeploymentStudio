@@ -1,0 +1,73 @@
+{
+  "id": "pop_voice_access_komfort_bitstream_vi006",
+  "name": "Komfort-Anschluss Plus Regio (4.00 \u20ac)",
+  "description": "Product offering price component for Komfort-Anschluss Plus Regio (VI006) (4.00 \u20ac/mo)",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "@baseType": "ProductOfferingPrice",
+  "@type": "ProductOfferingPrice",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productofferingprice.json",
+  "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productOfferingPrice/pop_voice_access_komfort_bitstream_vi006:(version=0)",
+  "isBundle": false,
+  "priceType": "Recurring charge",
+  "recurringChargePeriodType": "month",
+  "price": {
+    "unit": "EUR",
+    "value": 4.0
+  },
+  "validFor": {
+    "startDateTime": "2022-01-01T00:00:00.000Z"
+  },
+  "productOfferingPriceCharacteristic": [
+    {
+      "id": "f8e47c39-1b4b-4f20-96eb-7e86094d2477",
+      "name": "option_sku",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "VI006"
+        }
+      ]
+    },
+    {
+      "id": "ffee8dec-9559-4638-9aec-c555d610f506",
+      "name": "voice_line_type",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Komfort"
+        }
+      ]
+    },
+    {
+      "id": "789841c1-9088-4283-8f91-95da01808b59",
+      "name": "delivery_infrastructure",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Wholesale Bitstream / DTAG L2-BSA (VI203)"
+        }
+      ]
+    },
+    {
+      "id": "37f5ea5e-278a-411c-8d69-2054170ffddd",
+      "name": "valid_for_access_service",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "VI203VoiceAccessService"
+        }
+      ]
+    },
+    {
+      "id": "10767cef-0f28-4111-a5d5-57a7d75b11cb",
+      "name": "voice_channels_count",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "2"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "name": "vodafone-dnext-deployment-studio",
+  "version": "1.0.0",
+  "description": "Vodafone Germany DNEXT Cloud Deployment Studio & TMF 620 Management Platform",
+  "scripts": {
+    "install:all": "npm install --prefix backend && npm install --prefix frontend",
+    "dev": "npx concurrently -k -n \"backend,frontend\" -c \"magenta,cyan\" \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\"",
+    "start": "npm run start --prefix backend",
+    "build": "npm run build --prefix frontend",
+    "studio:start": "./studio.sh start",
+    "studio:stop": "./studio.sh stop",
+    "studio:restart": "./studio.sh restart",
+    "studio:status": "./studio.sh status",
+    "studio:logs": "./studio.sh logs"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

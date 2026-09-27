@@ -1,0 +1,94 @@
+{
+  "id": "spec_sales_package",
+  "name": "VF_DE_SALES_SPEC",
+  "version": "0",
+  "description": "Vodafone Germany Fixed-Net Sales Package Master Specification",
+  "lifecycleStatus": "In study",
+  "@baseType": "ProductSpecification",
+  "@type": "ProductSpecification",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productspecification.json",
+  "isBundle": false,
+  "validFor": {
+    "startDateTime": "2025-10-26T00:00:00.000Z"
+  },
+  "productSpecCharacteristic": [
+    {
+      "id": "0ffc8b6c-6cf0-4ea9-a1c6-bfcc0ed68641",
+      "name": "Package_ID",
+      "valueType": "string",
+      "configurable": false,
+      "@type": "ProductSpecCharacteristic"
+    },
+    {
+      "id": "d57be097-c21a-467e-9235-20551b84d6fd",
+      "name": "PackageName",
+      "valueType": "string",
+      "configurable": false,
+      "@type": "ProductSpecCharacteristic"
+    },
+    {
+      "id": "400d10c3-6126-4171-9cc2-72f8e7cd53a9",
+      "name": "Technology",
+      "valueType": "string",
+      "configurable": false,
+      "@type": "ProductSpecCharacteristic"
+    },
+    {
+      "id": "06428182-304c-49be-b4e3-bf83b341ff95",
+      "name": "InternetTariffCode",
+      "valueType": "string",
+      "configurable": false,
+      "@type": "ProductSpecCharacteristic"
+    },
+    {
+      "id": "fe4ff483-0e92-4e81-9227-6164d363852a",
+      "name": "VoiceTariffCode",
+      "valueType": "string",
+      "configurable": false,
+      "@type": "ProductSpecCharacteristic"
+    },
+    {
+      "id": "2ef36a9a-bc5f-42d3-98c1-4fdec9f5ce2d",
+      "name": "BandwidthDownstreamMax",
+      "valueType": "string",
+      "configurable": true,
+      "@type": "ProductSpecCharacteristic"
+    },
+    {
+      "id": "20310a16-2dc2-4a98-964e-aee36ff0cdfb",
+      "name": "BandwidthUpstreamMax",
+      "valueType": "string",
+      "configurable": true,
+      "@type": "ProductSpecCharacteristic"
+    },
+    {
+      "id": "b9b80707-84f0-4518-99b2-c99b94ac6c5d",
+      "name": "ContractDuration",
+      "valueType": "string",
+      "configurable": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "24",
+          "valueType": "string",
+          "isDefault": true,
+          "unitOfMeasure": "month"
+        },
+        {
+          "value": "18",
+          "valueType": "string",
+          "isDefault": false,
+          "unitOfMeasure": "month"
+        },
+        {
+          "value": "12",
+          "valueType": "string",
+          "isDefault": false,
+          "unitOfMeasure": "month"
+        }
+      ]
+    }
+  ]
+}

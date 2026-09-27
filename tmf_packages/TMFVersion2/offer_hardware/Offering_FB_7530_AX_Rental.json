@@ -1,0 +1,276 @@
+{
+  "id": "Offering_FB_7530_AX_Rental",
+  "name": "AVM FRITZ!Box 7530 AX (Mietger\u00e4t)",
+  "description": "AVM FRITZ!Box 7530 AX Wi-Fi 6 Router Mietger\u00e4t with monthly rental.",
+  "isBundle": false,
+  "isSellable": true,
+  "lifecycleStatus": "In study",
+  "version": "0",
+  "@type": "ProductOffering",
+  "productSpecification": {
+    "id": "spec_router_hardware",
+    "name": "VF_DE_ROUTER_HARDWARE_SPEC",
+    "version": "0",
+    "@referredType": "ProductSpecification"
+  },
+  "category": [
+    {
+      "id": "FN0379",
+      "name": "5_99 Box",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN0379:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN0449",
+      "name": "NOT Super WLAN ready",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN0449:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN0479",
+      "name": "Telekom GF BK HW-Liste",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN0479:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN0487",
+      "name": "obsolet - Telekom GF NK HW-Liste",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN0487:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN114",
+      "name": "FRITZ!box",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN114:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN12",
+      "name": "Anschluss-Hardware",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN12:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN132",
+      "name": "VDSL Vectoring",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN132:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN137",
+      "name": "VDSL",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN137:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN138",
+      "name": "ADSL",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN138:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN178",
+      "name": "Rental_AccessHW",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN178:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN199",
+      "name": "VDSL Super Vectoring",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN199:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN210",
+      "name": "FIBRE",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN210:(version=0)",
+      "@referredType": "Category"
+    }
+  ],
+  "prodSpecCharValueUse": [
+    {
+      "id": "42297e03-d200-4323-af03-340820f5bf9a",
+      "name": "DeviceModel",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "AVM FRITZ!Box 7530 AX",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "1704dd57-d07f-4afe-9b5c-eee9f4ae5ebf",
+      "name": "PAPSType",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "IAD",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "9ccb84ee-ff6d-4e5e-85a4-247fd8e6f974",
+      "name": "DeviceType",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Router",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "15783797-98ad-41c5-9115-aa2a7a55c3ed",
+      "name": "CPEBrand",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "AVM",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "f8fa1756-0a8c-45a9-a779-deabe4218d54",
+      "name": "WifiStandard",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Wi-Fi 6",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "e090bc18-c418-4637-9ab3-2ad1bae8ebf0",
+      "name": "RequiresONT",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Y",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "99330275-c498-4487-9853-cde5960c0946",
+      "name": "IsCompatibleDSL",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "true",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "fd91bcd3-e7b9-45a0-b450-7b742baf408b",
+      "name": "IsCompatibleFIBRE",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "true",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "95e39e92-18ab-4d04-9fb1-4f368fc1cc68",
+      "name": "IsCompatibleLTE",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "false",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "f8e7b136-01a6-400b-8c9c-2f5048ac8fed",
+      "name": "LANPortsInfo",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "4x Gigabit LAN",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "33626965-1952-4b06-b46b-e864187807c6",
+      "name": "SmartHomeSupport",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "DECT ULE",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "3692ce13-d7d0-4fcd-98ac-60b427f58afb",
+      "name": "ProductFamilyID",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "FNFamily22",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "62d4741b-bcb8-4752-81f0-5c3247563269",
+      "name": "ProductFamilyName",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "FN_Hardware",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "32318f64-4ebb-4850-9b8f-e18285389d16",
+      "name": "PackageSubtypeID",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Hardware",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "6703641d-4a65-424d-b938-9a0f6a234667",
+      "name": "SKU",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "20090219_sub",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "dc06d942-f13e-455d-b8bc-53818760e58b",
+      "name": "HardwareAcquisitionMode",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Rental",
+          "isDefault": true
+        }
+      ]
+    }
+  ],
+  "productOfferingPrice": [
+    {
+      "id": "pop_fb_7530_ax_rental",
+      "name": "AVM FRITZ!Box 7530 AX Miete (5.99 \u20ac/mo)",
+      "version": "0",
+      "@referredType": "ProductOfferingPrice"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "id": "pop-onetime-20090190_sub",
+  "name": "FRITZ!Box 7590 AX (Kaufgerät) One-Time Fee",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "priceType": "One time charge",
+  "price": {
+    "value": 199.9,
+    "unit": "EUR"
+  },
+  "tax": [
+    {
+      "taxCategory": "VAT",
+      "taxRate": 19
+    }
+  ],
+  "@type": "ProductOfferingPrice"
+}

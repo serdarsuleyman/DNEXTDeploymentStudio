@@ -1,0 +1,71 @@
+{
+  "id": "pop_fb_7530_ax_purchase_unsubsidized",
+  "name": "AVM FRITZ!Box 7530 AX Kaufpreis unsubventioniert (Standard)",
+  "description": "Regul\u00e4rer Standard-Einmalpreis f\u00fcr AVM FRITZ!Box 7530 AX ohne Mindestvertragslaufzeit (169.9 \u20ac)",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "@baseType": "ProductOfferingPrice",
+  "@type": "ProductOfferingPrice",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productofferingprice.json",
+  "isBundle": false,
+  "priceType": "One time charge",
+  "price": {
+    "unit": "EUR",
+    "value": 169.9
+  },
+  "validFor": {
+    "startDateTime": "2022-01-01T00:00:00.000Z"
+  },
+  "productOfferingPriceCharacteristic": [
+    {
+      "id": "199635b5-1e50-413c-88a1-9a9632cf6468",
+      "name": "device_model",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "AVM FRITZ!Box 7530 AX"
+        }
+      ]
+    },
+    {
+      "id": "914ec89a-20fb-4b8d-8906-49d5fb9f704d",
+      "name": "device_subsidized_status",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Unsubsidized"
+        }
+      ]
+    },
+    {
+      "id": "1958a0cd-12ee-41af-a508-d41a5b76853e",
+      "name": "contract_duration",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "0"
+        }
+      ]
+    },
+    {
+      "id": "0d7c69c5-b31f-443a-9330-bcf8b6edfdd2",
+      "name": "contract_duration_unit",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "MONTH"
+        }
+      ]
+    },
+    {
+      "id": "ff543dec-2c45-49ff-8c92-25725ea8108d",
+      "name": "acquisition_mode",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Purchase"
+        }
+      ]
+    }
+  ]
+}

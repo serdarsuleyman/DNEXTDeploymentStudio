@@ -1,0 +1,885 @@
+{
+  "id": "R025.5000000529-18",
+  "name": "GigaZuhause 150 Glasfaser 18 Months",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "validFor": {
+    "startDateTime": "2026-08-27T21:25:53.218Z"
+  },
+  "@baseType": "ProductOffering",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productoffering.json",
+  "@type": "ProductOffering",
+  "isBundle": false,
+  "isSellable": true,
+  "productSpecification": {
+    "id": "VF_DE_SPEC_SALES_PACKAGE",
+    "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_SALES_PACKAGE:(version=0)",
+    "name": "VF_DE_Sales_Package_Specification",
+    "version": "1",
+    "@referredType": "ProductSpecification"
+  },
+  "category": [
+    {
+      "id": "2cddb75e-edf8-43e5-83f1-199b2b8f049c",
+      "href": "/api/productCatalogManagement/v4/category/2cddb75e-edf8-43e5-83f1-199b2b8f049c:(version=0)",
+      "name": "Vodafone Germany POC",
+      "version": "1",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN155",
+      "href": "/api/productCatalogManagement/v4/category/FN155:(version=0)",
+      "name": "DSL_total",
+      "version": "1",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN186",
+      "href": "/api/productCatalogManagement/v4/category/FN186:(version=0)",
+      "name": "Fibre Package FIBRE",
+      "version": "1",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN0523",
+      "href": "/api/productCatalogManagement/v4/category/FN0523:(version=0)",
+      "name": "Fibre Packages sellable access supplier OXG",
+      "version": "1",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN0503",
+      "href": "/api/productCatalogManagement/v4/category/FN0503:(version=0)",
+      "name": "Fibre Packages sellable access supplier DG",
+      "version": "1",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN0511",
+      "href": "/api/productCatalogManagement/v4/category/FN0511:(version=0)",
+      "name": "Fibre Packages sellable access supplier DTAG",
+      "version": "1",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN0544",
+      "href": "/api/productCatalogManagement/v4/category/FN0544:(version=0)",
+      "name": "Wechselgarantie 18 month packages Wholebuy",
+      "version": "1",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN0594",
+      "href": "/api/productCatalogManagement/v4/category/FN0594:(version=0)",
+      "name": "Package sellable with Bandwidth 150000 Fibre",
+      "version": "1",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN0553",
+      "href": "/api/productCatalogManagement/v4/category/FN0553:(version=0)",
+      "name": "Glasfaser 10/25",
+      "version": "1",
+      "@referredType": "Category"
+    }
+  ],
+  "channel": [
+    {
+      "id": "*-*",
+      "name": "*-*",
+      "href": "/api/productCatalogManagement/v4/channel/*:*:(version=0)",
+      "@referredType": "Channel"
+    }
+  ],
+  "productOfferingPrice": [
+    {
+      "id": "pop-recurrent-R025.5000000529-18",
+      "href": "/api/productCatalogManagement/v4/productOfferingPrice/pop-recurrent-R025.5000000529-18:(version=0)",
+      "name": "GigaZuhause 150 Glasfaser 18 Months Monthly Fee"
+    }
+  ],
+  "prodSpecCharValueUse": [
+    {
+      "id": "455ec51d-c946-431e-818d-de90f968e29f",
+      "name": "SKU",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "R025.5000000529-18",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_SALES_PACKAGE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_SALES_PACKAGE:(version=0)",
+        "name": "VF_DE_Sales_Package_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "508d4696-458e-45d0-9cb1-9032e5e99f4f",
+      "name": "PackageName",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "GigaZuhause 150 Glasfaser 18 Months",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_SALES_PACKAGE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_SALES_PACKAGE:(version=0)",
+        "name": "VF_DE_Sales_Package_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "4c56c931-ba6b-4881-a94a-315bc99c28cb",
+      "name": "BandwidthDownstreamMax",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "150",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_SALES_PACKAGE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_SALES_PACKAGE:(version=0)",
+        "name": "VF_DE_Sales_Package_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "ecabf8f0-c97a-4fe5-8991-b1b5e185af13",
+      "name": "BandwidthUpstreamMax",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "75",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_SALES_PACKAGE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_SALES_PACKAGE:(version=0)",
+        "name": "VF_DE_Sales_Package_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "b8b31754-8b9e-460c-8929-29875669047d",
+      "name": "BandwidthUnit",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "Mbit/s",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_SALES_PACKAGE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_SALES_PACKAGE:(version=0)",
+        "name": "VF_DE_Sales_Package_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "00aa1459-2f75-4cc1-bca5-adcb8b779662",
+      "name": "BandwidthOptionSKU",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "IG017",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_SALES_PACKAGE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_SALES_PACKAGE:(version=0)",
+        "name": "VF_DE_Sales_Package_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "3b3bcd0f-2e6b-4642-9d13-ace1a522d524",
+      "name": "AdditionalText",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_SALES_PACKAGE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_SALES_PACKAGE:(version=0)",
+        "name": "VF_DE_Sales_Package_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "4e2a7378-a5e3-48b0-9dd1-079f33141720",
+      "name": "SummaryText",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "Telefonie Flatrate ins deutsche Fest- und Mobilfunknetz, Internet Flatrate",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_SALES_PACKAGE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_SALES_PACKAGE:(version=0)",
+        "name": "VF_DE_Sales_Package_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "6ecaa840-cb3d-4d2e-82cb-0a25c7057553",
+      "name": "DisplayNameCart",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "GigaZuhause 150 Glasfaser 18 Months",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_SALES_PACKAGE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_SALES_PACKAGE:(version=0)",
+        "name": "VF_DE_Sales_Package_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "cb8b93ee-28d0-406b-b49a-ef65b2132b41",
+      "name": "DisplayNameConfigurator",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "GigaZuhause 150 Glasfaser 18 Months",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_SALES_PACKAGE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_SALES_PACKAGE:(version=0)",
+        "name": "VF_DE_Sales_Package_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "7e8f10bb-ed75-49ff-9086-5fe7d42c33c0",
+      "name": "IsPackageTypeDSL",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "false",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_SALES_PACKAGE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_SALES_PACKAGE:(version=0)",
+        "name": "VF_DE_Sales_Package_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "994178ba-0973-42a6-8c1e-600f941ed17d",
+      "name": "IsPackageTypeFIBRE",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "true",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_SALES_PACKAGE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_SALES_PACKAGE:(version=0)",
+        "name": "VF_DE_Sales_Package_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "a52e6e6d-9dce-4a4b-b2fc-eb76505f0051",
+      "name": "IsPackageTypeLTE",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "false",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_SALES_PACKAGE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_SALES_PACKAGE:(version=0)",
+        "name": "VF_DE_Sales_Package_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "9a098a84-bf34-43eb-9a41-b16b5aa23aea",
+      "name": "PackageSubtypeID",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "Tariff",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_SALES_PACKAGE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_SALES_PACKAGE:(version=0)",
+        "name": "VF_DE_Sales_Package_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "4f957adb-6add-41aa-a7f6-8c99f103d95e",
+      "name": "ProductFamilyID",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "FNFamily2",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_SALES_PACKAGE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_SALES_PACKAGE:(version=0)",
+        "name": "VF_DE_Sales_Package_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "54b1beb1-7af0-4702-a618-e59435eaa87f",
+      "name": "ProductFamilyName",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "2 Play_IP",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_SALES_PACKAGE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_SALES_PACKAGE:(version=0)",
+        "name": "VF_DE_Sales_Package_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "225dabce-33e6-42d9-b4b5-1c8ff749a923",
+      "name": "ProductVersionID",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "1202510",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_SALES_PACKAGE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_SALES_PACKAGE:(version=0)",
+        "name": "VF_DE_Sales_Package_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "ee4dcf26-222c-4b4f-af6a-84b2477f0d22",
+      "name": "MinimumContractDuration",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "18",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_SALES_PACKAGE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_SALES_PACKAGE:(version=0)",
+        "name": "VF_DE_Sales_Package_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "d6f20806-aa73-451e-9dc0-55edc04f8746",
+      "name": "MinimumContractDurationUnit",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "MONTH",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_SALES_PACKAGE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_SALES_PACKAGE:(version=0)",
+        "name": "VF_DE_Sales_Package_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "1e51e430-c56b-4a91-a00b-8998cf2d7d4f",
+      "name": "CancellationPeriod",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "1",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_SALES_PACKAGE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_SALES_PACKAGE:(version=0)",
+        "name": "VF_DE_Sales_Package_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "1ef79bf2-b3d1-4dca-8de1-e7d35747086b",
+      "name": "CancellationPeriodUnit",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "MONTH",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_SALES_PACKAGE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_SALES_PACKAGE:(version=0)",
+        "name": "VF_DE_Sales_Package_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "fca5dea6-4703-4c33-baa1-3404450b9873",
+      "name": "CheckoutProduct",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "no",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_SALES_PACKAGE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_SALES_PACKAGE:(version=0)",
+        "name": "VF_DE_Sales_Package_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "24dd7d08-bac2-4899-ad66-b2765c87d850",
+      "name": "ProductVisibility",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "*",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_SALES_PACKAGE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_SALES_PACKAGE:(version=0)",
+        "name": "VF_DE_Sales_Package_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "24a7ffb8-c23d-4e81-acd9-488ec43d7e09",
+      "name": "IsCompatibleGPON",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "true",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_SALES_PACKAGE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_SALES_PACKAGE:(version=0)",
+        "name": "VF_DE_Sales_Package_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "cfb93a80-f7a7-4da6-9067-44bf469095d0",
+      "name": "IsCompatibleTelekomBSA",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "true",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_SALES_PACKAGE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_SALES_PACKAGE:(version=0)",
+        "name": "VF_DE_Sales_Package_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "c82052da-523e-47ec-bb7c-174f8eab3a15",
+      "name": "IsCompatibleWholesale",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "true",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_SALES_PACKAGE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_SALES_PACKAGE:(version=0)",
+        "name": "VF_DE_Sales_Package_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "cc448382-0c69-40da-bbdc-71b7978d4c21",
+      "name": "IsInternetFlat",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "true",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_SALES_PACKAGE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_SALES_PACKAGE:(version=0)",
+        "name": "VF_DE_Sales_Package_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "93327166-c01a-4884-9d40-498f6b392f11",
+      "name": "IsVoiceByCall",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "false",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_SALES_PACKAGE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_SALES_PACKAGE:(version=0)",
+        "name": "VF_DE_Sales_Package_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "766c10e4-e83c-4df4-866b-afb58d0abe30",
+      "name": "IsVoiceAllnetFlat",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "true",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_SALES_PACKAGE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_SALES_PACKAGE:(version=0)",
+        "name": "VF_DE_Sales_Package_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "b2487d0e-becc-4cdf-9060-63a05e8b074f",
+      "name": "VoiceTariffCode",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "VP529",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_SALES_PACKAGE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_SALES_PACKAGE:(version=0)",
+        "name": "VF_DE_Sales_Package_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "3ae2e40d-160d-4d35-ac00-0e817b6876ef",
+      "name": "InternetTariffCode",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "IP529",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_SALES_PACKAGE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_SALES_PACKAGE:(version=0)",
+        "name": "VF_DE_Sales_Package_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "5ba3dff5-a0d4-4c0f-982d-c4c7f6442c00",
+      "name": "VoiceTariffName",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "PK Allnet-Flat GZH 150 Glas 18M 10/25",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_SALES_PACKAGE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_SALES_PACKAGE:(version=0)",
+        "name": "VF_DE_Sales_Package_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "5ac7ca43-b6d3-4c10-a30a-45f8f730f473",
+      "name": "InternetTariffName",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "PK Internet-Flat GZH 150 Glas 18M 10/25",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_SALES_PACKAGE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_SALES_PACKAGE:(version=0)",
+        "name": "VF_DE_Sales_Package_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "4d8cfeb6-a4c7-4302-a01c-98f25802a52e",
+      "name": "WechselgarantieType",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "18 Months",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_SALES_PACKAGE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_SALES_PACKAGE:(version=0)",
+        "name": "VF_DE_Sales_Package_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    }
+  ]
+}

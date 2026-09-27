@@ -1,0 +1,52 @@
+{
+  "id": "pop_fb_5530_fiber_rental",
+  "name": "AVM FRITZ!Box 5530 Fiber Monatliche Miete",
+  "description": "Monatliche Ger\u00e4temiete f\u00fcr AVM FRITZ!Box 5530 Fiber (5.99 \u20ac/Monat)",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "@baseType": "ProductOfferingPrice",
+  "@type": "ProductOfferingPrice",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productofferingprice.json",
+  "isBundle": false,
+  "priceType": "Recurring charge",
+  "price": {
+    "unit": "EUR",
+    "value": 5.99
+  },
+  "validFor": {
+    "startDateTime": "2022-01-01T00:00:00.000Z"
+  },
+  "productOfferingPriceCharacteristic": [
+    {
+      "id": "bc0ac9d1-b130-4907-b82d-bf78ff625ed0",
+      "name": "device_model",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "AVM FRITZ!Box 5530 Fiber"
+        }
+      ]
+    },
+    {
+      "id": "2f3e535c-6369-435d-9544-b4d7fa7df9d3",
+      "name": "acquisition_mode",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Rental"
+        }
+      ]
+    },
+    {
+      "id": "7aa0dd9d-24d5-4440-88df-728b69fa2c9b",
+      "name": "recurring_period",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "MONTH"
+        }
+      ]
+    }
+  ],
+  "recurringChargePeriodType": "month"
+}

@@ -1,0 +1,120 @@
+{
+  "id": "VF_DE_SPEC_PROMOTION",
+  "name": "VF_DE_Promotion_Specification",
+  "version": "0",
+  "brand": "Vodafone Germany",
+  "isBundle": false,
+  "lifecycleStatus": "In study",
+  "description": "Product Specification for Vodafone Germany Catalog Promotions, Campaign Goodies, and Discount credits.",
+  "validFor": {
+    "startDateTime": "2026-08-26T00:00:00.000Z"
+  },
+  "productSpecCharacteristic": [
+    {
+      "name": "SKU",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Unique promotion financial or campaign SKU identifier",
+      "configurable": false,
+      "extensible": true,
+      "isModifiable": false,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1
+    },
+    {
+      "name": "PromoType",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Functional classification of the promotion",
+      "configurable": false,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Tariff Recurring Discount",
+          "isDefault": true,
+          "valueType": "string"
+        },
+        {
+          "value": "One-time Setup Fee Waiver",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "Service / Hardware Rental Credit",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "Convergence Discount",
+          "isDefault": false,
+          "valueType": "string"
+        }
+      ],
+      "minCardinality": 1,
+      "maxCardinality": 1
+    },
+    {
+      "name": "DiscountPeriodAmount",
+      "valueType": "number",
+      "characteristicType": "Simple Value",
+      "description": "Duration amount of the discount (e.g., 9.0 or 12.0)",
+      "configurable": false,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1
+    },
+    {
+      "name": "DiscountPeriod",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Duration unit of the discount (e.g., MONTH)",
+      "configurable": false,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1
+    },
+    {
+      "name": "BillingCode",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Technical billing service/condition code mapped in OGW/Tivano (e.g. V0046, V0850)",
+      "configurable": false,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1
+    },
+    {
+      "name": "ProductVisibility",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Catalog storefront visibility (usually not shown)",
+      "configurable": false,
+      "extensible": true,
+      "isModifiable": false,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1
+    },
+    {
+      "name": "CheckoutProduct",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Indicates if the product is directly selectable in checkout",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1
+    }
+  ]
+}

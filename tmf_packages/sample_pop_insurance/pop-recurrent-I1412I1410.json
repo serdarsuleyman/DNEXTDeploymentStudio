@@ -1,0 +1,19 @@
+{
+  "id": "pop-recurrent-I1412I1410",
+  "name": "Sicherheitspaket Legacy Monthly Fee",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "priceType": "Recurring charge",
+  "recurringChargePeriodType": "month",
+  "price": {
+    "value": 3.95,
+    "unit": "EUR"
+  },
+  "tax": [
+    {
+      "taxCategory": "VAT",
+      "taxRate": 19
+    }
+  ],
+  "@type": "ProductOfferingPrice"
+}

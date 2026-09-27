@@ -1,0 +1,353 @@
+{
+  "id": "V1204TO",
+  "name": "Euro-Flat",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "validFor": {
+    "startDateTime": "2026-08-23T18:46:48.000Z"
+  },
+  "@baseType": "ProductOffering",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productoffering.json",
+  "@type": "ProductOffering",
+  "isBundle": false,
+  "isSellable": true,
+  "productSpecification": {
+    "id": "VF_DE_SPEC_CALL_OPTION",
+    "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_CALL_OPTION:(version=0)",
+    "name": "VF_DE_Call_Option_Specification",
+    "version": "1",
+    "@referredType": "ProductSpecification"
+  },
+  "category": [
+    {
+      "id": "2cddb75e-edf8-43e5-83f1-199b2b8f049c",
+      "href": "/api/productCatalogManagement/v4/category/2cddb75e-edf8-43e5-83f1-199b2b8f049c:(version=0)",
+      "name": "Vodafone Germany POC",
+      "version": "1",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN0613",
+      "href": "/api/productCatalogManagement/v4/category/FN0613:(version=0)",
+      "name": "Sprach-Optionen International",
+      "version": "1",
+      "@referredType": "Category"
+    }
+  ],
+  "channel": [
+    {
+      "id": "*-*",
+      "name": "*-*",
+      "href": "/api/productCatalogManagement/v4/channel/*:*:(version=0)",
+      "@referredType": "Channel"
+    }
+  ],
+  "productOfferingPrice": [
+    {
+      "id": "pop-recurrent-V1204TO",
+      "href": "/api/productCatalogManagement/v4/productOfferingPrice/pop-recurrent-V1204TO:(version=0)",
+      "name": "Euro-Flat Monthly Fee"
+    }
+  ],
+  "prodSpecCharValueUse": [
+    {
+      "id": "3b9259db-19ce-4453-a7e0-262b812eddad",
+      "name": "SKU",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "V1204TO",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_CALL_OPTION",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_CALL_OPTION:(version=0)",
+        "name": "VF_DE_Call_Option_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "012f0bf2-b870-49ba-b53e-d493af786421",
+      "name": "OptionName",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "Euro-Flat",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_CALL_OPTION",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_CALL_OPTION:(version=0)",
+        "name": "VF_DE_Call_Option_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "a57a8e5c-e2e8-4ba5-8e82-e9dfcda02edc",
+      "name": "OptionType",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "InternationalFlat",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_CALL_OPTION",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_CALL_OPTION:(version=0)",
+        "name": "VF_DE_Call_Option_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "7d438b49-f4ab-4e19-9dc5-652d24655e93",
+      "name": "CallingScope",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "European Landlines",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_CALL_OPTION",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_CALL_OPTION:(version=0)",
+        "name": "VF_DE_Call_Option_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "84c34d90-a701-4b53-a51f-d5578b8d6529",
+      "name": "IncludedMinutes",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "Unlimited",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_CALL_OPTION",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_CALL_OPTION:(version=0)",
+        "name": "VF_DE_Call_Option_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "7553d2a6-a5af-42af-a29e-9f1b9796674b",
+      "name": "MinimumContractDuration",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "0",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_CALL_OPTION",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_CALL_OPTION:(version=0)",
+        "name": "VF_DE_Call_Option_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "85d458a8-d19e-4010-8280-fc1493ff8052",
+      "name": "MinimumContractDurationUnit",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "MONTH",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_CALL_OPTION",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_CALL_OPTION:(version=0)",
+        "name": "VF_DE_Call_Option_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "f9432f51-5df8-46af-a897-44b2dd730007",
+      "name": "CancellationPeriod",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "0",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_CALL_OPTION",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_CALL_OPTION:(version=0)",
+        "name": "VF_DE_Call_Option_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "56594464-6ba3-49bd-84b8-a5814ed91aac",
+      "name": "CancellationPeriodUnit",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "MONTH",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_CALL_OPTION",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_CALL_OPTION:(version=0)",
+        "name": "VF_DE_Call_Option_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "3f4f63f9-8914-4131-b260-316c4211f60d",
+      "name": "PackageSubtypeID",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "Option",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_CALL_OPTION",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_CALL_OPTION:(version=0)",
+        "name": "VF_DE_Call_Option_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "581f478b-527b-45bf-bd08-7ff420f1169a",
+      "name": "ProductFamilyID",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "FNFamily8",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_CALL_OPTION",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_CALL_OPTION:(version=0)",
+        "name": "VF_DE_Call_Option_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "8eb1710d-e795-44ae-b17a-f555e072bc41",
+      "name": "ProductFamilyName",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "Voice Access",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_CALL_OPTION",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_CALL_OPTION:(version=0)",
+        "name": "VF_DE_Call_Option_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "5683ab85-a153-45fa-bc79-e49ae2d6cf37",
+      "name": "CheckoutProduct",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "no",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_CALL_OPTION",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_CALL_OPTION:(version=0)",
+        "name": "VF_DE_Call_Option_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    }
+  ]
+}

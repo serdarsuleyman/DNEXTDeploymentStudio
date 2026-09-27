@@ -1,0 +1,246 @@
+{
+  "id": "VoiceAccessKomfortBitstream",
+  "name": "Komfort-Anschluss Plus Regio (VI006)",
+  "description": "Vodafone premium ISDN-like multi-line voice connection with 2 simultaneous channels and up to 10 telephone numbers on Wholesale Bitstream / DTAG L2-BSA network.",
+  "isBundle": false,
+  "isSellable": true,
+  "lifecycleStatus": "In study",
+  "version": "0",
+  "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productOffering/VoiceAccessKomfortBitstream:(version=0)",
+  "@type": "ProductOffering",
+  "productSpecification": {
+    "id": "spec_voice_access_option",
+    "name": "VF_DE_VOICE_ACCESS_SPEC",
+    "version": "0",
+    "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productSpecification/spec_voice_access_option:(version=0)",
+    "@referredType": "ProductSpecification"
+  },
+  "category": [
+    {
+      "id": "cat_voice_access_options",
+      "name": "Voice Access Options",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/cat_voice_access_options:(version=0)",
+      "@referredType": "Category"
+    }
+  ],
+  "prodSpecCharValueUse": [
+    {
+      "id": "3551f11f-ef67-476d-b3e7-9b18c72314ca",
+      "name": "SKU",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "VI006",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "5634a2bb-d847-4800-b162-b86316d44c40",
+      "name": "OptionName",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Komfort-Anschluss Plus Regio",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "e1b449b9-609b-49c6-8de9-444e1306747f",
+      "name": "Sorting",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "2",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "2e969b42-2df7-4a20-817c-f65a25eb79ea",
+      "name": "VoiceLineType",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Komfort",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "c08232dc-5a6b-4489-a852-4b90648fc312",
+      "name": "VoiceChannelsCount",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "2",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "e05464db-ed22-449c-9759-7a8a3e807f13",
+      "name": "MaxPhoneNumbersCount",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "10",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "7bab46f6-7de3-4700-a93d-7dc7978e6dc2",
+      "name": "DeliveryInfrastructure",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Wholesale Bitstream / DTAG L2-BSA (VI203)",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "308c1edc-3b38-4d23-a0ad-3fd7bc4c03de",
+      "name": "ValidForOfferAccessService",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "VI203VoiceAccessService",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "f134664c-1e11-4ea6-9b19-936a356bc94c",
+      "name": "AccessServiceCode",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "VI006",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "aa6824b9-6ec8-48c8-9c42-6aa97544b959",
+      "name": "ParentVoiceProductCode",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "VI203",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "5f2df98b-047c-4406-82e5-e52bec3af77f",
+      "name": "SupportedFeatures",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "CLIP, CLIR, Call Forwarding, Parallel Ringing, Busy on Busy, Conference, Sprachbox",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "0b6d4fea-2f55-430b-950b-b15b81766ce7",
+      "name": "CallBarringAllowed",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "true",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "563d8b09-8b72-482e-b181-99098944493a",
+      "name": "MinContractDuration",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "0",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "001911f5-e6d3-4007-ae1a-915b5338937c",
+      "name": "MinContractDurationUnit",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "MONTH",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "35b98881-1747-4296-9f8e-4919bb4ac61d",
+      "name": "CancellationPeriod",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "1",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "e9efa59a-76b3-4680-8acc-3c2372c90300",
+      "name": "CancellationPeriodUnit",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "MONTH",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "9d695221-6707-4ff7-a63d-9724cb703fde",
+      "name": "ProductFamilyID",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "FNFamily8",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "8dc9a050-aba4-478b-b441-be32a6b6d639",
+      "name": "ProductFamilyName",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Voice Access",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "6c1c8cd7-f607-4e12-9982-4f88cdadc5ae",
+      "name": "PackageSubtypeID",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Option",
+          "isDefault": true
+        }
+      ]
+    }
+  ],
+  "productOfferingPrice": [
+    {
+      "id": "pop_voice_access_komfort_bitstream_vi006",
+      "name": "Komfort-Anschluss Plus Regio (4.00 \u20ac)",
+      "version": "0",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productOfferingPrice/pop_voice_access_komfort_bitstream_vi006:(version=0)",
+      "@referredType": "ProductOfferingPrice"
+    }
+  ]
+}

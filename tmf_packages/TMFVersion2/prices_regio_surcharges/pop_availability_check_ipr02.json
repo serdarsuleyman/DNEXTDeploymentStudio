@@ -1,0 +1,53 @@
+{
+  "id": "pop_availability_check_ipr02",
+  "name": "Glasfaser Verfügbarkeit Indicator Price (0.00 €)",
+  "description": "Product offering price component for Glasfaser Verfügbarkeit Indicator Price (0.00 €)",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "@baseType": "ProductOfferingPrice",
+  "@type": "ProductOfferingPrice",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productofferingprice.json",
+  "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productOfferingPrice/pop_availability_check_ipr02:(version=0)",
+  "isBundle": false,
+  "priceType": "Recurring charge",
+  "recurringChargePeriodType": "month",
+  "price": {
+    "unit": "EUR",
+    "value": 0.0
+  },
+  "validFor": {
+    "startDateTime": "2025-10-26T00:00:00.000Z"
+  },
+  "productOfferingPriceCharacteristic": [
+    {
+      "id": "52fcd0c6-75cd-476e-b1f8-b2dcef882747",
+      "name": "regio_zone_code",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Generic"
+        }
+      ]
+    },
+    {
+      "id": "1e0ad381-5d5e-4d5d-8377-29b24b10aa04",
+      "name": "access_supplier",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Vodafone On-Net"
+        }
+      ]
+    },
+    {
+      "id": "1f9660ef-4a55-4985-a86b-5df507c02db8",
+      "name": "regio_sku",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "IPR02"
+        }
+      ]
+    }
+  ]
+}

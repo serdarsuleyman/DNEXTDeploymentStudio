@@ -1,0 +1,344 @@
+{
+  "id": "BPO_R025.5000000528-24",
+  "name": "GigaZuhause Basic 600 Glasfaser 24 Months (Bundle Offering)",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "validFor": {
+    "startDateTime": "2025-10-26T00:00:00.000Z"
+  },
+  "@baseType": "ProductOffering",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productoffering.json",
+  "@type": "ProductOffering",
+  "isBundle": true,
+  "isSellable": true,
+  "productSpecification": {
+    "id": "VF_DE_SPEC_SALES_PACKAGE",
+    "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_SALES_PACKAGE:(version=0)",
+    "name": "VF_DE_Sales_Package_Specification",
+    "version": "1",
+    "@referredType": "ProductSpecification"
+  },
+  "category": [
+    {
+      "id": "FN186",
+      "name": "Fibre Package FIBRE",
+      "href": "/api/productCatalogManagement/v4/category/FN186:(version=0)",
+      "version": "1",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN0505",
+      "name": "GigaZuhause Basic Glasfaser",
+      "href": "/api/productCatalogManagement/v4/category/FN0505:(version=0)",
+      "version": "1",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN0355",
+      "name": "24 Months packages",
+      "href": "/api/productCatalogManagement/v4/category/FN0355:(version=0)",
+      "version": "1",
+      "@referredType": "Category"
+    }
+  ],
+  "channel": [
+    {
+      "id": "*-*",
+      "name": "*-*",
+      "href": "/api/productCatalogManagement/v4/channel/*:*:(version=0)",
+      "@referredType": "Channel"
+    }
+  ],
+  "productOfferingPrice": [
+    {
+      "id": "pop-recurrent-R025.5000000528-24",
+      "href": "/api/productCatalogManagement/v4/productOfferingPrice/pop-recurrent-R025.5000000528-24:(version=0)",
+      "name": "GigaZuhause Basic 600 Glasfaser 24 Months Monthly Base Price (54.99 EUR)",
+      "priceType": "recurring",
+      "recurringChargePeriodType": "month",
+      "price": {
+        "unit": "EUR",
+        "value": 54.99
+      },
+      "@referredType": "ProductOfferingPrice"
+    }
+  ],
+  "bundledGroupProductOffering": [
+    {
+      "id": "GRP_CORE_ACCESS",
+      "name": "Fiber Physical Access Connection Group",
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "defaultCardinality": 1,
+      "bundledProductOffering": [
+        {
+          "id": "FTTH-GPON",
+          "name": "FTTH-GPON Connection",
+          "href": "/api/productCatalogManagement/v4/productOffering/FTTH-GPON:(version=0)",
+          "@referredType": "ProductOffering"
+        },
+        {
+          "id": "FTTH-L2-BSA-DTAG",
+          "name": "FTTH-L2-BSA-DTAG Connection",
+          "href": "/api/productCatalogManagement/v4/productOffering/FTTH-L2-BSA-DTAG:(version=0)",
+          "@referredType": "ProductOffering"
+        },
+        {
+          "id": "FTTH-L2-BSA",
+          "name": "FTTH-L2-BSA Connection",
+          "href": "/api/productCatalogManagement/v4/productOffering/FTTH-L2-BSA:(version=0)",
+          "@referredType": "ProductOffering"
+        }
+      ]
+    },
+    {
+      "id": "GRP_CORE_INTERNET",
+      "name": "GigaZuhause 600 Fiber Internet Service",
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "defaultCardinality": 1,
+      "bundledProductOffering": [
+        {
+          "id": "SPO_INTERNET_600",
+          "name": "GigaZuhause 600 Mbps Internet Access (IP528)",
+          "href": "/api/productCatalogManagement/v4/productOffering/SPO_INTERNET_600:(version=0)",
+          "@referredType": "ProductOffering"
+        }
+      ]
+    },
+    {
+      "id": "GRP_CORE_VOICE",
+      "name": "Telephony Voice Anschluss Selection",
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "defaultCardinality": 1,
+      "bundledProductOffering": [
+        {
+          "id": "C_basic",
+          "name": "Basis-Anschluss (1 Rufnummer / 1 Leitung)",
+          "href": "/api/productCatalogManagement/v4/productOffering/C_basic:(version=0)",
+          "@referredType": "ProductOffering"
+        },
+        {
+          "id": "C_comfort",
+          "name": "Komfort-Anschluss (bis zu 10 Rufnummern / 2 Leitungen)",
+          "href": "/api/productCatalogManagement/v4/productOffering/C_comfort:(version=0)",
+          "@referredType": "ProductOffering"
+        }
+      ]
+    },
+    {
+      "id": "GRP_ROUTER_HARDWARE",
+      "name": "Router Hardware & Mesh Selection",
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "defaultCardinality": 1,
+      "bundledProductOffering": [
+        {
+          "id": "20090230_sub",
+          "name": "FRITZ!Box 7690 (Mietgerät) [5.99 EUR/m]",
+          "href": "/api/productCatalogManagement/v4/productOffering/20090230_sub:(version=0)",
+          "@referredType": "ProductOffering"
+        },
+        {
+          "id": "20090231_sub",
+          "name": "FRITZ!Box 7690 (Kaufgerät) [219.90 EUR]",
+          "href": "/api/productCatalogManagement/v4/productOffering/20090231_sub:(version=0)",
+          "@referredType": "ProductOffering"
+        },
+        {
+          "id": "20090239_sub",
+          "name": "FRITZ!Box 5690 Glasfaser (Mietgerät) [6.99 EUR/m]",
+          "href": "/api/productCatalogManagement/v4/productOffering/20090239_sub:(version=0)",
+          "@referredType": "ProductOffering"
+        },
+        {
+          "id": "20090240_sub",
+          "name": "FRITZ!Box 5690 Glasfaser (Kaufgerät) [259.90 EUR]",
+          "href": "/api/productCatalogManagement/v4/productOffering/20090240_sub:(version=0)",
+          "@referredType": "ProductOffering"
+        },
+        {
+          "id": "20099900_sub",
+          "name": "Eigenhardware Kunde [0.00 EUR]",
+          "href": "/api/productCatalogManagement/v4/productOffering/20099900_sub:(version=0)",
+          "@referredType": "ProductOffering"
+        }
+      ]
+    },
+    {
+      "id": "GRP_CALL_OPTIONS",
+      "name": "Optional Telephony Calling Plans",
+      "minCardinality": 0,
+      "maxCardinality": 4,
+      "defaultCardinality": 0,
+      "bundledProductOffering": [
+        {
+          "id": "V1204TO",
+          "name": "Euro-Flat (4.99 EUR/m)",
+          "href": "/api/productCatalogManagement/v4/productOffering/V1204TO:(version=0)",
+          "@referredType": "ProductOffering"
+        },
+        {
+          "id": "V1208TO",
+          "name": "International-Flat (14.99 EUR/m)",
+          "href": "/api/productCatalogManagement/v4/productOffering/V1208TO:(version=0)",
+          "@referredType": "ProductOffering"
+        },
+        {
+          "id": "V1209TO",
+          "name": "International-Allnet-Flat (19.99 EUR/m)",
+          "href": "/api/productCatalogManagement/v4/productOffering/V1209TO:(version=0)",
+          "@referredType": "ProductOffering"
+        },
+        {
+          "id": "V1210TO",
+          "name": "Mobile-Flat (4.99 EUR/m)",
+          "href": "/api/productCatalogManagement/v4/productOffering/V1210TO:(version=0)",
+          "@referredType": "ProductOffering"
+        }
+      ]
+    },
+    {
+      "id": "GRP_TV_OPTIONS",
+      "name": "Optional TV & Entertainment Add-ons",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "defaultCardinality": 0,
+      "bundledProductOffering": [
+        {
+          "id": "10005",
+          "name": "GigaTV Home Net (9.99 EUR/m)",
+          "href": "/api/productCatalogManagement/v4/productOffering/10005:(version=0)",
+          "@referredType": "ProductOffering"
+        },
+        {
+          "id": "10008",
+          "name": "GigaTV mit Apple TV (14.99 EUR/m)",
+          "href": "/api/productCatalogManagement/v4/productOffering/10008:(version=0)",
+          "@referredType": "ProductOffering"
+        },
+        {
+          "id": "10015",
+          "name": "GigaTV Home Sound Net (14.99 EUR/m)",
+          "href": "/api/productCatalogManagement/v4/productOffering/10015:(version=0)",
+          "@referredType": "ProductOffering"
+        }
+      ]
+    },
+    {
+      "id": "GRP_INSTALLATION",
+      "name": "Field Installation & Setup Services",
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "defaultCardinality": 0,
+      "bundledProductOffering": [
+        {
+          "id": "IT002OT",
+          "name": "Installationspaket Glasfaser (99.00 EUR / 0 EUR Promo)",
+          "href": "/api/productCatalogManagement/v4/productOffering/IT002OT:(version=0)",
+          "@referredType": "ProductOffering"
+        },
+        {
+          "id": "V0342",
+          "name": "Experten-Service Einrichtung (149.00 EUR)",
+          "href": "/api/productCatalogManagement/v4/productOffering/V0342:(version=0)",
+          "@referredType": "ProductOffering"
+        }
+      ]
+    }
+  ],
+  "prodSpecCharValueUse": [
+    {
+      "id": "char-sku",
+      "name": "SKU",
+      "valueType": "string",
+      "configurable": false,
+      "mandatory": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "R025.5000000528-24",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "char-pkat",
+      "name": "PkatPacketId",
+      "valueType": "string",
+      "configurable": false,
+      "mandatory": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "R025.5000000528",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "char-contract-duration",
+      "name": "ContractDuration",
+      "valueType": "integer",
+      "configurable": false,
+      "mandatory": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "24",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "char-pricing-internet",
+      "name": "InternetTariffCode",
+      "valueType": "string",
+      "configurable": false,
+      "mandatory": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "IP528",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "char-pricing-voice",
+      "name": "VoiceTariffCode",
+      "valueType": "string",
+      "configurable": false,
+      "mandatory": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "VP528",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "char-bandwidth-down",
+      "name": "BandwidthDownstreamMax",
+      "valueType": "integer",
+      "configurable": false,
+      "mandatory": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "600000",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "char-bandwidth-up",
+      "name": "BandwidthUpstreamMax",
+      "valueType": "integer",
+      "configurable": false,
+      "mandatory": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "300000",
+          "isDefault": true
+        }
+      ]
+    }
+  ]
+}

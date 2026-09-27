@@ -1,0 +1,236 @@
+{
+  "id": "VF_DE_SPEC_CALL_OPTION",
+  "name": "VF_DE_Call_Option_Specification",
+  "version": "0",
+  "brand": "Vodafone Germany",
+  "isBundle": false,
+  "lifecycleStatus": "In study",
+  "description": "Product Specification for Vodafone Germany Voice Call Options (Calling plans, international flats, and minutes packages).",
+  "validFor": {
+    "startDateTime": "2026-08-21T00:00:00.000Z"
+  },
+  "productSpecCharacteristic": [
+    {
+      "name": "SKU",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Call option SKU identifier",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1
+    },
+    {
+      "name": "OptionName",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Commercial Option Name in Vodafone Germany Catalog",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1
+    },
+    {
+      "name": "OptionType",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Voice Option category type",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "InternationalFlat",
+          "isDefault": true,
+          "valueType": "string"
+        },
+        {
+          "value": "FlexiMinutes",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "MobileFlat",
+          "isDefault": false,
+          "valueType": "string"
+        }
+      ],
+      "minCardinality": 0,
+      "maxCardinality": 1
+    },
+    {
+      "name": "CallingScope",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Destination calling scope definition",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "European Landlines",
+          "isDefault": true,
+          "valueType": "string"
+        },
+        {
+          "value": "60 Countries Landlines",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "60 Countries Landlines & Mobiles",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "German Mobile Networks",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "National Landlines",
+          "isDefault": false,
+          "valueType": "string"
+        }
+      ],
+      "minCardinality": 0,
+      "maxCardinality": 1
+    },
+    {
+      "name": "IncludedMinutes",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Included monthly minutes package limit",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Unlimited",
+          "isDefault": true,
+          "valueType": "string"
+        },
+        {
+          "value": "300",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "500",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "1000",
+          "isDefault": false,
+          "valueType": "string"
+        }
+      ],
+      "minCardinality": 0,
+      "maxCardinality": 1
+    },
+    {
+      "name": "MinimumContractDuration",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Minimum contract commitment duration",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1
+    },
+    {
+      "name": "MinimumContractDurationUnit",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Unit for contract commitment duration",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1
+    },
+    {
+      "name": "CancellationPeriod",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Cancellation notice period value",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1
+    },
+    {
+      "name": "CancellationPeriodUnit",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Cancellation notice period unit",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1
+    },
+    {
+      "name": "PackageSubtypeID",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Catalog Package Subtype Identifier",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1
+    },
+    {
+      "name": "ProductFamilyID",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Vodafone Rules Engine Product Family Identifier",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1
+    },
+    {
+      "name": "ProductFamilyName",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Vodafone Rules Engine Product Family Name",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1
+    },
+    {
+      "name": "CheckoutProduct",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Indicates if the product is directly selectable in checkout",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1
+    }
+  ]
+}

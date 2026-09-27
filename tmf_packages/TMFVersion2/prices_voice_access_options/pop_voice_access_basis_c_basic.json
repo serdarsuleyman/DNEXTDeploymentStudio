@@ -1,0 +1,73 @@
+{
+  "id": "pop_voice_access_basis_c_basic",
+  "name": "Basis-Anschluss Standard (0.00 \u20ac)",
+  "description": "Product offering price component for Basis-Anschluss (C_basic) (0.00 \u20ac/mo)",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "@baseType": "ProductOfferingPrice",
+  "@type": "ProductOfferingPrice",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productofferingprice.json",
+  "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productOfferingPrice/pop_voice_access_basis_c_basic:(version=0)",
+  "isBundle": false,
+  "priceType": "Recurring charge",
+  "recurringChargePeriodType": "month",
+  "price": {
+    "unit": "EUR",
+    "value": 0.0
+  },
+  "validFor": {
+    "startDateTime": "2022-01-01T00:00:00.000Z"
+  },
+  "productOfferingPriceCharacteristic": [
+    {
+      "id": "405aebc7-021a-43d0-9c91-2556a9642176",
+      "name": "option_sku",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "C_basic"
+        }
+      ]
+    },
+    {
+      "id": "b9e3dd35-aa9c-4a06-a647-20ea72411452",
+      "name": "voice_line_type",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Basis"
+        }
+      ]
+    },
+    {
+      "id": "54bac4d8-437a-4e2f-8a34-8e849040e012",
+      "name": "delivery_infrastructure",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Commercial Unified (Auto-resolved)"
+        }
+      ]
+    },
+    {
+      "id": "a0089c2a-45ba-4f3b-904d-a6c0f7df92a6",
+      "name": "valid_for_access_service",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "VI202VoiceAccessService, VI203VoiceAccessService"
+        }
+      ]
+    },
+    {
+      "id": "86b98a19-9522-4bab-8a68-f7a9011bdf3f",
+      "name": "voice_channels_count",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "1"
+        }
+      ]
+    }
+  ]
+}

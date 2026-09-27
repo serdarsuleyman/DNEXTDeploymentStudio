@@ -1,0 +1,86 @@
+{
+  "id": "pop_comp_bandwidth_service_fiber_500m",
+  "name": "Glasfaser Bandbreite 500 Mbit/s",
+  "version": "0",
+  "description": "Monthly recurring fee for 500 Mbps download bandwidth tier",
+  "lifecycleStatus": "In study",
+  "@baseType": "ProductOfferingPrice",
+  "@type": "ProductOfferingPrice",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productofferingprice.json",
+  "isBundle": false,
+  "priceType": "Recurring charge",
+  "recurringChargePeriodType": "month",
+  "price": {
+    "unit": "EUR",
+    "value": 25
+  },
+  "validFor": {
+    "startDateTime": "2025-10-26T00:00:00.000Z"
+  },
+  "productOfferingPriceCharacteristic": [
+    {
+      "id": "f2ab33fa-e4a9-4fea-bd6b-e6147025d73a",
+      "name": "bandwith_sku_code",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "@type": "ProductOfferingPriceCharacteristic",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "IG017",
+          "valueType": "string",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "7ab1f32b-153c-4bc4-ac43-ad92ebdfc41d",
+      "name": "bandwidth_option_name",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "@type": "ProductOfferingPriceCharacteristic",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Glasfaser Bandbreite 500 Mbit/s",
+          "valueType": "string",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "6e7cd025-bf78-4f68-bdda-46e30bd42bf2",
+      "name": "downstream_max",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "@type": "ProductOfferingPriceCharacteristic",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "500",
+          "valueType": "string",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "f9918902-03dc-4935-bd09-190ab4b59095",
+      "name": "upstream_max",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "@type": "ProductOfferingPriceCharacteristic",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "100",
+          "valueType": "string",
+          "isDefault": true
+        }
+      ]
+    }
+  ]
+}

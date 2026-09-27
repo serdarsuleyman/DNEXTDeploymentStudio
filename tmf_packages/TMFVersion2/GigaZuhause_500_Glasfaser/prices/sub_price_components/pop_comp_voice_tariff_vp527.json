@@ -1,0 +1,19 @@
+{
+  "id": "pop_comp_voice_tariff_vp527",
+  "name": "Voice Tariff Component (VP527)",
+  "version": "0",
+  "description": "Monthly recurring telephony plan fee (VP527)",
+  "lifecycleStatus": "In study",
+  "@baseType": "ProductOfferingPrice",
+  "@type": "ProductOfferingPrice",
+  "isBundle": false,
+  "priceType": "Recurring charge",
+  "recurringChargePeriodType": "month",
+  "price": {
+    "unit": "EUR",
+    "value": 5
+  },
+  "validFor": {
+    "startDateTime": "2025-10-26T00:00:00.000Z"
+  }
+}

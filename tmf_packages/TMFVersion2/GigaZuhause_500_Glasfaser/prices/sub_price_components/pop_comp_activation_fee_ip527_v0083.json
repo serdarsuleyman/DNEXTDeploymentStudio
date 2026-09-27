@@ -1,0 +1,69 @@
+{
+  "id": "pop_comp_activation_fee_ip527_v0083",
+  "name": "Bereitstellungsentgelt Activation Fee (V0083 - 49.99€)",
+  "version": "0",
+  "description": "One-time initial provisioning and line activation charge (V0083)",
+  "lifecycleStatus": "In study",
+  "@baseType": "ProductOfferingPrice",
+  "@type": "ProductOfferingPrice",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productofferingprice.json",
+  "isBundle": false,
+  "priceType": "One time charge",
+  "price": {
+    "unit": "EUR",
+    "value": 49.99
+  },
+  "validFor": {
+    "startDateTime": "2025-10-26T00:00:00.000Z"
+  },
+  "productOfferingPriceCharacteristic": [
+    {
+      "id": "df1e32fc-06cb-43b4-9ada-0b2f80c5c01e",
+      "name": "activation_sku_code",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "@type": "ProductOfferingPriceCharacteristic",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "IP527V0083",
+          "valueType": "string",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "d45dda5d-8f2d-4ecb-9de1-3cd253c08c01",
+      "name": "tivano_option_sku",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "@type": "ProductOfferingPriceCharacteristic",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "V0083",
+          "valueType": "string",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "08d7fb5e-b2c5-46be-bc60-30a796a70547",
+      "name": "fee_type",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "@type": "ProductOfferingPriceCharacteristic",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "OneTimeProvisioning",
+          "valueType": "string",
+          "isDefault": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,169 @@
+{
+  "id": "RZG02RegioSurcharge",
+  "name": "Regio-Zuschlag Glasfaser Klasse 2 (RZG02)",
+  "description": "Regional surcharge zone class 2 for wholesale/partner access footprints.",
+  "isBundle": false,
+  "isSellable": true,
+  "lifecycleStatus": "In study",
+  "version": "0",
+  "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productOffering/RZG02RegioSurcharge:(version=0)",
+  "@type": "ProductOffering",
+  "productSpecification": {
+    "id": "spec_regio_surcharge",
+    "name": "VF_DE_REGIO_SURCHARGE_SPEC",
+    "version": "0",
+    "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productSpecification/spec_regio_surcharge:(version=0)",
+    "@referredType": "ProductSpecification"
+  },
+  "category": [
+    {
+      "id": "cat_regio_surcharges",
+      "name": "Regional Surcharges",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/cat_regio_surcharges:(version=0)",
+      "@referredType": "Category"
+    }
+  ],
+  "prodSpecCharValueUse": [
+    {
+      "id": "41f60643-f476-4fb1-b0f0-bf1c3d5850fa",
+      "name": "SKU",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "RZG02",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "725968ab-1ab6-47a8-9c2f-5c8fd1cd64d4",
+      "name": "OptionName",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Regio-Zuschlag Glasfaser Klasse 2",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "90e25bf2-9b4e-42b4-ab12-d457eb9eab3b",
+      "name": "Sorting",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "8",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "d375a4bf-512d-49a8-940a-b3f13371f794",
+      "name": "RegionalZone",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "RZG02",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "9f98888f-b6f0-44d2-b45c-efdfd6cd2c95",
+      "name": "AccessSupplier",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "DTAG Wholesale L2-BSA",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "e0e5d9a0-615f-4c4e-9fe3-947711e7ac8e",
+      "name": "Technology",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "FIBRE",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "f2df3c5b-e0c7-4937-9964-f782ff2fda43",
+      "name": "IsCompatibleDSL",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "false",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "5fa1f8b0-c70c-44a4-a9b1-044f3b312f84",
+      "name": "IsCompatibleFIBRE",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "true",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "7fa9cbe4-6a0e-4ccd-a0d9-757af272ca77",
+      "name": "SurchargeType",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Wholesale Zone Surcharge",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "c6d3225c-16d8-4b32-aeb0-b6c41282ba21",
+      "name": "ProductFamilyID",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "FNFamily40",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "c6d09bfb-227b-4bf7-9168-4213e60d079e",
+      "name": "ProductFamilyName",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Regio Fee",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "3a5244a2-c517-4778-908f-bff8417c80fa",
+      "name": "PackageSubtypeID",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Additional_services",
+          "isDefault": true
+        }
+      ]
+    }
+  ],
+  "productOfferingPrice": [
+    {
+      "id": "pop_regio_surcharge_rzg02",
+      "name": "Regio-Zuschlag Klasse 2 Monthly Fee (5.00 €)",
+      "version": "0",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productOfferingPrice/pop_regio_surcharge_rzg02:(version=0)",
+      "@referredType": "ProductOfferingPrice"
+    }
+  ]
+}

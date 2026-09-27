@@ -1,0 +1,270 @@
+{
+  "id": "V018UBandwidthOption",
+  "name": "Bandbreite 175 Mbit/s (V018U)",
+  "description": "Bandwidth option offering for speed profile V018U (Bandbreite 175 Mbit/s) over DSL transport using Access Service I1204.",
+  "isBundle": false,
+  "isSellable": true,
+  "lifecycleStatus": "In study",
+  "version": "0",
+  "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productOffering/V018UBandwidthOption:(version=0)",
+  "@type": "ProductOffering",
+  "productSpecification": {
+    "id": "spec_bandwidth_option",
+    "name": "VF_DE_BANDWIDTH_SPEC",
+    "version": "0",
+    "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productSpecification/spec_bandwidth_option:(version=0)",
+    "@referredType": "ProductSpecification"
+  },
+  "category": [
+    {
+      "id": "cat_dsl_bandwidth",
+      "name": "DSL Bandwidth Options",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/cat_dsl_bandwidth:(version=0)",
+      "@referredType": "Category"
+    }
+  ],
+  "prodSpecCharValueUse": [
+    {
+      "id": "7f981339-c594-472f-a9c6-a383d928d206",
+      "name": "SKU",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "V018U",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "3229f469-5c6f-448b-a40d-40bb31dacff5",
+      "name": "OptionName",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Bandbreite 175 Mbit/s",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "5b13ff8a-7218-4171-9b40-ae896a710b35",
+      "name": "Sorting",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "6",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "425c8b2a-acdb-41ec-95ba-7857c453b435",
+      "name": "Technology",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "DSL",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "e3bcd1e1-5022-49fc-8a64-d76ccbc721c5",
+      "name": "AccessServiceProductCode",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "I1204",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "ceeb72dd-c9ca-4848-b43f-fb6ffff3380d",
+      "name": "NetworkProfile",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "I1204 - Supervectoring Profile 35b (On-Net)",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "5958a048-76b5-403b-a2c3-bca4672c6d7b",
+      "name": "BandwidthDownstreamMax",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "175.00",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "64818264-c855-46d7-b7cc-aa27cbc51895",
+      "name": "BandwidthDownstreamAvg",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "147.00",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "c525ab68-6a61-4c7f-8cf9-e61cf4aa6d1d",
+      "name": "BandwidthDownstreamMin",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "104.00",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "723c5b0e-8d9e-4c74-a5f5-02be4906b43b",
+      "name": "BandwidthUpstreamMax",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "40.00",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "dbaacf3c-129b-489c-a3d5-5ded18ec07aa",
+      "name": "BandwidthUpstreamAvg",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "37.00",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "00385530-6c46-4eb3-8696-d6e183a9ce08",
+      "name": "BandwidthUpstreamMin",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "20.00",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "522a4a7e-9842-49fd-8b55-ba6cf5c4db31",
+      "name": "BandwidthUnit",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Mbit/s",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "8f0f790f-bc59-46db-b3a0-448bdba1fc26",
+      "name": "AccessSupplier",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Vodafone On-Net",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "5dc31195-f5d6-4203-b5e0-510038714a68",
+      "name": "IsFallbackProfile",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "true",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "dee1494a-7a29-485b-a18a-6945829dd273",
+      "name": "FallbackHierarchyLevel",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Fallback-1",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "3c31916b-6c56-4fea-9951-cc397d6ffdf4",
+      "name": "FallbackMappingKey",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "V018U-I1204",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "c27e4774-293a-4c94-915e-670695395652",
+      "name": "ProductFamilyID",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "FNFamily7",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "6c6f06ff-a686-42f3-8e5e-e1bd83812f8b",
+      "name": "ProductFamilyName",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Bandwidth",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "61bd7f1f-a204-466d-a9a4-345e5182d24f",
+      "name": "PackageSubtypeID",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Option",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "ae6a7a05-b08b-4355-a0d8-7a61be3f3a09",
+      "name": "FallbackTargetNominalSKU",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "V018V",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "cc5dbba2-1c1e-457b-893a-fd010d6c0891",
+      "name": "FallbackTargetNominalMapping",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "V018V-I1204",
+          "isDefault": true
+        }
+      ]
+    }
+  ]
+}

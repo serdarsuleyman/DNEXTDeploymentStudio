@@ -1,0 +1,443 @@
+{
+  "id": "spec_voice_access_option",
+  "name": "VF_DE_VOICE_ACCESS_SPEC",
+  "version": "0",
+  "brand": "Vodafone",
+  "description": "Common TMF 620 Product Specification for Vodafone Germany Voice Access connection options (FNFamily8) covering Basis-Anschluss and Komfort-Anschluss across Commercial (C_basic/C_comfort), On-Net NGN (VI002/VI003), and Wholesale Bitstream (VI009/VI006) networks.",
+  "lifecycleStatus": "In study",
+  "isBundle": false,
+  "@baseType": "ProductSpecification",
+  "@type": "ProductSpecification",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productspecification.json",
+  "validFor": {
+    "startDateTime": "2022-01-01T00:00:00.000Z"
+  },
+  "productSpecCharacteristic": [
+    {
+      "id": "d21fe3b6-6cb6-4b26-959d-3e8769d25ebf",
+      "name": "SKU",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Unique Voice Access option SKU identifier (e.g. C_basic, C_comfort, VI002, VI003, VI009, VI006)",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic"
+    },
+    {
+      "id": "b68d7eed-1c78-4695-b9a2-55fdc7d516a4",
+      "name": "OptionName",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Commercial Option Name in Vodafone Catalog (e.g. Basis-Anschluss, Komfort-Anschluss Plus, Basis-Anschluss Regio, Komfort-Anschluss Plus Regio)",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic"
+    },
+    {
+      "id": "26486540-a854-4b10-8104-f280d09c65b6",
+      "name": "Sorting",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Catalog display and evaluation sorting order index (1, 2)",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic"
+    },
+    {
+      "id": "93594de0-38dc-4b0f-8b1b-27e4b2ddcdef",
+      "name": "VoiceLineType",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Voice line package tier (Basis vs Komfort)",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Basis",
+          "isDefault": true
+        },
+        {
+          "value": "Komfort",
+          "isDefault": false
+        }
+      ]
+    },
+    {
+      "id": "e5d973eb-b494-481d-95cf-832688ef2d4a",
+      "name": "VoiceChannelsCount",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Number of simultaneous active voice channels",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "1",
+          "isDefault": true
+        },
+        {
+          "value": "2",
+          "isDefault": false
+        }
+      ]
+    },
+    {
+      "id": "9c357318-5092-460f-8202-82623635afdc",
+      "name": "MaxPhoneNumbersCount",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Maximum telephone numbers (MSNs) assignable to the connection",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "1",
+          "isDefault": true
+        },
+        {
+          "value": "10",
+          "isDefault": false
+        }
+      ]
+    },
+    {
+      "id": "03f56278-4d31-4677-a6da-655c72c70f60",
+      "name": "DeliveryInfrastructure",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Underlying voice network delivery infrastructure",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Commercial Unified (Auto-resolved)",
+          "isDefault": true
+        },
+        {
+          "value": "Vodafone On-Net NGN (VI202)",
+          "isDefault": false
+        },
+        {
+          "value": "Wholesale Bitstream / DTAG L2-BSA (VI203)",
+          "isDefault": false
+        }
+      ]
+    },
+    {
+      "id": "c8c3a0f9-9676-4f7a-a9d2-1d5d88564b70",
+      "name": "ValidForOfferAccessService",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Target Technical Voice Access Service Offering ID (e.g. VI202VoiceAccessService, VI203VoiceAccessService) for which this voice access option is valid",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "VI202VoiceAccessService",
+          "isDefault": true
+        },
+        {
+          "value": "VI203VoiceAccessService",
+          "isDefault": false
+        },
+        {
+          "value": "VI202VoiceAccessService, VI203VoiceAccessService",
+          "isDefault": false
+        }
+      ]
+    },
+    {
+      "id": "063893cf-feed-497c-9b9a-590b76d06fcb",
+      "name": "AccessServiceCode",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Downstream network/provisioning access service code",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "C_basic / VI002 / VI009",
+          "isDefault": true
+        },
+        {
+          "value": "C_comfort / VI003 / VI006",
+          "isDefault": false
+        },
+        {
+          "value": "VI002",
+          "isDefault": false
+        },
+        {
+          "value": "VI003",
+          "isDefault": false
+        },
+        {
+          "value": "VI009",
+          "isDefault": false
+        },
+        {
+          "value": "VI006",
+          "isDefault": false
+        }
+      ]
+    },
+    {
+      "id": "666e1039-835d-40ce-9afb-1752f8eb5c3c",
+      "name": "ParentVoiceProductCode",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Parent voice technical product code in legacy catalog architecture",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "VI202 / VI203",
+          "isDefault": true
+        },
+        {
+          "value": "VI202",
+          "isDefault": false
+        },
+        {
+          "value": "VI203",
+          "isDefault": false
+        }
+      ]
+    },
+    {
+      "id": "1f7f7e93-35a0-43dd-adec-c08c17cdc87e",
+      "name": "SupportedFeatures",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Supported telephony signaling and call management features",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "CLIP, CLIR, Sprachbox",
+          "isDefault": true
+        },
+        {
+          "value": "CLIP, CLIR, Call Forwarding, Parallel Ringing, Busy on Busy, Conference, Sprachbox",
+          "isDefault": false
+        }
+      ]
+    },
+    {
+      "id": "4e7ae59c-ad71-4c55-a066-747af8832878",
+      "name": "CallBarringAllowed",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Indicates if call barring options (FNFamily10) can be attached to this voice connection",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "true",
+          "isDefault": true
+        },
+        {
+          "value": "false",
+          "isDefault": false
+        }
+      ]
+    },
+    {
+      "id": "cf7e8b39-ad64-4a92-b96d-9d121ccff754",
+      "name": "MinContractDuration",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Minimum contract duration in months",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "0",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "24e8f811-5e8c-41af-af52-b48f43310863",
+      "name": "MinContractDurationUnit",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Unit of measurement for the contract duration",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "MONTH",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "b386488f-0e03-43d9-85a7-aae3cddbf661",
+      "name": "CancellationPeriod",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Notice period required for cancellation",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "1",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "0dc3de45-794e-4547-a622-9bf8c2f0c507",
+      "name": "CancellationPeriodUnit",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Unit of measurement for cancellation notice period",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "MONTH",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "7ff8557a-6c47-46c4-b86b-cfe5592e1f48",
+      "name": "ProductFamilyID",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Vodafone Product Family ID for Voice Access (fixed at FNFamily8)",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "FNFamily8",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "45039da7-ff02-4de1-bd2f-6c99a1487f8b",
+      "name": "ProductFamilyName",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Vodafone Product Family Name (fixed at Voice Access)",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Voice Access",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "7a7ceb42-85cf-43d9-8d18-f0cc9b4037d7",
+      "name": "PackageSubtypeID",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Catalog package subtype classification (fixed at Option)",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Option",
+          "isDefault": true
+        }
+      ]
+    }
+  ]
+}

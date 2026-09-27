@@ -1,0 +1,53 @@
+{
+  "id": "pop_superwlan_service_sw010",
+  "name": "SuperWLAN Cloud Service (0.00 \u20ac)",
+  "description": "Product offering price component for SuperWLAN Cloud Optimization Service (0.00 \u20ac/mo)",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "@baseType": "ProductOfferingPrice",
+  "@type": "ProductOfferingPrice",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productofferingprice.json",
+  "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productOfferingPrice/pop_superwlan_service_sw010:(version=0)",
+  "isBundle": false,
+  "priceType": "Recurring charge",
+  "recurringChargePeriodType": "month",
+  "price": {
+    "unit": "EUR",
+    "value": 0.0
+  },
+  "validFor": {
+    "startDateTime": "2022-02-13T00:00:00.000Z"
+  },
+  "productOfferingPriceCharacteristic": [
+    {
+      "id": "a98528b8-2a82-4a89-993e-d1d03104b3bc",
+      "name": "option_sku",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "SW010"
+        }
+      ]
+    },
+    {
+      "id": "abf574b5-7897-42ca-ab52-3428549136aa",
+      "name": "min_contract_duration",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "0"
+        }
+      ]
+    },
+    {
+      "id": "4db6d8fc-e474-4913-bd2e-e3c8a9f48685",
+      "name": "superwlan_type",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Cloud Optimization Service"
+        }
+      ]
+    }
+  ]
+}

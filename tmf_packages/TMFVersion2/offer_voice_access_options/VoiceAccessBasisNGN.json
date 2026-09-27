@@ -1,0 +1,246 @@
+{
+  "id": "VoiceAccessBasisNGN",
+  "name": "Basis-Anschluss NGN (VI002)",
+  "description": "Vodafone standard 1-channel voice line connection with 1 telephone number on Vodafone On-Net NGN infrastructure.",
+  "isBundle": false,
+  "isSellable": true,
+  "lifecycleStatus": "In study",
+  "version": "0",
+  "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productOffering/VoiceAccessBasisNGN:(version=0)",
+  "@type": "ProductOffering",
+  "productSpecification": {
+    "id": "spec_voice_access_option",
+    "name": "VF_DE_VOICE_ACCESS_SPEC",
+    "version": "0",
+    "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productSpecification/spec_voice_access_option:(version=0)",
+    "@referredType": "ProductSpecification"
+  },
+  "category": [
+    {
+      "id": "cat_voice_access_options",
+      "name": "Voice Access Options",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/cat_voice_access_options:(version=0)",
+      "@referredType": "Category"
+    }
+  ],
+  "prodSpecCharValueUse": [
+    {
+      "id": "ae0eaa5b-c69f-447a-8c3e-a73e99e6a839",
+      "name": "SKU",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "VI002",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "c427d404-d366-4b6c-8867-ef0f69eac324",
+      "name": "OptionName",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Basis-Anschluss",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "e2e9d7b9-09d2-4ffc-95fa-8e49cd34e767",
+      "name": "Sorting",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "1",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "5a047fd7-982f-409e-b763-507d301f9aa4",
+      "name": "VoiceLineType",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Basis",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "2ab4ce68-ee89-434b-8a8f-3b8bef2795da",
+      "name": "VoiceChannelsCount",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "1",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "3fa3f944-6bd5-4dcd-a8ee-061dc23487a5",
+      "name": "MaxPhoneNumbersCount",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "1",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "c0ebd10a-236d-41c4-9ccb-2096a163465b",
+      "name": "DeliveryInfrastructure",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Vodafone On-Net NGN (VI202)",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "6b62d1e1-a8fc-4651-9a4a-1deaf4d486f4",
+      "name": "ValidForOfferAccessService",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "VI202VoiceAccessService",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "a88eb17d-0959-4ddf-ad6b-2c73ffb96136",
+      "name": "AccessServiceCode",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "VI002",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "d38ac6b4-83b5-405d-bf5e-4e17c970fdc5",
+      "name": "ParentVoiceProductCode",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "VI202",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "364781a4-0966-41e7-85ca-0bc980fe6b3f",
+      "name": "SupportedFeatures",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "CLIP, CLIR, Sprachbox",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "af985dfd-57a6-4291-8788-f18b5f62cc9d",
+      "name": "CallBarringAllowed",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "true",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "393a3329-57ce-4732-b556-4435d935ec99",
+      "name": "MinContractDuration",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "0",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "2df68605-6b11-47b4-8308-5a124156fb87",
+      "name": "MinContractDurationUnit",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "MONTH",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "e6a5b301-dd4a-4f78-bb1c-ffcade553161",
+      "name": "CancellationPeriod",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "1",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "ce257956-2a35-45da-8b71-d2776959237b",
+      "name": "CancellationPeriodUnit",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "MONTH",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "a7e89000-a771-4281-9a53-00f09122adf5",
+      "name": "ProductFamilyID",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "FNFamily8",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "557a0e2a-b131-4a6b-ad71-8c3e52cf0fca",
+      "name": "ProductFamilyName",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Voice Access",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "096a003f-4b44-409e-8cd7-12e261fc134a",
+      "name": "PackageSubtypeID",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Option",
+          "isDefault": true
+        }
+      ]
+    }
+  ],
+  "productOfferingPrice": [
+    {
+      "id": "pop_voice_access_basis_ngn_vi002",
+      "name": "Basis-Anschluss NGN (0.00 \u20ac)",
+      "version": "0",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productOfferingPrice/pop_voice_access_basis_ngn_vi002:(version=0)",
+      "@referredType": "ProductOfferingPrice"
+    }
+  ]
+}

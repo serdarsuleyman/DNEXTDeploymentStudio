@@ -1,0 +1,254 @@
+{
+  "id": "FTTH-L2-BSA",
+  "name": "FTTH-L2-BSA Connection",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "validFor": {
+    "startDateTime": "2026-08-24T00:00:00.000Z"
+  },
+  "@baseType": "ProductOffering",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productoffering.json",
+  "@type": "ProductOffering",
+  "isBundle": false,
+  "isSellable": false,
+  "productSpecification": {
+    "id": "VF_DE_SPEC_FIBER_CONNECTIVITY",
+    "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_FIBER_CONNECTIVITY:(version=0)",
+    "name": "VF_DE_Fiber_Connectivity_Specification",
+    "version": "1",
+    "@referredType": "ProductSpecification"
+  },
+  "category": [
+    {
+      "id": "2cddb75e-edf8-43e5-83f1-199b2b8f049c",
+      "href": "/api/productCatalogManagement/v4/category/2cddb75e-edf8-43e5-83f1-199b2b8f049c:(version=0)",
+      "name": "Vodafone Germany POC",
+      "version": "1",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN219",
+      "href": "/api/productCatalogManagement/v4/category/FN219:(version=0)",
+      "name": "fibreInternetConfiguration",
+      "version": "1",
+      "@referredType": "Category"
+    }
+  ],
+  "channel": [
+    {
+      "id": "*-*",
+      "name": "*-*",
+      "href": "/api/productCatalogManagement/v4/channel/*:*:(version=0)",
+      "@referredType": "Channel"
+    }
+  ],
+  "prodSpecCharValueUse": [
+    {
+      "id": "e06bc2d5-185a-4a3a-8750-f051f20d7abd",
+      "name": "SKU",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "FTTH-L2-BSA",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": false,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_FIBER_CONNECTIVITY",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_FIBER_CONNECTIVITY:(version=0)",
+        "name": "VF_DE_Fiber_Connectivity_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "4900df14-09f0-4dbc-858f-a7f704735a62",
+      "name": "AccessName",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "FTTH-L2-BSA Connection",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": false,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_FIBER_CONNECTIVITY",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_FIBER_CONNECTIVITY:(version=0)",
+        "name": "VF_DE_Fiber_Connectivity_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "cd9dc183-2e52-47e0-a155-aac4dbef966d",
+      "name": "AccessTechnology",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "FTTH-L2-BSA",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_FIBER_CONNECTIVITY",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_FIBER_CONNECTIVITY:(version=0)",
+        "name": "VF_DE_Fiber_Connectivity_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "26201a2e-9e67-4080-871c-b531e7bad073",
+      "name": "LineType",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "FTTx",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": false,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_FIBER_CONNECTIVITY",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_FIBER_CONNECTIVITY:(version=0)",
+        "name": "VF_DE_Fiber_Connectivity_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "bbbdc2a3-ee3b-40d2-81ec-6a1d9e4ce956",
+      "name": "ProductCode",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "I1203",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": false,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_FIBER_CONNECTIVITY",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_FIBER_CONNECTIVITY:(version=0)",
+        "name": "VF_DE_Fiber_Connectivity_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "0c28212f-2b7b-4fbe-8dad-01ff814c0264",
+      "name": "MainAccessServiceCode",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "I1040",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": false,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_FIBER_CONNECTIVITY",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_FIBER_CONNECTIVITY:(version=0)",
+        "name": "VF_DE_Fiber_Connectivity_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "3e3e9f12-5dfa-460e-9c81-0e73b19e4c7b",
+      "name": "ProductFamilyID",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "FNFamily30",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": false,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_FIBER_CONNECTIVITY",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_FIBER_CONNECTIVITY:(version=0)",
+        "name": "VF_DE_Fiber_Connectivity_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "b5b8ee06-7655-41c1-bc13-bc4aa6f766e8",
+      "name": "ProductFamilyName",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "Technology",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": false,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_FIBER_CONNECTIVITY",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_FIBER_CONNECTIVITY:(version=0)",
+        "name": "VF_DE_Fiber_Connectivity_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "b37f5e85-68df-4534-9843-4e67d29bbc88",
+      "name": "CheckoutProduct",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "no",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_FIBER_CONNECTIVITY",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_FIBER_CONNECTIVITY:(version=0)",
+        "name": "VF_DE_Fiber_Connectivity_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    }
+  ]
+}

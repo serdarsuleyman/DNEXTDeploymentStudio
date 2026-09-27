@@ -1,0 +1,199 @@
+{
+  "id": "TVS01I1357OT",
+  "name": "Bereitstellungsentgelt TV",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "validFor": {
+    "startDateTime": "2026-08-27T20:50:51.202Z"
+  },
+  "@baseType": "ProductOffering",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productoffering.json",
+  "@type": "ProductOffering",
+  "isBundle": false,
+  "isSellable": true,
+  "productSpecification": {
+    "id": "VF_DE_SPEC_INSTALLATION",
+    "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_INSTALLATION:(version=0)",
+    "name": "VF_DE_Installation_Specification",
+    "version": "1",
+    "@referredType": "ProductSpecification"
+  },
+  "category": [
+    {
+      "id": "2cddb75e-edf8-43e5-83f1-199b2b8f049c",
+      "href": "/api/productCatalogManagement/v4/category/2cddb75e-edf8-43e5-83f1-199b2b8f049c:(version=0)",
+      "name": "Vodafone Germany POC",
+      "version": "1",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN116",
+      "href": "/api/productCatalogManagement/v4/category/FN116:(version=0)",
+      "name": "TV Installation Fee",
+      "version": "1",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN171",
+      "href": "/api/productCatalogManagement/v4/category/FN171:(version=0)",
+      "name": "Einmalgebühren",
+      "version": "1",
+      "@referredType": "Category"
+    }
+  ],
+  "channel": [
+    {
+      "id": "*-*",
+      "name": "*-*",
+      "href": "/api/productCatalogManagement/v4/channel/*:*:(version=0)",
+      "@referredType": "Channel"
+    }
+  ],
+  "productOfferingPrice": [
+    {
+      "id": "pop-onetime-TVS01I1357OT",
+      "href": "/api/productCatalogManagement/v4/productOfferingPrice/pop-onetime-TVS01I1357OT:(version=0)",
+      "name": "Bereitstellungsentgelt TV One-time Fee"
+    }
+  ],
+  "prodSpecCharValueUse": [
+    {
+      "id": "62ba3c77-e6a3-434a-922c-269e1a24b547",
+      "name": "SKU",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "TVS01I1357OT",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_INSTALLATION",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_INSTALLATION:(version=0)",
+        "name": "VF_DE_Installation_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "e0a3cbcc-7e8e-427e-8a26-39b04f05d1c5",
+      "name": "OptionName",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "Bereitstellungsentgelt TV",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_INSTALLATION",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_INSTALLATION:(version=0)",
+        "name": "VF_DE_Installation_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "db2cd527-18a2-453a-b014-714dc4793354",
+      "name": "PackageSubtypeID",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "Additional_services",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_INSTALLATION",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_INSTALLATION:(version=0)",
+        "name": "VF_DE_Installation_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "fbe7c733-e168-4b85-8743-3f7b8a4f37be",
+      "name": "ProductFamilyID",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "FNFamily13",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_INSTALLATION",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_INSTALLATION:(version=0)",
+        "name": "VF_DE_Installation_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "c8de597b-adbd-4bfe-b351-09d584fd7953",
+      "name": "ProductFamilyName",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "Installation Fee",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_INSTALLATION",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_INSTALLATION:(version=0)",
+        "name": "VF_DE_Installation_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "d3ab5c16-d01f-4f41-8635-f618f5d4728a",
+      "name": "CheckoutProduct",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "no",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_INSTALLATION",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_INSTALLATION:(version=0)",
+        "name": "VF_DE_Installation_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    }
+  ]
+}

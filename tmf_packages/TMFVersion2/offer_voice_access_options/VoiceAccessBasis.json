@@ -1,0 +1,246 @@
+{
+  "id": "VoiceAccessBasis",
+  "name": "Basis-Anschluss (C_basic)",
+  "description": "Commercial standard 1-channel voice line connection with 1 telephone number, included at 0.00 \u20ac/mo in Double-Play packages.",
+  "isBundle": false,
+  "isSellable": true,
+  "lifecycleStatus": "In study",
+  "version": "0",
+  "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productOffering/VoiceAccessBasis:(version=0)",
+  "@type": "ProductOffering",
+  "productSpecification": {
+    "id": "spec_voice_access_option",
+    "name": "VF_DE_VOICE_ACCESS_SPEC",
+    "version": "0",
+    "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productSpecification/spec_voice_access_option:(version=0)",
+    "@referredType": "ProductSpecification"
+  },
+  "category": [
+    {
+      "id": "cat_voice_access_options",
+      "name": "Voice Access Options",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/cat_voice_access_options:(version=0)",
+      "@referredType": "Category"
+    }
+  ],
+  "prodSpecCharValueUse": [
+    {
+      "id": "13a8717f-13c8-4a1c-b844-f8457708e0be",
+      "name": "SKU",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "C_basic",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "0c281115-18ab-4fd2-917a-62b43e039060",
+      "name": "OptionName",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Basis-Anschluss",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "5fbf0c58-0f41-45a7-9ab0-5939c0031372",
+      "name": "Sorting",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "1",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "5eba05ec-62c4-417f-adf3-8b584b7c5858",
+      "name": "VoiceLineType",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Basis",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "ca3b8600-9337-4a8c-8cc9-694aa40d108e",
+      "name": "VoiceChannelsCount",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "1",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "bd78ea6c-39c6-4a5c-a314-cb05cfc7d926",
+      "name": "MaxPhoneNumbersCount",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "1",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "ad7fcc3a-8668-4881-a3e5-1d5e17c790aa",
+      "name": "DeliveryInfrastructure",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Commercial Unified (Auto-resolved)",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "c86ade61-059e-4fd4-8625-bcf7f7524c70",
+      "name": "ValidForOfferAccessService",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "VI202VoiceAccessService, VI203VoiceAccessService",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "abb40067-1ee4-4f46-9a95-d75254b8b4dd",
+      "name": "AccessServiceCode",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "C_basic / VI002 / VI009",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "07f1b250-ad8a-4752-94be-e94187c67bb1",
+      "name": "ParentVoiceProductCode",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "VI202 / VI203",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "52938220-57dd-4cb5-a98f-49e43ce9fcfd",
+      "name": "SupportedFeatures",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "CLIP, CLIR, Sprachbox",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "6766a920-9641-4f6a-9d17-3f46c65425be",
+      "name": "CallBarringAllowed",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "true",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "1e3ddf92-98e1-46fe-ad4e-33252d7bc3b2",
+      "name": "MinContractDuration",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "0",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "47f1b47d-8fcd-432c-8e81-278605e80e9d",
+      "name": "MinContractDurationUnit",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "MONTH",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "f0b64577-690e-4e5b-8d67-76aa65801968",
+      "name": "CancellationPeriod",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "1",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "231899a6-cafa-46a3-b1b5-6ed85d7a2480",
+      "name": "CancellationPeriodUnit",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "MONTH",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "2bc2177d-13b7-40ff-b8b6-6a07bd9258df",
+      "name": "ProductFamilyID",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "FNFamily8",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "f7a79aa8-151f-4ac2-880e-746f2e989db3",
+      "name": "ProductFamilyName",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Voice Access",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "652e9d99-f205-4be5-a6a8-fd733505de7a",
+      "name": "PackageSubtypeID",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Option",
+          "isDefault": true
+        }
+      ]
+    }
+  ],
+  "productOfferingPrice": [
+    {
+      "id": "pop_voice_access_basis_c_basic",
+      "name": "Basis-Anschluss Standard (0.00 \u20ac)",
+      "version": "0",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productOfferingPrice/pop_voice_access_basis_c_basic:(version=0)",
+      "@referredType": "ProductOfferingPrice"
+    }
+  ]
+}

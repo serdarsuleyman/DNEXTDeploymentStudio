@@ -1,0 +1,19 @@
+{
+  "id": "pop-recurrent-I6201TV",
+  "name": "TV FilmPaket Monthly Fee",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "priceType": "Recurring charge",
+  "price": {
+    "value": 14.95,
+    "unit": "EUR"
+  },
+  "tax": [
+    {
+      "taxCategory": "VAT",
+      "taxRate": 19
+    }
+  ],
+  "@type": "ProductOfferingPrice",
+  "recurringChargePeriodType": "month"
+}

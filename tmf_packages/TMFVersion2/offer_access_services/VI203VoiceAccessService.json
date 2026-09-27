@@ -1,0 +1,26 @@
+{
+  "id": "VI203VoiceAccessService",
+  "name": "Bitstrom Telefonie",
+  "description": "Voice Access Service offering for Product Code VI203 (Wholesale & Regio Bitstream Voice Line).",
+  "isBundle": false,
+  "isSellable": true,
+  "lifecycleStatus": "In study",
+  "version": "0",
+  "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productOffering/VI203VoiceAccessService:(version=0)",
+  "@type": "ProductOffering",
+  "productSpecification": {
+    "id": "spec_voice_access_service",
+    "name": "Voice Access Technical Service Specification",
+    "version": "0",
+    "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productSpecification/spec_voice_access_service:(version=0)",
+    "@referredType": "ProductSpecification"
+  },
+  "category": [
+    {
+      "id": "cat_fixed_voice",
+      "name": "Fixed Voice",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/cat_fixed_voice:(version=0)",
+      "@referredType": "Category"
+    }
+  ]
+}

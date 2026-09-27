@@ -1,0 +1,52 @@
+{
+  "id": "pop_easybox_904_lte_rental",
+  "name": "Vodafone EasyBox 904 LTE Monatliche Miete",
+  "description": "Monatliche Ger\u00e4temiete f\u00fcr Vodafone EasyBox 904 LTE (5.0 \u20ac/Monat)",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "@baseType": "ProductOfferingPrice",
+  "@type": "ProductOfferingPrice",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productofferingprice.json",
+  "isBundle": false,
+  "priceType": "Recurring charge",
+  "price": {
+    "unit": "EUR",
+    "value": 5.0
+  },
+  "validFor": {
+    "startDateTime": "2022-01-01T00:00:00.000Z"
+  },
+  "productOfferingPriceCharacteristic": [
+    {
+      "id": "48931884-9a3c-447e-9e3d-5270dbbb84bb",
+      "name": "device_model",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Vodafone EasyBox 904 LTE"
+        }
+      ]
+    },
+    {
+      "id": "d1852ac4-9715-4f2c-b3b1-6a55064e0cab",
+      "name": "acquisition_mode",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Rental"
+        }
+      ]
+    },
+    {
+      "id": "5c85a606-7f13-4747-9ba3-b8595d7a974f",
+      "name": "recurring_period",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "MONTH"
+        }
+      ]
+    }
+  ],
+  "recurringChargePeriodType": "month"
+}

@@ -1,0 +1,228 @@
+{
+  "id": "Offering_EasyBox_904_LTE_Rental",
+  "name": "Vodafone EasyBox 904 LTE (Mietger\u00e4t)",
+  "description": "Vodafone EasyBox 904 LTE Fixed-Wireless Router Mietger\u00e4t.",
+  "isBundle": false,
+  "isSellable": true,
+  "lifecycleStatus": "In study",
+  "version": "0",
+  "@type": "ProductOffering",
+  "productSpecification": {
+    "id": "spec_router_hardware",
+    "name": "VF_DE_ROUTER_HARDWARE_SPEC",
+    "version": "0",
+    "@referredType": "ProductSpecification"
+  },
+  "category": [
+    {
+      "id": "FN0449",
+      "name": "NOT Super WLAN ready",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN0449:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN12",
+      "name": "Anschluss-Hardware",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN12:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN134",
+      "name": "LTE",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN134:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN178",
+      "name": "Rental_AccessHW",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN178:(version=0)",
+      "@referredType": "Category"
+    }
+  ],
+  "prodSpecCharValueUse": [
+    {
+      "id": "36284f9c-f653-4675-9f2b-62f70994a8f8",
+      "name": "DeviceModel",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Vodafone EasyBox 904 LTE",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "46f96443-3394-4d3d-8f37-5493255cef41",
+      "name": "PAPSType",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "IAD",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "3e257dd9-4e99-47ff-a1e2-1fcd3ec284da",
+      "name": "DeviceType",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Router",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "170c3728-4798-40f2-93b0-67ccf8f19b19",
+      "name": "CPEBrand",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Vodafone",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "1fff68fc-ffbd-4720-ac5e-9b9d2382cf9b",
+      "name": "WifiStandard",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Wi-Fi 5",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "4721086c-5c81-4016-a96e-a8cb09660bfd",
+      "name": "RequiresONT",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "N",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "28c587e6-1b37-4fc6-a782-9dba8d689be8",
+      "name": "IsCompatibleDSL",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "false",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "c283d0dd-c670-4436-b834-2c473ac9b926",
+      "name": "IsCompatibleFIBRE",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "false",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "768ea6d6-3272-430e-a220-610ed1279191",
+      "name": "IsCompatibleLTE",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "true",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "bcc5653b-7d49-4568-ae48-61cf334d2a09",
+      "name": "LANPortsInfo",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "4x Gigabit LAN, 2x USB",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "ac85ee1c-79b4-41e2-b7a0-c80686a2850a",
+      "name": "SmartHomeSupport",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "None",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "364050ed-4593-41ba-a67b-52f16993cfa2",
+      "name": "ProductFamilyID",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "FNFamily22",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "8f4eed07-49ab-422e-a5fe-be25ce53bee6",
+      "name": "ProductFamilyName",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "FN_Hardware",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "9ac2556d-d465-4941-8f47-165b2b4625b9",
+      "name": "PackageSubtypeID",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Hardware",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "be48bade-3899-46bb-bb40-523c7ef0b1b8",
+      "name": "SKU",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "20090134_sub",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "040d86ff-cd04-490c-9024-8d6674a40577",
+      "name": "HardwareAcquisitionMode",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Rental",
+          "isDefault": true
+        }
+      ]
+    }
+  ],
+  "productOfferingPrice": [
+    {
+      "id": "pop_easybox_904_lte_rental",
+      "name": "Vodafone EasyBox 904 LTE Miete (5.0 \u20ac/mo)",
+      "version": "0",
+      "@referredType": "ProductOfferingPrice"
+    }
+  ]
+}

@@ -1,0 +1,307 @@
+{
+  "id": "I1354TV",
+  "name": "TV HD Option",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "validFor": {
+    "startDateTime": "2026-08-24T00:00:00.000Z"
+  },
+  "@baseType": "ProductOffering",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productoffering.json",
+  "@type": "ProductOffering",
+  "isBundle": false,
+  "isSellable": true,
+  "productSpecification": {
+    "id": "VF_DE_SPEC_TV_OPTIONS",
+    "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_TV_OPTIONS:(version=0)",
+    "name": "VF_DE_TV_Options_Specification",
+    "version": "1",
+    "@referredType": "ProductSpecification"
+  },
+  "category": [
+    {
+      "id": "2cddb75e-edf8-43e5-83f1-199b2b8f049c",
+      "href": "/api/productCatalogManagement/v4/category/2cddb75e-edf8-43e5-83f1-199b2b8f049c:(version=0)",
+      "name": "Vodafone Germany POC",
+      "version": "1",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN50",
+      "href": "/api/productCatalogManagement/v4/category/FN50:(version=0)",
+      "name": "TV Tariff Options",
+      "version": "1",
+      "@referredType": "Category"
+    }
+  ],
+  "channel": [
+    {
+      "id": "*-*",
+      "name": "*-*",
+      "href": "/api/productCatalogManagement/v4/channel/*:*:(version=0)",
+      "@referredType": "Channel"
+    }
+  ],
+  "productOfferingPrice": [
+    {
+      "id": "pop-recurrent-I1354TV",
+      "href": "/api/productCatalogManagement/v4/productOfferingPrice/pop-recurrent-I1354TV:(version=0)",
+      "name": "TV HD Option Monthly Fee"
+    }
+  ],
+  "prodSpecCharValueUse": [
+    {
+      "id": "char-use-I1354TV-SKU",
+      "name": "SKU",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "I1354TV",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_TV_OPTIONS",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_TV_OPTIONS:(version=0)",
+        "name": "VF_DE_TV_Options_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "char-use-I1354TV-OptionName",
+      "name": "OptionName",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "TV HD Option",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_TV_OPTIONS",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_TV_OPTIONS:(version=0)",
+        "name": "VF_DE_TV_Options_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "char-use-I1354TV-OptionType",
+      "name": "OptionType",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "HDOption",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_TV_OPTIONS",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_TV_OPTIONS:(version=0)",
+        "name": "VF_DE_TV_Options_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "char-use-I1354TV-DeviceType",
+      "name": "DeviceType",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "None",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_TV_OPTIONS",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_TV_OPTIONS:(version=0)",
+        "name": "VF_DE_TV_Options_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "char-use-I1354TV-ForeignLanguage",
+      "name": "ForeignLanguage",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "None",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_TV_OPTIONS",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_TV_OPTIONS:(version=0)",
+        "name": "VF_DE_TV_Options_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "char-use-I1354TV-MinimumContractDuration",
+      "name": "MinimumContractDuration",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "0",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_TV_OPTIONS",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_TV_OPTIONS:(version=0)",
+        "name": "VF_DE_TV_Options_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "char-use-I1354TV-MinimumContractDurationUnit",
+      "name": "MinimumContractDurationUnit",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "MONTH",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_TV_OPTIONS",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_TV_OPTIONS:(version=0)",
+        "name": "VF_DE_TV_Options_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "char-use-I1354TV-CancellationPeriod",
+      "name": "CancellationPeriod",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "1",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_TV_OPTIONS",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_TV_OPTIONS:(version=0)",
+        "name": "VF_DE_TV_Options_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "char-use-I1354TV-CancellationPeriodUnit",
+      "name": "CancellationPeriodUnit",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "MONTH",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_TV_OPTIONS",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_TV_OPTIONS:(version=0)",
+        "name": "VF_DE_TV_Options_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "char-use-I1354TV-PackageSubtypeID",
+      "name": "PackageSubtypeID",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "Option",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_TV_OPTIONS",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_TV_OPTIONS:(version=0)",
+        "name": "VF_DE_TV_Options_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "char-use-I1354TV-ProductFamilyID",
+      "name": "ProductFamilyID",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "FNFamily20",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_TV_OPTIONS",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_TV_OPTIONS:(version=0)",
+        "name": "VF_DE_TV_Options_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    }
+  ]
+}

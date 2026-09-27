@@ -1,0 +1,286 @@
+{
+  "id": "Offering_FB_5530_Fiber_Purchase",
+  "name": "AVM FRITZ!Box 5530 Fiber (Kaufger\u00e4t)",
+  "description": "AVM FRITZ!Box 5530 Fiber Native Integrated Optical Fiber Router Kaufger\u00e4t. Direct fiber optic connection without separate ONT.",
+  "isBundle": false,
+  "isSellable": true,
+  "lifecycleStatus": "In study",
+  "version": "0",
+  "@type": "ProductOffering",
+  "productSpecification": {
+    "id": "spec_fiber_hardware",
+    "name": "VF_DE_FIBER_HARDWARE_SPEC",
+    "version": "0",
+    "@referredType": "ProductSpecification"
+  },
+  "category": [
+    {
+      "id": "FN0449",
+      "name": "NOT Super WLAN ready",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN0449:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN0479",
+      "name": "Telekom GF BK HW-Liste",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN0479:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN0485",
+      "name": "Telekom GF Router mit int-Modem",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN0485:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN0487",
+      "name": "obsolet - Telekom GF NK HW-Liste",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN0487:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN109",
+      "name": "purchase OneTime_AccessHw",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN109:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN114",
+      "name": "FRITZ!box",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN114:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN12",
+      "name": "Anschluss-Hardware",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN12:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN200",
+      "name": "subsidized",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN200:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN201",
+      "name": "unsubsidized",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN201:(version=0)",
+      "@referredType": "Category"
+    }
+  ],
+  "prodSpecCharValueUse": [
+    {
+      "id": "2ea514ae-5950-4763-9315-0874224f4816",
+      "name": "DeviceModel",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "AVM FRITZ!Box 5530 Fiber",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "38561d83-c9a1-4168-9851-fe9cacda0441",
+      "name": "PAPSType",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "IAD",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "ad154a0f-8c3a-4dfe-aa3d-45ac6e2ec996",
+      "name": "DeviceType",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Router",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "759626e1-40c1-4099-a807-52985d233d85",
+      "name": "CPEBrand",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "AVM",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "4461a593-132f-491a-9f06-febfa9d2dd1f",
+      "name": "WifiStandard",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Wi-Fi 6",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "9077cb5f-b044-4bd9-b37f-0b18b7d10a12",
+      "name": "RequiresONT",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "N",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "27316cb7-17f3-4803-a8e1-020802e9dfcb",
+      "name": "IsCompatibleDSL",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "false",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "3514e337-f2a3-48ee-bb7f-c89d2a166515",
+      "name": "IsCompatibleFIBRE",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "true",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "847b2378-54e0-4165-b040-1e31c0810ba9",
+      "name": "IsCompatibleLTE",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "false",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "08a5c913-e803-4a0d-91f1-b887fd09769b",
+      "name": "LANPortsInfo",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "1x 2.5-Gigabit LAN, 2x Gigabit LAN, 1x SFP Fiber Slot",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "15d28b4e-1f44-423e-a2d9-5244b41403c5",
+      "name": "SmartHomeSupport",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "DECT ULE",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "dde937da-17bb-493d-a8e3-a18d42055339",
+      "name": "ProductFamilyID",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "FNFamily22",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "339359ad-ee2a-4ce3-88fb-11d2d90965e8",
+      "name": "ProductFamilyName",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "FN_Hardware",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "527ff49d-f723-42fa-a9c5-3589979496d9",
+      "name": "PackageSubtypeID",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Hardware",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "a1741071-60fc-4ab4-8297-983908e3ba9c",
+      "name": "FootprintCompatibility",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Both",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "4ef29be8-a981-4a67-a6d3-3a1489574156",
+      "name": "WANInterfaceType",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "SFP",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "71f8ef58-d7d9-4ded-8a88-4b5c0362059b",
+      "name": "SKU",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "20090222_sub / 20090222_unsub",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "c464907d-d1a6-4529-8127-9c46bbc4b2f8",
+      "name": "HardwareAcquisitionMode",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Purchase",
+          "isDefault": true
+        }
+      ]
+    }
+  ],
+  "productOfferingPrice": [
+    {
+      "id": "pop_fb_5530_fiber_purchase_subsidized",
+      "name": "AVM FRITZ!Box 5530 Fiber Subventioniert (139.9 \u20ac)",
+      "version": "0",
+      "@referredType": "ProductOfferingPrice"
+    },
+    {
+      "id": "pop_fb_5530_fiber_purchase_unsubsidized",
+      "name": "AVM FRITZ!Box 5530 Fiber Unsubventioniert (169.9 \u20ac)",
+      "version": "0",
+      "@referredType": "ProductOfferingPrice"
+    }
+  ]
+}

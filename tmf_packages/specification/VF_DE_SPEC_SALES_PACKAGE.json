@@ -1,0 +1,596 @@
+{
+  "id": "VF_DE_SPEC_SALES_PACKAGE",
+  "name": "VF_DE_Sales_Package_Specification",
+  "version": "0",
+  "brand": "Vodafone Germany",
+  "isBundle": false,
+  "lifecycleStatus": "In study",
+  "description": "Common TMF 620 Product Specification for Vodafone Germany Fixed-Net Sales Packages (Tariffs).",
+  "validFor": {
+    "startDateTime": "2026-08-21T00:00:00.000Z"
+  },
+  "productSpecCharacteristic": [
+    {
+      "name": "SKU",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Sales Package Product SKU / Tariff ID",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true
+    },
+    {
+      "name": "PackageName",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Commercial Tariff / Sales Package Name in Vodafone Catalog",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true
+    },
+    {
+      "name": "BandwidthDownstreamMax",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Maximum downstream download speed",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "1000",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "500",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "250",
+          "isDefault": true,
+          "valueType": "string"
+        },
+        {
+          "value": "100",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "50",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "16",
+          "isDefault": false,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "name": "BandwidthUpstreamMax",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Maximum upstream upload speed",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "500",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "100",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "50",
+          "isDefault": true,
+          "valueType": "string"
+        },
+        {
+          "value": "40",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "10",
+          "isDefault": false,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "name": "BandwidthUnit",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Bandwidth speed unit of measure",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Mbit/s",
+          "isDefault": true,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "name": "BandwidthOptionSKU",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Reference SKU to underlying FNFamily7 Bandwidth Option product",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true
+    },
+    {
+      "name": "AdditionalText",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Additional promotional or tariff legal text",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true
+    },
+    {
+      "name": "SummaryText",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Brief tariff summary description for storefront display",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true
+    },
+    {
+      "name": "DisplayNameCart",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Display name rendered in shopping cart summary",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true
+    },
+    {
+      "name": "DisplayNameConfigurator",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Display name rendered in web shop configurator step",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true
+    },
+    {
+      "name": "IsPackageTypeDSL",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Indicates if the sales package supports DSL lines",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "true",
+          "isDefault": true,
+          "valueType": "string"
+        },
+        {
+          "value": "false",
+          "isDefault": false,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "name": "IsPackageTypeFIBRE",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Indicates if the sales package supports Fiber (FTTH) lines",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "true",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "false",
+          "isDefault": true,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "name": "IsPackageTypeLTE",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Indicates if the sales package supports LTE/4G cellular connections",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "true",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "false",
+          "isDefault": true,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "name": "PackageSubtypeID",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Catalog Package Subtype Identifier",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Tariff",
+          "isDefault": true,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "name": "ProductFamilyID",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Vodafone Rules Engine Product Family Identifier",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true
+    },
+    {
+      "name": "ProductFamilyName",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Vodafone Rules Engine Product Family Name",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1
+    },
+    {
+      "name": "ProductVersionID",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Catalog Product Version Number",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true
+    },
+    {
+      "name": "MinimumContractDuration",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Minimum contract commitment duration",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "24",
+          "isDefault": true,
+          "valueType": "string"
+        },
+        {
+          "value": "12",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "18",
+          "isDefault": false,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "name": "MinimumContractDurationUnit",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Contract duration unit of measure",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "MONTH",
+          "isDefault": true,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "name": "CancellationPeriod",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Required cancellation notice period",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "1",
+          "isDefault": true,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "name": "CancellationPeriodUnit",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Cancellation period unit of measure",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "MONTH",
+          "isDefault": true,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "name": "CheckoutProduct",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Flag indicating if package is selectable in web checkout",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "no",
+          "isDefault": true,
+          "valueType": "string"
+        },
+        {
+          "value": "yes",
+          "isDefault": false,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "name": "ProductVisibility",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Visibility in web shop catalog",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "visible",
+          "isDefault": true,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "name": "IsCompatibleGPON",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Indicates if the sales package is compatible with Vodafone On-Net GPON fiber footprint",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "true",
+          "isDefault": true,
+          "valueType": "string"
+        },
+        {
+          "value": "false",
+          "isDefault": false,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "name": "IsCompatibleTelekomBSA",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Indicates if the sales package is compatible with Telekom (DTAG) L2-BSA fiber footprint",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "true",
+          "isDefault": true,
+          "valueType": "string"
+        },
+        {
+          "value": "false",
+          "isDefault": false,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "name": "IsCompatibleWholesale",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Indicates if the sales package is compatible with generic Partner wholesale L2-BSA fiber footprint",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "true",
+          "isDefault": true,
+          "valueType": "string"
+        },
+        {
+          "value": "false",
+          "isDefault": false,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "name": "IsInternetFlat",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Indicates if the sales package includes an Internet Flatrate",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "true",
+          "isDefault": true,
+          "valueType": "string"
+        },
+        {
+          "value": "false",
+          "isDefault": false,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "name": "IsVoiceByCall",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Indicates if the sales package voice component is billed by call/minute",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "true",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "false",
+          "isDefault": true,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "name": "IsVoiceAllnetFlat",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Indicates if the sales package includes an All-Net Voice Flatrate",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "true",
+          "isDefault": true,
+          "valueType": "string"
+        },
+        {
+          "value": "false",
+          "isDefault": false,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "name": "VoiceTariffCode",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Technical Voice pricing structure code (e.g. VP533)",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true
+    },
+    {
+      "name": "InternetTariffCode",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Technical Internet pricing structure code (e.g. IP533)",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true
+    },
+    {
+      "name": "VoiceTariffName",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Commercial Voice Tariff / Service Name",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true
+    },
+    {
+      "name": "InternetTariffName",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Commercial Internet Tariff / Service Name",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true
+    },
+    {
+      "name": "WechselgarantieType",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Switching guarantee behavior (None, 12 Months, 18 Months)",
+      "configurable": false,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1
+    }
+  ]
+}

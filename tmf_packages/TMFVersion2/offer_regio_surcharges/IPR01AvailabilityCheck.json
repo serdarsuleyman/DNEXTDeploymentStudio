@@ -1,0 +1,169 @@
+{
+  "id": "IPR01AvailabilityCheck",
+  "name": "Kabel Verfügbarkeit (IPR01)",
+  "description": "Availability indicator option for cable network coverage feasibility.",
+  "isBundle": false,
+  "isSellable": true,
+  "lifecycleStatus": "In study",
+  "version": "0",
+  "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productOffering/IPR01AvailabilityCheck:(version=0)",
+  "@type": "ProductOffering",
+  "productSpecification": {
+    "id": "spec_regio_surcharge",
+    "name": "VF_DE_REGIO_SURCHARGE_SPEC",
+    "version": "0",
+    "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productSpecification/spec_regio_surcharge:(version=0)",
+    "@referredType": "ProductSpecification"
+  },
+  "category": [
+    {
+      "id": "cat_regio_surcharges",
+      "name": "Regional Surcharges",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/cat_regio_surcharges:(version=0)",
+      "@referredType": "Category"
+    }
+  ],
+  "prodSpecCharValueUse": [
+    {
+      "id": "f3820b3b-5881-4b1d-a357-b64db353349a",
+      "name": "SKU",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "IPR01",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "e5245b6c-0876-4d64-997d-c04dd5798e6e",
+      "name": "OptionName",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Kabel Verfügbarkeit",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "c3a90e7b-854b-48cb-9021-1f7f45cf32bf",
+      "name": "Sorting",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "12",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "75165ec9-2e2f-46b8-bec5-36d7f7b52cd1",
+      "name": "RegionalZone",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Generic",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "1e83a7c6-5850-4d0e-ae85-e53970766241",
+      "name": "AccessSupplier",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Vodafone On-Net",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "dcf78092-8067-444c-b5c4-0445a5987aca",
+      "name": "Technology",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "DSL",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "0de4ec53-2040-45ae-a65e-6e7300eadfcc",
+      "name": "IsCompatibleDSL",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "true",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "8532ab60-21fa-41db-8a11-4f4dbf005a36",
+      "name": "IsCompatibleFIBRE",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "false",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "4ffe3e30-611b-4fc6-a1f2-0a589762a3a9",
+      "name": "SurchargeType",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Availability Check Indicator",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "5109f5cc-10db-4710-8c92-5eb6d9d4c5fb",
+      "name": "ProductFamilyID",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "FNFamily40",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "5744a7fc-577d-4018-b4eb-4cd2c36bd203",
+      "name": "ProductFamilyName",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Regio Fee",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "90dfd108-46eb-4802-a5ae-98e37759f77e",
+      "name": "PackageSubtypeID",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Additional_services",
+          "isDefault": true
+        }
+      ]
+    }
+  ],
+  "productOfferingPrice": [
+    {
+      "id": "pop_availability_check_ipr01",
+      "name": "Kabel Verfügbarkeit Indicator Price (0.00 €)",
+      "version": "0",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productOfferingPrice/pop_availability_check_ipr01:(version=0)",
+      "@referredType": "ProductOfferingPrice"
+    }
+  ]
+}

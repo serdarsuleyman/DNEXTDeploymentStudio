@@ -1,0 +1,151 @@
+{
+  "id": "I1413I1410",
+  "name": "Sicherheitspaket",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "validFor": {
+    "startDateTime": "2026-08-25T00:00:00.000Z"
+  },
+  "@baseType": "ProductOffering",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productoffering.json",
+  "@type": "ProductOffering",
+  "isBundle": false,
+  "isSellable": true,
+  "productSpecification": {
+    "id": "VF_DE_SPEC_INSURANCE_SECURITY",
+    "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_INSURANCE_SECURITY:(version=0)",
+    "name": "VF_DE_Insurance_Security_Specification",
+    "version": "1",
+    "@referredType": "ProductSpecification"
+  },
+  "category": [
+    {
+      "id": "2cddb75e-edf8-43e5-83f1-199b2b8f049c",
+      "href": "/api/productCatalogManagement/v4/category/2cddb75e-edf8-43e5-83f1-199b2b8f049c:(version=0)",
+      "name": "Vodafone Germany POC",
+      "version": "1",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN45",
+      "href": "/api/productCatalogManagement/v4/category/FN45:(version=0)",
+      "name": "Security Package",
+      "version": "1",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN35",
+      "href": "/api/productCatalogManagement/v4/category/FN35:(version=0)",
+      "name": "Internet-Optionen",
+      "version": "1",
+      "@referredType": "Category"
+    }
+  ],
+  "channel": [
+    {
+      "id": "*-*",
+      "name": "*-*",
+      "href": "/api/productCatalogManagement/v4/channel/*:*:(version=0)",
+      "@referredType": "Channel"
+    }
+  ],
+  "productOfferingPrice": [
+    {
+      "id": "pop-recurrent-I1413I1410",
+      "href": "/api/productCatalogManagement/v4/productOfferingPrice/pop-recurrent-I1413I1410:(version=0)",
+      "name": "Vodafone Sicherheitspaket Monthly Fee"
+    }
+  ],
+  "prodSpecCharValueUse": [
+    {
+      "name": "SKU",
+      "valueType": "string",
+      "configurable": false,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "I1413I1410",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": false,
+      "isVisible": true
+    },
+    {
+      "name": "OptionName",
+      "valueType": "string",
+      "configurable": false,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "Sicherheitspaket",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": false,
+      "isVisible": true
+    },
+    {
+      "name": "InsuranceType",
+      "valueType": "string",
+      "configurable": false,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "CyberSecurityAntivirus",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": false,
+      "isVisible": true
+    },
+    {
+      "name": "ProtectedDeviceLicenses",
+      "valueType": "integer",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "integer",
+          "value": "3",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true
+    },
+    {
+      "name": "SupportedPlatforms",
+      "valueType": "string",
+      "configurable": false,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "Windows, macOS, Android, iOS",
+          "isDefault": true
+        }
+      ],
+      "mandatory": false,
+      "isModifiable": false,
+      "isVisible": true
+    },
+    {
+      "name": "TrialFreePeriodMonths",
+      "valueType": "integer",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "integer",
+          "value": "2",
+          "isDefault": true
+        }
+      ],
+      "mandatory": false,
+      "isModifiable": true,
+      "isVisible": true
+    }
+  ]
+}

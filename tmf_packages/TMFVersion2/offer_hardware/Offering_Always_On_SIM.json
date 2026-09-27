@@ -1,0 +1,221 @@
+{
+  "id": "Offering_Always_On_SIM",
+  "name": "Always On SIM (500GB)",
+  "description": "Always On SIM card with 500GB pre-activation LTE backup volume (0.00 \u20ac).",
+  "isBundle": false,
+  "isSellable": true,
+  "lifecycleStatus": "In study",
+  "version": "0",
+  "@type": "ProductOffering",
+  "productSpecification": {
+    "id": "spec_cellular_hardware",
+    "name": "VF_DE_CELLULAR_HARDWARE_SPEC",
+    "version": "0",
+    "@referredType": "ProductSpecification"
+  },
+  "category": [
+    {
+      "id": "FN32",
+      "name": "Zubeh\u00f6r",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN32:(version=0)",
+      "@referredType": "Category"
+    }
+  ],
+  "prodSpecCharValueUse": [
+    {
+      "id": "4df8bef7-8244-4325-9f50-95be0766a336",
+      "name": "DeviceModel",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Always On SIM (500GB)",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "692bbc5a-5b01-4d51-8ef6-2e77479bb6ff",
+      "name": "PAPSType",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "SIM",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "51a1c995-eafe-4f12-acb7-c7c35e49983d",
+      "name": "DeviceType",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Backup-SIM",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "2039332c-6245-4f50-a23d-3ab7a4b7e2cd",
+      "name": "CPEBrand",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Vodafone",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "479219e6-c6a2-4564-a593-d382a181b9e7",
+      "name": "WifiStandard",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "None",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "cbde1745-c10d-49e5-83e3-43096dad9eda",
+      "name": "RequiresONT",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "N",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "72469b65-1af1-4af6-9c92-755f306a7cc9",
+      "name": "IsCompatibleDSL",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "true",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "5e26957e-6c26-4120-91ad-b2251ecbf06f",
+      "name": "IsCompatibleFIBRE",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "true",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "c4b6021a-ee01-40cf-83be-d9e9d0710b2a",
+      "name": "IsCompatibleLTE",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "true",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "79ac26e6-f4dd-4711-942b-dcef0ca918b0",
+      "name": "LANPortsInfo",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "None",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "36854bb3-9699-48cb-b424-501cb3aee0b7",
+      "name": "SmartHomeSupport",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "None",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "13f989d6-69f1-4af7-8cc9-d42b725359a5",
+      "name": "ProductFamilyID",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "FNFamily23",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "e4c25d4f-0a64-46b8-a9ec-058c2b223042",
+      "name": "ProductFamilyName",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "FN_Hardware",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "bace9154-b6ac-45e5-beb7-de6011dcc93a",
+      "name": "PackageSubtypeID",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Hardware",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "f7df03ee-5cf6-414e-9488-83f1cc8ad411",
+      "name": "DataVolume",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "500GB",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "235c1094-3047-42b2-8afa-d83780c257db",
+      "name": "SKU",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "20090210_sub / 20090210_unsub",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "61ef5a43-a75c-4d82-a600-3d487c9a12ee",
+      "name": "HardwareAcquisitionMode",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Included",
+          "isDefault": true
+        }
+      ]
+    }
+  ],
+  "productOfferingPrice": [
+    {
+      "id": "pop_always_on_sim_zero",
+      "name": "Always On SIM (500GB) Bereitstellung (0.00 \u20ac)",
+      "version": "0",
+      "@referredType": "ProductOfferingPrice"
+    }
+  ]
+}

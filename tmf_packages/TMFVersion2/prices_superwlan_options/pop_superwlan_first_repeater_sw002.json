@@ -1,0 +1,53 @@
+{
+  "id": "pop_superwlan_first_repeater_sw002",
+  "name": "SuperWLAN 1st Repeater Monthly Fee (2.99 \u20ac)",
+  "description": "Product offering price component for SuperWLAN 1st Mesh Extender Monthly Fee (2.99 \u20ac/mo with 6M commitment)",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "@baseType": "ProductOfferingPrice",
+  "@type": "ProductOfferingPrice",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productofferingprice.json",
+  "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productOfferingPrice/pop_superwlan_first_repeater_sw002:(version=0)",
+  "isBundle": false,
+  "priceType": "Recurring charge",
+  "recurringChargePeriodType": "month",
+  "price": {
+    "unit": "EUR",
+    "value": 2.99
+  },
+  "validFor": {
+    "startDateTime": "2022-02-13T00:00:00.000Z"
+  },
+  "productOfferingPriceCharacteristic": [
+    {
+      "id": "35f59a09-bd3b-4262-8c29-c83ed9f90272",
+      "name": "option_sku",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "SW002"
+        }
+      ]
+    },
+    {
+      "id": "02667c06-5060-4722-86e6-aa33266a18a9",
+      "name": "min_contract_duration",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "6"
+        }
+      ]
+    },
+    {
+      "id": "36ea59bf-f4ae-418f-8b53-d857f45cd42f",
+      "name": "superwlan_type",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Mesh Extender Hardware Lease"
+        }
+      ]
+    }
+  ]
+}

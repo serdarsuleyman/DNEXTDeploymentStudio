@@ -1,0 +1,19 @@
+{
+  "id": "pop-recurrent-10015",
+  "name": "GigaTV Home Sound Net Monthly Fee",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "priceType": "Recurring charge",
+  "price": {
+    "value": 0,
+    "unit": "EUR"
+  },
+  "tax": [
+    {
+      "taxCategory": "VAT",
+      "taxRate": 19
+    }
+  ],
+  "@type": "ProductOfferingPrice",
+  "recurringChargePeriodType": "month"
+}

@@ -1,0 +1,169 @@
+{
+  "id": "RZG09RegioSurcharge",
+  "name": "Regio-Zuschlag Glasfaser Klasse 9 (RZG09)",
+  "description": "Regional surcharge zone class 9 for wholesale/partner access footprints.",
+  "isBundle": false,
+  "isSellable": true,
+  "lifecycleStatus": "In study",
+  "version": "0",
+  "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productOffering/RZG09RegioSurcharge:(version=0)",
+  "@type": "ProductOffering",
+  "productSpecification": {
+    "id": "spec_regio_surcharge",
+    "name": "VF_DE_REGIO_SURCHARGE_SPEC",
+    "version": "0",
+    "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productSpecification/spec_regio_surcharge:(version=0)",
+    "@referredType": "ProductSpecification"
+  },
+  "category": [
+    {
+      "id": "cat_regio_surcharges",
+      "name": "Regional Surcharges",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/cat_regio_surcharges:(version=0)",
+      "@referredType": "Category"
+    }
+  ],
+  "prodSpecCharValueUse": [
+    {
+      "id": "fa563396-3356-45e4-bb46-16d86278ebd7",
+      "name": "SKU",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "RZG09",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "b1f0b9ad-d1e4-48d1-90e8-96e9a80fd209",
+      "name": "OptionName",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Regio-Zuschlag Glasfaser Klasse 9",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "d0bfdaf4-6af1-40f0-8494-2afa0487f88b",
+      "name": "Sorting",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "1",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "c6db1bef-c733-4a6b-9cef-64b90d856550",
+      "name": "RegionalZone",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "RZG09",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "c25b70bf-51bc-4e7f-a053-1c4495b70be8",
+      "name": "AccessSupplier",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "DTAG Wholesale L2-BSA",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "764562b7-74c7-40c7-963c-65bd510b0a75",
+      "name": "Technology",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "FIBRE",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "69631712-810a-425e-9282-234c363db14a",
+      "name": "IsCompatibleDSL",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "false",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "20266e94-5d07-4d84-94b3-eb334c2e0713",
+      "name": "IsCompatibleFIBRE",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "true",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "f282ddd8-9adc-41af-9df6-5a3ad78b7642",
+      "name": "SurchargeType",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Wholesale Zone Surcharge",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "394249f1-3eb8-4754-99f2-740f3feb2bf8",
+      "name": "ProductFamilyID",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "FNFamily40",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "40fa0d69-feeb-40a3-882a-6502f8710a7a",
+      "name": "ProductFamilyName",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Regio Fee",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "bee76fff-c372-441a-b85f-ba1bb8a96922",
+      "name": "PackageSubtypeID",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Additional_services",
+          "isDefault": true
+        }
+      ]
+    }
+  ],
+  "productOfferingPrice": [
+    {
+      "id": "pop_regio_surcharge_rzg09",
+      "name": "Regio-Zuschlag Klasse 9 Monthly Fee (25.00 €)",
+      "version": "0",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productOfferingPrice/pop_regio_surcharge_rzg09:(version=0)",
+      "@referredType": "ProductOfferingPrice"
+    }
+  ]
+}

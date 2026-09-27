@@ -1,0 +1,19 @@
+{
+  "id": "pop-recurrent-10016",
+  "name": "Wechselgarantie Fee",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "priceType": "Recurring charge",
+  "recurringChargePeriodType": "month",
+  "price": {
+    "value": 0,
+    "unit": "EUR"
+  },
+  "tax": [
+    {
+      "taxCategory": "VAT",
+      "taxRate": 19
+    }
+  ],
+  "@type": "ProductOfferingPrice"
+}

@@ -1,0 +1,192 @@
+{
+  "id": "IT002OT",
+  "name": "Installationspaket Glasfaser",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "validFor": {
+    "startDateTime": "2026-08-27T20:50:51.200Z"
+  },
+  "@baseType": "ProductOffering",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productoffering.json",
+  "@type": "ProductOffering",
+  "isBundle": false,
+  "isSellable": true,
+  "productSpecification": {
+    "id": "VF_DE_SPEC_INSTALLATION",
+    "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_INSTALLATION:(version=0)",
+    "name": "VF_DE_Installation_Specification",
+    "version": "1",
+    "@referredType": "ProductSpecification"
+  },
+  "category": [
+    {
+      "id": "2cddb75e-edf8-43e5-83f1-199b2b8f049c",
+      "href": "/api/productCatalogManagement/v4/category/2cddb75e-edf8-43e5-83f1-199b2b8f049c:(version=0)",
+      "name": "Vodafone Germany POC",
+      "version": "1",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN171",
+      "href": "/api/productCatalogManagement/v4/category/FN171:(version=0)",
+      "name": "Einmalgebühren",
+      "version": "1",
+      "@referredType": "Category"
+    }
+  ],
+  "channel": [
+    {
+      "id": "*-*",
+      "name": "*-*",
+      "href": "/api/productCatalogManagement/v4/channel/*:*:(version=0)",
+      "@referredType": "Channel"
+    }
+  ],
+  "productOfferingPrice": [
+    {
+      "id": "pop-onetime-IT002OT",
+      "href": "/api/productCatalogManagement/v4/productOfferingPrice/pop-onetime-IT002OT:(version=0)",
+      "name": "Installationspaket Glasfaser One-time Fee"
+    }
+  ],
+  "prodSpecCharValueUse": [
+    {
+      "id": "f3760107-4c88-4f0e-ac3c-3ea329faaf4c",
+      "name": "SKU",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "IT002OT",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_INSTALLATION",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_INSTALLATION:(version=0)",
+        "name": "VF_DE_Installation_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "79b7d29d-8c0b-4290-8d58-eb9c5335a0e2",
+      "name": "OptionName",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "Installationspaket Glasfaser",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_INSTALLATION",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_INSTALLATION:(version=0)",
+        "name": "VF_DE_Installation_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "c0b97af2-85a9-4a67-8711-9337adcc40aa",
+      "name": "PackageSubtypeID",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "Additional_services",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_INSTALLATION",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_INSTALLATION:(version=0)",
+        "name": "VF_DE_Installation_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "389cb50d-025f-45d5-afff-3500faf8add1",
+      "name": "ProductFamilyID",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "FNFamily13",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_INSTALLATION",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_INSTALLATION:(version=0)",
+        "name": "VF_DE_Installation_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "cebad5f1-7f39-4a89-9bee-f0a28dc3d5d4",
+      "name": "ProductFamilyName",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "Installation Fee",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_INSTALLATION",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_INSTALLATION:(version=0)",
+        "name": "VF_DE_Installation_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "ce3c4128-a4f3-44d4-97fb-37e9eef27e04",
+      "name": "CheckoutProduct",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "no",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_INSTALLATION",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_INSTALLATION:(version=0)",
+        "name": "VF_DE_Installation_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "id": "pop-onetime-20090220_sub",
+  "name": "FRITZ!Box 7530 AX (Kaufgerät) One-Time Fee",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "priceType": "One time charge",
+  "price": {
+    "value": 139.99,
+    "unit": "EUR"
+  },
+  "tax": [
+    {
+      "taxCategory": "VAT",
+      "taxRate": 19
+    }
+  ],
+  "@type": "ProductOfferingPrice"
+}

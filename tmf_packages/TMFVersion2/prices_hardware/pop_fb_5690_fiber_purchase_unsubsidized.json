@@ -1,0 +1,71 @@
+{
+  "id": "pop_fb_5690_fiber_purchase_unsubsidized",
+  "name": "AVM FRITZ!Box 5690 Fiber Kaufpreis unsubventioniert (Standard)",
+  "description": "Regul\u00e4rer Standard-Einmalpreis f\u00fcr AVM FRITZ!Box 5690 Fiber ohne Mindestvertragslaufzeit (269.9 \u20ac)",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "@baseType": "ProductOfferingPrice",
+  "@type": "ProductOfferingPrice",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productofferingprice.json",
+  "isBundle": false,
+  "priceType": "One time charge",
+  "price": {
+    "unit": "EUR",
+    "value": 269.9
+  },
+  "validFor": {
+    "startDateTime": "2022-01-01T00:00:00.000Z"
+  },
+  "productOfferingPriceCharacteristic": [
+    {
+      "id": "7d753cae-1106-4fad-a683-f856e5d77281",
+      "name": "device_model",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "AVM FRITZ!Box 5690 Fiber"
+        }
+      ]
+    },
+    {
+      "id": "43b04666-dfbb-4abd-ac95-88a5feffa08e",
+      "name": "device_subsidized_status",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Unsubsidized"
+        }
+      ]
+    },
+    {
+      "id": "6921a46e-8a62-4dc4-965b-ca6615814091",
+      "name": "contract_duration",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "0"
+        }
+      ]
+    },
+    {
+      "id": "026ad4bf-dd36-48d2-bbf3-f03179d0f4ca",
+      "name": "contract_duration_unit",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "MONTH"
+        }
+      ]
+    },
+    {
+      "id": "8235e5c5-7d15-4b7e-9388-ef3e419a5c78",
+      "name": "acquisition_mode",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Purchase"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "id": "pop-recurrent-R025.5000000531-12",
+  "name": "GigaZuhause 600 Glasfaser 12 Months Monthly Fee",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "priceType": "Recurring charge",
+  "recurringChargePeriodType": "month",
+  "price": {
+    "value": 54.99,
+    "unit": "EUR"
+  },
+  "tax": [
+    {
+      "taxCategory": "VAT",
+      "taxRate": 19
+    }
+  ],
+  "@type": "ProductOfferingPrice"
+}

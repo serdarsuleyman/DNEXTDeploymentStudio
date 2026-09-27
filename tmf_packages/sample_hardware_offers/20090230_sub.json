@@ -1,0 +1,581 @@
+{
+  "id": "20090230_sub",
+  "name": "FRITZ!Box 7690 (Mietgerät)",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "validFor": {
+    "startDateTime": "2026-08-23T11:47:54.123Z"
+  },
+  "@baseType": "ProductOffering",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productoffering.json",
+  "@type": "ProductOffering",
+  "isBundle": false,
+  "isSellable": true,
+  "productSpecification": {
+    "id": "VF_DE_SPEC_FIBER_HARDWARE",
+    "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_FIBER_HARDWARE:(version=0)",
+    "name": "VF_DE_Fiber_Hardware_Specification",
+    "version": "1",
+    "@referredType": "ProductSpecification"
+  },
+  "category": [
+    {
+      "id": "2cddb75e-edf8-43e5-83f1-199b2b8f049c",
+      "href": "/api/productCatalogManagement/v4/category/2cddb75e-edf8-43e5-83f1-199b2b8f049c:(version=0)",
+      "name": "Vodafone Germany POC",
+      "version": "1",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN114",
+      "href": "/api/productCatalogManagement/v4/category/FN114:(version=0)",
+      "name": "FRITZ!box",
+      "version": "1",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN178",
+      "href": "/api/productCatalogManagement/v4/category/FN178:(version=0)",
+      "name": "Rental_AccessHW",
+      "version": "1",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN210",
+      "href": "/api/productCatalogManagement/v4/category/FN210:(version=0)",
+      "name": "FIBRE",
+      "version": "1",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN12",
+      "href": "/api/productCatalogManagement/v4/category/FN12:(version=0)",
+      "name": "Anschluss-Hardware",
+      "version": "1",
+      "@referredType": "Category"
+    }
+  ],
+  "channel": [
+    {
+      "id": "*-*",
+      "name": "*-*",
+      "href": "/api/productCatalogManagement/v4/channel/*:*:(version=0)",
+      "@referredType": "Channel"
+    }
+  ],
+  "productOfferingPrice": [
+    {
+      "id": "pop-recurrent-20090230_sub",
+      "href": "/api/productCatalogManagement/v4/productOfferingPrice/pop-recurrent-20090230_sub:(version=0)",
+      "name": "FRITZ!Box 7690 (Mietgerät) Monthly Fee"
+    }
+  ],
+  "prodSpecCharValueUse": [
+    {
+      "id": "sku-char-use",
+      "name": "SKU",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "20090230_sub",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_FIBER_HARDWARE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_FIBER_HARDWARE:(version=0)",
+        "name": "VF_DE_Fiber_Hardware_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "optionname-char-use",
+      "name": "OptionName",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "FRITZ!Box 7690 (Mietgerät)",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_FIBER_HARDWARE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_FIBER_HARDWARE:(version=0)",
+        "name": "VF_DE_Fiber_Hardware_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "subtype-char-use",
+      "name": "EntitySubtype",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "hardware",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_FIBER_HARDWARE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_FIBER_HARDWARE:(version=0)",
+        "name": "VF_DE_Fiber_Hardware_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "packagesubtype-char-use",
+      "name": "PackageSubtypeID",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "Hardware",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_FIBER_HARDWARE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_FIBER_HARDWARE:(version=0)",
+        "name": "VF_DE_Fiber_Hardware_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "family-char-use",
+      "name": "ProductFamilyID",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "FNFamily22",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_FIBER_HARDWARE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_FIBER_HARDWARE:(version=0)",
+        "name": "VF_DE_Fiber_Hardware_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "1675d3fd-16b2-40a5-83a4-07a259b4bb88",
+      "name": "ProductFamilyName",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "Access Hardware",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_FIBER_HARDWARE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_FIBER_HARDWARE:(version=0)",
+        "name": "VF_DE_Fiber_Hardware_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "checkout-char-use",
+      "name": "CheckoutProduct",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "no",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_FIBER_HARDWARE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_FIBER_HARDWARE:(version=0)",
+        "name": "VF_DE_Fiber_Hardware_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "visibility-char-use",
+      "name": "ProductVisibility",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "visible",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_FIBER_HARDWARE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_FIBER_HARDWARE:(version=0)",
+        "name": "VF_DE_Fiber_Hardware_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "acquisition-char-use",
+      "name": "HardwareAcquisitionMode",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "Rental",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_FIBER_HARDWARE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_FIBER_HARDWARE:(version=0)",
+        "name": "VF_DE_Fiber_Hardware_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "requiresont-char-use",
+      "name": "RequiresONT",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "Y",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_FIBER_HARDWARE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_FIBER_HARDWARE:(version=0)",
+        "name": "VF_DE_Fiber_Hardware_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "wifistandard-char-use",
+      "name": "WifiStandard",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "Wi-Fi 7",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_FIBER_HARDWARE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_FIBER_HARDWARE:(version=0)",
+        "name": "VF_DE_Fiber_Hardware_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "mimo-char-use",
+      "name": "MimoSupport",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "4x4 MIMO",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_FIBER_HARDWARE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_FIBER_HARDWARE:(version=0)",
+        "name": "VF_DE_Fiber_Hardware_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "lanports-char-use",
+      "name": "LANPortsInfo",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "2x 2.5 Gbps ports, 2x Gigabit LAN",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_FIBER_HARDWARE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_FIBER_HARDWARE:(version=0)",
+        "name": "VF_DE_Fiber_Hardware_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "cpebrand-char-use",
+      "name": "CPEBrand",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "AVM",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_FIBER_HARDWARE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_FIBER_HARDWARE:(version=0)",
+        "name": "VF_DE_Fiber_Hardware_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "devicetype-char-use",
+      "name": "DeviceType",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "Router",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_FIBER_HARDWARE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_FIBER_HARDWARE:(version=0)",
+        "name": "VF_DE_Fiber_Hardware_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "waninterface-char-use",
+      "name": "WANInterfaceType",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "RJ-45-Ethernet",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_FIBER_HARDWARE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_FIBER_HARDWARE:(version=0)",
+        "name": "VF_DE_Voice_Anschluss_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "packagetype-char-use",
+      "name": "PackageTypeID",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "DSL",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_FIBER_HARDWARE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_FIBER_HARDWARE:(version=0)",
+        "name": "VF_DE_Fiber_Hardware_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "footprint-char-use",
+      "name": "FootprintCompatibility",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "Both",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_FIBER_HARDWARE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_FIBER_HARDWARE:(version=0)",
+        "name": "VF_DE_Fiber_Hardware_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "smarthome-char-use",
+      "name": "SmartHomeSupport",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "Zigbee",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_FIBER_HARDWARE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_FIBER_HARDWARE:(version=0)",
+        "name": "VF_DE_Fiber_Hardware_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "compatible-dsl-char-use",
+      "name": "IsCompatibleDSL",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "true",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_FIBER_HARDWARE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_FIBER_HARDWARE:(version=0)",
+        "name": "VF_DE_Fiber_Hardware_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "compatible-fibre-char-use",
+      "name": "IsCompatibleFIBRE",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "true",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_FIBER_HARDWARE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_FIBER_HARDWARE:(version=0)",
+        "name": "VF_DE_Fiber_Hardware_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "compatible-lte-char-use",
+      "name": "IsCompatibleLTE",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "false",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_FIBER_HARDWARE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_FIBER_HARDWARE:(version=0)",
+        "name": "VF_DE_Fiber_Hardware_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    }
+  ]
+}

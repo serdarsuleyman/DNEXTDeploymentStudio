@@ -1,0 +1,162 @@
+{
+  "id": "VF_DE_SPEC_INSURANCE_SECURITY",
+  "name": "VF_DE_Insurance_Security_Specification",
+  "version": "0",
+  "brand": "Vodafone Germany",
+  "isBundle": false,
+  "lifecycleStatus": "In study",
+  "description": "Product Specification for Vodafone Germany Insurance, Cyber Security Protection, and Contractual Guarantees (Sicherheitspaket, Wechselgarantie, and Equipment Protection).",
+  "validFor": {
+    "startDateTime": "2026-08-25T00:00:00.000Z"
+  },
+  "productSpecCharacteristic": [
+    {
+      "name": "SKU",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Insurance / Security option SKU identifier",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1
+    },
+    {
+      "name": "OptionName",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Commercial Option Name in Vodafone Germany Catalog",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1
+    },
+    {
+      "name": "InsuranceType",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Insurance, Security & Protection category type",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "CyberSecurityAntivirus",
+          "isDefault": true,
+          "valueType": "string"
+        },
+        {
+          "value": "TariffDowngradeGuarantee",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "HardwareReplacementProtection",
+          "isDefault": false,
+          "valueType": "string"
+        }
+      ],
+      "minCardinality": 0,
+      "maxCardinality": 1
+    },
+    {
+      "name": "ProtectedDeviceLicenses",
+      "valueType": "integer",
+      "characteristicType": "Simple Value",
+      "description": "Number of covered endpoints/devices (e.g. 3 or 5 devices for Sicherheitspaket)",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1
+    },
+    {
+      "name": "SupportedPlatforms",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Operating system and device platform coverage (Windows, macOS, Android, iOS)",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1
+    },
+    {
+      "name": "TrialFreePeriodMonths",
+      "valueType": "integer",
+      "characteristicType": "Simple Value",
+      "description": "Promotional trial duration before recurring charge begins (e.g. 2 or 3 months free)",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1
+    },
+    {
+      "name": "CancellationPeriod",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Notice cancellation period (e.g. 1 month or anytime in trial)",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1
+    },
+    {
+      "name": "DowngradeEligibilityWindow",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Eligible contract month window to trigger speed downgrade (e.g. month 9 to 11)",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1
+    },
+    {
+      "name": "AccessMedium",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Underlying broadband technology compatibility",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Fiber",
+          "isDefault": true,
+          "valueType": "string"
+        },
+        {
+          "value": "DSL",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "Cable",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "All",
+          "isDefault": false,
+          "valueType": "string"
+        }
+      ],
+      "minCardinality": 0,
+      "maxCardinality": 1
+    }
+  ],
+  "@type": "ProductSpecification"
+}

@@ -1,0 +1,26 @@
+{
+  "id": "I1204InternetAccessService",
+  "name": "NGN DSL",
+  "description": "Internet Access Service offering for Product Code I1204 (Vodafone On-Net NGN DSL & Glasfaser).",
+  "isBundle": false,
+  "isSellable": true,
+  "lifecycleStatus": "In study",
+  "version": "0",
+  "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productOffering/I1204InternetAccessService:(version=0)",
+  "@type": "ProductOffering",
+  "productSpecification": {
+    "id": "spec_internet_access_service",
+    "name": "Internet Access Technical Service Specification",
+    "version": "0",
+    "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productSpecification/spec_internet_access_service:(version=0)",
+    "@referredType": "ProductSpecification"
+  },
+  "category": [
+    {
+      "id": "cat_fixed_internet",
+      "name": "Fixed Internet",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/cat_fixed_internet:(version=0)",
+      "@referredType": "Category"
+    }
+  ]
+}

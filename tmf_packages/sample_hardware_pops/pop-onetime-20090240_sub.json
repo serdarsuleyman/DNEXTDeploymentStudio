@@ -1,0 +1,18 @@
+{
+  "id": "pop-onetime-20090240_sub",
+  "name": "FRITZ!Box 5690 Glasfaser (Kaufgerät) One-Time Fee",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "priceType": "One time charge",
+  "price": {
+    "value": 229.9,
+    "unit": "EUR"
+  },
+  "tax": [
+    {
+      "taxCategory": "VAT",
+      "taxRate": 19
+    }
+  ],
+  "@type": "ProductOfferingPrice"
+}

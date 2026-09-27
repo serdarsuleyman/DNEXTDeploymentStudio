@@ -1,0 +1,73 @@
+{
+  "id": "pop_voice_access_komfort_ngn_vi003",
+  "name": "Komfort-Anschluss Plus NGN (4.00 \u20ac)",
+  "description": "Product offering price component for Komfort-Anschluss Plus NGN (VI003) (4.00 \u20ac/mo)",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "@baseType": "ProductOfferingPrice",
+  "@type": "ProductOfferingPrice",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productofferingprice.json",
+  "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productOfferingPrice/pop_voice_access_komfort_ngn_vi003:(version=0)",
+  "isBundle": false,
+  "priceType": "Recurring charge",
+  "recurringChargePeriodType": "month",
+  "price": {
+    "unit": "EUR",
+    "value": 4.0
+  },
+  "validFor": {
+    "startDateTime": "2022-01-01T00:00:00.000Z"
+  },
+  "productOfferingPriceCharacteristic": [
+    {
+      "id": "c3aaabfe-bb87-4806-ab5d-f4055204fa90",
+      "name": "option_sku",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "VI003"
+        }
+      ]
+    },
+    {
+      "id": "d05a471d-5414-42e6-9375-57f079a7f9d3",
+      "name": "voice_line_type",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Komfort"
+        }
+      ]
+    },
+    {
+      "id": "484da36e-143b-4ce5-af7b-d5e7b971876c",
+      "name": "delivery_infrastructure",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Vodafone On-Net NGN (VI202)"
+        }
+      ]
+    },
+    {
+      "id": "c0ff39d0-fff8-4056-b4e8-fefff2b6809f",
+      "name": "valid_for_access_service",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "VI202VoiceAccessService"
+        }
+      ]
+    },
+    {
+      "id": "86acd80d-4bdc-46b0-82cd-4ea33bc79269",
+      "name": "voice_channels_count",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "2"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "id": "pop_fb_5530_fiber_purchase_subsidized",
+  "name": "AVM FRITZ!Box 5530 Fiber Kaufpreis subventioniert (24M)",
+  "description": "Subventionierter Einmalpreis f\u00fcr AVM FRITZ!Box 5530 Fiber bei Abschluss eines 24-Monats-Vertrags (139.9 \u20ac)",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "@baseType": "ProductOfferingPrice",
+  "@type": "ProductOfferingPrice",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productofferingprice.json",
+  "isBundle": false,
+  "priceType": "One time charge",
+  "price": {
+    "unit": "EUR",
+    "value": 139.9
+  },
+  "validFor": {
+    "startDateTime": "2022-01-01T00:00:00.000Z"
+  },
+  "productOfferingPriceCharacteristic": [
+    {
+      "id": "a88b8438-dfcb-4609-912c-f465a57da095",
+      "name": "device_model",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "AVM FRITZ!Box 5530 Fiber"
+        }
+      ]
+    },
+    {
+      "id": "81340acc-59de-4058-b1cd-0170544b687d",
+      "name": "device_subsidized_status",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Subsidized"
+        }
+      ]
+    },
+    {
+      "id": "8ea7630a-b8c6-41ba-83a3-2afb94bf369c",
+      "name": "contract_duration",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "24"
+        }
+      ]
+    },
+    {
+      "id": "cba9479f-e5a7-41e2-9dc5-cfc71bbb1069",
+      "name": "contract_duration_unit",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "MONTH"
+        }
+      ]
+    },
+    {
+      "id": "43694a8a-54be-41cb-88b6-70bf58ac9d91",
+      "name": "acquisition_mode",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Purchase"
+        }
+      ]
+    }
+  ]
+}

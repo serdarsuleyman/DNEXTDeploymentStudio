@@ -1,0 +1,10 @@
+{
+  "id": "spec_voice_access_service",
+  "name": "Voice Access Technical Service Specification",
+  "description": "Technical specification for physical and IP voice access lines across On-Net NGN and Wholesale Bitstream networks.",
+  "brand": "Vodafone",
+  "isBundle": false,
+  "lifecycleStatus": "In study",
+  "version": "0",
+  "@type": "ProductSpecification"
+}

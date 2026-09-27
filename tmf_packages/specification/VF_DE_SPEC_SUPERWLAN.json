@@ -1,0 +1,323 @@
+{
+  "id": "spec_superwlan_option",
+  "name": "VF_DE_SUPERWLAN_SPEC",
+  "version": "0",
+  "brand": "Vodafone",
+  "description": "Common TMF 620 Product Specification for Vodafone Germany SuperWLAN intelligent cloud Wi-Fi optimization and mesh repeater leasing options (FNFamily29).",
+  "lifecycleStatus": "In study",
+  "isBundle": false,
+  "@baseType": "ProductSpecification",
+  "@type": "ProductSpecification",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productspecification.json",
+  "validFor": {
+    "startDateTime": "2022-02-13T00:00:00.000Z"
+  },
+  "productSpecCharacteristic": [
+    {
+      "id": "22905bd9-4aaa-453a-8b0e-54a67df9d79a",
+      "name": "SKU",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Unique SuperWLAN option SKU identifier (e.g. SW010, SW002, SW003)",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic"
+    },
+    {
+      "id": "77c1d0db-deac-4636-adbb-cc82f282968b",
+      "name": "OptionName",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Commercial Option Name in Vodafone Catalog (e.g. SuperWLAN, Bereitstellung SuperWLAN-Verst\u00e4rker)",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic"
+    },
+    {
+      "id": "cae83a23-2f6c-42c8-aace-33faa4494a78",
+      "name": "Sorting",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Catalog display and evaluation sorting order index (13, 14, 15)",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic"
+    },
+    {
+      "id": "8af1c3a3-17c0-4aa2-90bf-343cbcf928a5",
+      "name": "SuperWLANType",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Classification of the SuperWLAN option (Cloud Optimization Service vs Mesh Extender Hardware Lease)",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Cloud Optimization Service",
+          "isDefault": true
+        },
+        {
+          "value": "Mesh Extender Hardware Lease",
+          "isDefault": false
+        }
+      ]
+    },
+    {
+      "id": "7b2b9d37-80bc-4808-8e9f-8558d784605d",
+      "name": "MeshDeviceRole",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Role of the entity in the customer Wi-Fi home network topology",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Cloud Controller",
+          "isDefault": true
+        },
+        {
+          "value": "Primary Extender (6M)",
+          "isDefault": false
+        },
+        {
+          "value": "Secondary Extender (0M)",
+          "isDefault": false
+        }
+      ]
+    },
+    {
+      "id": "6c56a5b8-a0ed-4e4e-9acb-7d07401fea00",
+      "name": "MinContractDuration",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Minimum contract duration in months",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "0",
+          "isDefault": true
+        },
+        {
+          "value": "6",
+          "isDefault": false
+        }
+      ]
+    },
+    {
+      "id": "37d4c92c-87a2-435f-830e-f5fcd5837016",
+      "name": "MinContractDurationUnit",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Unit of measurement for the contract duration",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "MONTH",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "bddc80ef-acf3-4dc6-8579-426662613739",
+      "name": "CancellationPeriod",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Notice period required for cancellation",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "1",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "d1b05f57-b08f-4ebf-9b10-bba63982b90d",
+      "name": "CancellationPeriodUnit",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Unit of measurement for cancellation notice period",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "MONTH",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "86a8274a-37a6-4f4a-9488-f6abf39036d1",
+      "name": "SupportedHardware",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Compatible router hardware required to enable SuperWLAN functionality",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Vodafone EasyBox 805",
+          "isDefault": true
+        },
+        {
+          "value": "Vodafone Wi-Fi 6 Station",
+          "isDefault": false
+        }
+      ]
+    },
+    {
+      "id": "c739dad9-fe8d-4f87-b7bd-a12feb5ea5cf",
+      "name": "SuperWifiMode",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Operational mode of the cloud-managed superWifi agent",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "active",
+          "isDefault": true
+        },
+        {
+          "value": "passive+",
+          "isDefault": false
+        }
+      ]
+    },
+    {
+      "id": "d83157f1-d917-4c62-b1aa-ff26f382f7de",
+      "name": "SummaryText",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Commercial summary text describing the option",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Softwarebasierte, intelligente WLAN-Optimierung",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "00767846-b8b9-4aca-9321-9059206b0730",
+      "name": "ProductFamilyID",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Vodafone Product Family ID for SuperWLAN options (fixed at FNFamily29)",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "FNFamily29",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "bba47c69-bdab-45f7-8afe-29909d016075",
+      "name": "ProductFamilyName",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Vodafone Product Family Name (fixed at Internet Tariff Option)",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Internet Tariff Option",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "b7f5d5f0-80b4-435e-a2ba-1c220d8171f7",
+      "name": "PackageSubtypeID",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Catalog package subtype classification (fixed at Option)",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Option",
+          "isDefault": true
+        }
+      ]
+    }
+  ]
+}

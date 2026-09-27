@@ -1,0 +1,71 @@
+{
+  "id": "pop_fb_7690_purchase_subsidized",
+  "name": "AVM FRITZ!Box 7690 Kaufpreis subventioniert (24M)",
+  "description": "Subventionierter Einmalpreis f\u00fcr AVM FRITZ!Box 7690 bei Abschluss eines 24-Monats-Vertrags (229.9 \u20ac)",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "@baseType": "ProductOfferingPrice",
+  "@type": "ProductOfferingPrice",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productofferingprice.json",
+  "isBundle": false,
+  "priceType": "One time charge",
+  "price": {
+    "unit": "EUR",
+    "value": 229.9
+  },
+  "validFor": {
+    "startDateTime": "2022-01-01T00:00:00.000Z"
+  },
+  "productOfferingPriceCharacteristic": [
+    {
+      "id": "617c0adf-ee01-4135-ba80-cec62e133679",
+      "name": "device_model",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "AVM FRITZ!Box 7690"
+        }
+      ]
+    },
+    {
+      "id": "97abbd58-744d-4757-b7ca-06b6c68ed64c",
+      "name": "device_subsidized_status",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Subsidized"
+        }
+      ]
+    },
+    {
+      "id": "dae866e1-5507-4a8e-9217-c16bb3e9b7fd",
+      "name": "contract_duration",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "24"
+        }
+      ]
+    },
+    {
+      "id": "e530ece6-cdf8-4be2-8bfe-2ae4c22f38b0",
+      "name": "contract_duration_unit",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "MONTH"
+        }
+      ]
+    },
+    {
+      "id": "0b5a807c-b3de-4b2b-b1fe-590645a80f31",
+      "name": "acquisition_mode",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Purchase"
+        }
+      ]
+    }
+  ]
+}

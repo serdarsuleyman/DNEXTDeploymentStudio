@@ -1,0 +1,248 @@
+{
+  "id": "IG002BandwidthOption",
+  "name": "Bandbreite 100 Mbit/s (IG002)",
+  "description": "Bandwidth option offering for speed profile IG002 (Bandbreite 100 Mbit/s) over FIBRE transport using Access Service I1209.",
+  "isBundle": false,
+  "isSellable": true,
+  "lifecycleStatus": "In study",
+  "version": "0",
+  "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productOffering/IG002BandwidthOption:(version=0)",
+  "@type": "ProductOffering",
+  "productSpecification": {
+    "id": "spec_bandwidth_option",
+    "name": "VF_DE_BANDWIDTH_SPEC",
+    "version": "0",
+    "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productSpecification/spec_bandwidth_option:(version=0)",
+    "@referredType": "ProductSpecification"
+  },
+  "category": [
+    {
+      "id": "cat_fibre_bandwidth",
+      "name": "Fiber Bandwidth Options",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/cat_fibre_bandwidth:(version=0)",
+      "@referredType": "Category"
+    }
+  ],
+  "prodSpecCharValueUse": [
+    {
+      "id": "42d389fd-3528-4995-9b77-03bc3a4092b7",
+      "name": "SKU",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "IG002",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "c95adef2-99f4-474e-a83d-d80f095c5388",
+      "name": "OptionName",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Bandbreite 100 Mbit/s",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "8cac6f98-362f-40b7-89bc-6fa1c9eaa592",
+      "name": "Sorting",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "25",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "1c6e1b8d-7462-4663-8d34-e15dbd4f8eb7",
+      "name": "Technology",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "FIBRE",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "d5f60ce4-9498-41ff-8c59-a1984a08bc09",
+      "name": "AccessServiceProductCode",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "I1209",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "fcfd9518-0c51-4c9f-a56c-d4728de1de12",
+      "name": "NetworkProfile",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "I1209 - FTTH GPON (On-Net)",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "6d502ad5-a5c3-4a21-a6e4-fb05125be48d",
+      "name": "BandwidthDownstreamMax",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "100.00",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "97313205-baae-4ef1-ab9d-30580319742c",
+      "name": "BandwidthDownstreamAvg",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "100.00",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "98e7be1d-5cfc-4f61-b699-1f1eab172065",
+      "name": "BandwidthDownstreamMin",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "90.00",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "818572ee-5d5d-4c04-9b36-e681dad2880f",
+      "name": "BandwidthUpstreamMax",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "50.00",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "d1646e5a-bef6-458d-a23f-df3ff72077a8",
+      "name": "BandwidthUpstreamAvg",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "50.00",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "2bc62ba4-d74e-4b08-8005-5764c403f824",
+      "name": "BandwidthUpstreamMin",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "45.00",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "bb0ec413-cb17-4020-8a8e-d0bef85157f4",
+      "name": "BandwidthUnit",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Mbit/s",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "0e7ad46a-3288-4e0d-9e57-6c8ffe27de72",
+      "name": "AccessSupplier",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Vodafone On-Net",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "0149760c-be41-4496-905c-4abadaaf03d2",
+      "name": "IsFallbackProfile",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "false",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "50121f27-3f00-4efb-923a-8e7693785d73",
+      "name": "FallbackHierarchyLevel",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Nominal",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "06e87529-4e6d-46c3-b6d3-9b5f64654453",
+      "name": "FallbackMappingKey",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "IG002-I1209",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "7d86e0b1-fbf2-43fd-87ed-b8bae79f267e",
+      "name": "ProductFamilyID",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "FNFamily7",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "7baf81b0-0e9d-4d1f-806c-2601b59344ab",
+      "name": "ProductFamilyName",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Bandwidth",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "f94f9273-c10f-483e-9314-44804ada2b30",
+      "name": "PackageSubtypeID",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Option",
+          "isDefault": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "id": "pop_fiber_ont_modem_zero",
+  "name": "Glasfaser-Modem (ONT) Bereitstellung (0.00 \u20ac)",
+  "description": "Kostenfreie Bereitstellung f\u00fcr Glasfaser-Modem (ONT) (0.00 \u20ac)",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "@baseType": "ProductOfferingPrice",
+  "@type": "ProductOfferingPrice",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productofferingprice.json",
+  "isBundle": false,
+  "priceType": "One time charge",
+  "price": {
+    "unit": "EUR",
+    "value": 0.0
+  },
+  "validFor": {
+    "startDateTime": "2022-01-01T00:00:00.000Z"
+  },
+  "productOfferingPriceCharacteristic": [
+    {
+      "id": "20bad2d6-cc74-4981-a5c3-1739028f28be",
+      "name": "device_model",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Glasfaser-Modem (ONT)"
+        }
+      ]
+    },
+    {
+      "id": "6c79b1a0-7e0a-4ee6-8248-f2ce71c85782",
+      "name": "acquisition_mode",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Included"
+        }
+      ]
+    },
+    {
+      "id": "dcc056c2-67b1-46a9-8c39-3787e5e1ffa7",
+      "name": "contract_duration",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "0"
+        }
+      ]
+    }
+  ]
+}

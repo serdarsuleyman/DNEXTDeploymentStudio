@@ -1,0 +1,71 @@
+{
+  "id": "pop_fb_7690_purchase_unsubsidized",
+  "name": "AVM FRITZ!Box 7690 Kaufpreis unsubventioniert (Standard)",
+  "description": "Regul\u00e4rer Standard-Einmalpreis f\u00fcr AVM FRITZ!Box 7690 ohne Mindestvertragslaufzeit (269.9 \u20ac)",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "@baseType": "ProductOfferingPrice",
+  "@type": "ProductOfferingPrice",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productofferingprice.json",
+  "isBundle": false,
+  "priceType": "One time charge",
+  "price": {
+    "unit": "EUR",
+    "value": 269.9
+  },
+  "validFor": {
+    "startDateTime": "2022-01-01T00:00:00.000Z"
+  },
+  "productOfferingPriceCharacteristic": [
+    {
+      "id": "59f5d438-c9c1-44e0-b892-02d04ee2f0ad",
+      "name": "device_model",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "AVM FRITZ!Box 7690"
+        }
+      ]
+    },
+    {
+      "id": "6ec72509-202b-409b-9d68-d5c79b991e10",
+      "name": "device_subsidized_status",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Unsubsidized"
+        }
+      ]
+    },
+    {
+      "id": "0493046f-0105-4847-a84b-c69445eec14a",
+      "name": "contract_duration",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "0"
+        }
+      ]
+    },
+    {
+      "id": "a5d7afe5-7799-49e8-836b-27de7f224074",
+      "name": "contract_duration_unit",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "MONTH"
+        }
+      ]
+    },
+    {
+      "id": "7a756e66-afac-4e71-9bef-e54908664f3c",
+      "name": "acquisition_mode",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Purchase"
+        }
+      ]
+    }
+  ]
+}

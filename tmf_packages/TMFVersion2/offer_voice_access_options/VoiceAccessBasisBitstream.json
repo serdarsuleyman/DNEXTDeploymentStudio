@@ -1,0 +1,246 @@
+{
+  "id": "VoiceAccessBasisBitstream",
+  "name": "Basis-Anschluss Regio (VI009)",
+  "description": "Vodafone standard 1-channel voice line connection with 1 telephone number on Wholesale Bitstream / DTAG L2-BSA network.",
+  "isBundle": false,
+  "isSellable": true,
+  "lifecycleStatus": "In study",
+  "version": "0",
+  "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productOffering/VoiceAccessBasisBitstream:(version=0)",
+  "@type": "ProductOffering",
+  "productSpecification": {
+    "id": "spec_voice_access_option",
+    "name": "VF_DE_VOICE_ACCESS_SPEC",
+    "version": "0",
+    "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productSpecification/spec_voice_access_option:(version=0)",
+    "@referredType": "ProductSpecification"
+  },
+  "category": [
+    {
+      "id": "cat_voice_access_options",
+      "name": "Voice Access Options",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/cat_voice_access_options:(version=0)",
+      "@referredType": "Category"
+    }
+  ],
+  "prodSpecCharValueUse": [
+    {
+      "id": "e613011f-b76e-4b96-b2c1-8f3a222cf32e",
+      "name": "SKU",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "VI009",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "5784148a-de26-41b7-9638-0a418575c813",
+      "name": "OptionName",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Basis-Anschluss Regio",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "76445d87-9894-4ca0-ba43-48b6f288c277",
+      "name": "Sorting",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "1",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "f3ddcbc9-1e42-4238-ad52-74aeb30ec8d7",
+      "name": "VoiceLineType",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Basis",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "f2ccd716-1292-45ca-9c29-9b1e9c43c71c",
+      "name": "VoiceChannelsCount",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "1",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "95a62f35-7478-4612-a35c-0360fb5864d8",
+      "name": "MaxPhoneNumbersCount",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "1",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "1dfd5546-2b28-4dd8-afe2-e5f9f7b8871a",
+      "name": "DeliveryInfrastructure",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Wholesale Bitstream / DTAG L2-BSA (VI203)",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "1ef891c5-94a0-4931-81d6-c96410a2cef7",
+      "name": "ValidForOfferAccessService",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "VI203VoiceAccessService",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "aa74c3f9-d4b9-49fa-9185-f920fb6e5d57",
+      "name": "AccessServiceCode",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "VI009",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "85d165dd-cc7c-4dba-a90d-872dfa4968d1",
+      "name": "ParentVoiceProductCode",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "VI203",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "5b062562-f4c9-4ab0-8451-4e96682e0632",
+      "name": "SupportedFeatures",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "CLIP, CLIR, Sprachbox",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "708e893e-3013-4d8e-be2d-370fa2dcc863",
+      "name": "CallBarringAllowed",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "true",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "f9a9f083-7e7f-46c8-a208-7910305dd4bd",
+      "name": "MinContractDuration",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "0",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "6f57bcb8-1179-402f-9612-9ac2356af0fb",
+      "name": "MinContractDurationUnit",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "MONTH",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "e6b335f7-c4a3-4d7d-b4cb-50ac01d72089",
+      "name": "CancellationPeriod",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "1",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "a98af426-8416-400c-b6be-f641184ff4bd",
+      "name": "CancellationPeriodUnit",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "MONTH",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "eebe61f7-88a0-46a2-b7bc-5fc5828c0182",
+      "name": "ProductFamilyID",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "FNFamily8",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "ab760143-297e-4883-bedb-2b649fff3f71",
+      "name": "ProductFamilyName",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Voice Access",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "bd6b3c22-8ba6-4ce1-880b-51dda2ac7414",
+      "name": "PackageSubtypeID",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Option",
+          "isDefault": true
+        }
+      ]
+    }
+  ],
+  "productOfferingPrice": [
+    {
+      "id": "pop_voice_access_basis_bitstream_vi009",
+      "name": "Basis-Anschluss Regio (0.00 \u20ac)",
+      "version": "0",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productOfferingPrice/pop_voice_access_basis_bitstream_vi009:(version=0)",
+      "@referredType": "ProductOfferingPrice"
+    }
+  ]
+}

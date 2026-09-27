@@ -1,0 +1,10 @@
+{
+  "id": "spec_internet_access_service",
+  "name": "Internet Access Technical Service Specification",
+  "description": "Technical specification for physical broadband access lines across On-Net NGN and Wholesale Bitstream networks.",
+  "brand": "Vodafone",
+  "isBundle": false,
+  "lifecycleStatus": "In study",
+  "version": "0",
+  "@type": "ProductSpecification"
+}

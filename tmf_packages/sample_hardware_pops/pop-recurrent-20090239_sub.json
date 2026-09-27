@@ -1,0 +1,19 @@
+{
+  "id": "pop-recurrent-20090239_sub",
+  "name": "FRITZ!Box 5690 Glasfaser (Mietgerät) Monthly Fee",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "priceType": "Recurring charge",
+  "recurringChargePeriodType": "month",
+  "price": {
+    "value": 8.99,
+    "unit": "EUR"
+  },
+  "tax": [
+    {
+      "taxCategory": "VAT",
+      "taxRate": 19
+    }
+  ],
+  "@type": "ProductOfferingPrice"
+}

@@ -1,0 +1,52 @@
+{
+  "id": "pop_fb_5590_fiber_rental",
+  "name": "AVM FRITZ!Box 5590 Fiber Monatliche Miete",
+  "description": "Monatliche Ger\u00e4temiete f\u00fcr AVM FRITZ!Box 5590 Fiber (8.99 \u20ac/Monat)",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "@baseType": "ProductOfferingPrice",
+  "@type": "ProductOfferingPrice",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productofferingprice.json",
+  "isBundle": false,
+  "priceType": "Recurring charge",
+  "price": {
+    "unit": "EUR",
+    "value": 8.99
+  },
+  "validFor": {
+    "startDateTime": "2022-01-01T00:00:00.000Z"
+  },
+  "productOfferingPriceCharacteristic": [
+    {
+      "id": "0d444ed6-2e35-4483-98ed-12600b9f3507",
+      "name": "device_model",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "AVM FRITZ!Box 5590 Fiber"
+        }
+      ]
+    },
+    {
+      "id": "de2cc714-bbc5-4be0-a189-11bde1bf5c80",
+      "name": "acquisition_mode",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Rental"
+        }
+      ]
+    },
+    {
+      "id": "a53fca12-d74e-44bd-a4e2-290f3056e789",
+      "name": "recurring_period",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "MONTH"
+        }
+      ]
+    }
+  ],
+  "recurringChargePeriodType": "month"
+}

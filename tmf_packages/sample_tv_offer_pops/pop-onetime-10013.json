@@ -1,0 +1,18 @@
+{
+  "id": "pop-onetime-10013",
+  "name": "keine Versandkosten One-time Fee",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "priceType": "One time charge",
+  "price": {
+    "value": 0,
+    "unit": "EUR"
+  },
+  "tax": [
+    {
+      "taxCategory": "VAT",
+      "taxRate": 19
+    }
+  ],
+  "@type": "ProductOfferingPrice"
+}

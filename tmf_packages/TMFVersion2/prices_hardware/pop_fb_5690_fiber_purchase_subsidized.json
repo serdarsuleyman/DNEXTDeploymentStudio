@@ -1,0 +1,71 @@
+{
+  "id": "pop_fb_5690_fiber_purchase_subsidized",
+  "name": "AVM FRITZ!Box 5690 Fiber Kaufpreis subventioniert (24M)",
+  "description": "Subventionierter Einmalpreis f\u00fcr AVM FRITZ!Box 5690 Fiber bei Abschluss eines 24-Monats-Vertrags (229.9 \u20ac)",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "@baseType": "ProductOfferingPrice",
+  "@type": "ProductOfferingPrice",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productofferingprice.json",
+  "isBundle": false,
+  "priceType": "One time charge",
+  "price": {
+    "unit": "EUR",
+    "value": 229.9
+  },
+  "validFor": {
+    "startDateTime": "2022-01-01T00:00:00.000Z"
+  },
+  "productOfferingPriceCharacteristic": [
+    {
+      "id": "5a2bbb5e-a0d9-4e5b-8fb7-ac362930f201",
+      "name": "device_model",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "AVM FRITZ!Box 5690 Fiber"
+        }
+      ]
+    },
+    {
+      "id": "c57910cc-9d07-42a3-ad9a-4269c08212a6",
+      "name": "device_subsidized_status",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Subsidized"
+        }
+      ]
+    },
+    {
+      "id": "8934e5a8-89d8-4330-b007-5bb9a885c852",
+      "name": "contract_duration",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "24"
+        }
+      ]
+    },
+    {
+      "id": "5d0d732a-da6c-4eec-806a-1712af666584",
+      "name": "contract_duration_unit",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "MONTH"
+        }
+      ]
+    },
+    {
+      "id": "f27592f2-77fd-440d-9225-cbc0ed6136cb",
+      "name": "acquisition_mode",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Purchase"
+        }
+      ]
+    }
+  ]
+}

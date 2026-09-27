@@ -1,0 +1,169 @@
+{
+  "id": "RZG00RegioSurcharge",
+  "name": "Regio-Zuschlag Glasfaser Klasse 0 (RZG00)",
+  "description": "Regional surcharge zone class 0 for on-net fiber footprints with zero surcharge.",
+  "isBundle": false,
+  "isSellable": true,
+  "lifecycleStatus": "In study",
+  "version": "0",
+  "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productOffering/RZG00RegioSurcharge:(version=0)",
+  "@type": "ProductOffering",
+  "productSpecification": {
+    "id": "spec_regio_surcharge",
+    "name": "VF_DE_REGIO_SURCHARGE_SPEC",
+    "version": "0",
+    "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productSpecification/spec_regio_surcharge:(version=0)",
+    "@referredType": "ProductSpecification"
+  },
+  "category": [
+    {
+      "id": "cat_regio_surcharges",
+      "name": "Regional Surcharges",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/cat_regio_surcharges:(version=0)",
+      "@referredType": "Category"
+    }
+  ],
+  "prodSpecCharValueUse": [
+    {
+      "id": "89e9cba9-bff0-4fd9-80f4-e92631d4579d",
+      "name": "SKU",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "RZG00",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "8e1bfa80-8fb4-46d6-a1a1-1706976a66e2",
+      "name": "OptionName",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Regio-Zuschlag Glasfaser Klasse 0",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "48561d0a-7c21-460e-8a7e-c3199943918e",
+      "name": "Sorting",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "10",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "a297c11f-478a-4c5a-a0f3-76a61d263f91",
+      "name": "RegionalZone",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "RZG00",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "b50bf41d-0665-493d-9518-62dd07d58e5f",
+      "name": "AccessSupplier",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Vodafone On-Net",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "ab8d3307-0376-4c85-8f43-79fe60d6eaf4",
+      "name": "Technology",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "FIBRE",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "54ee9670-6d74-4a7a-91a4-d3e6b139cb1f",
+      "name": "IsCompatibleDSL",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "false",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "cf5e1273-a771-45a5-8c51-0caffa0c6752",
+      "name": "IsCompatibleFIBRE",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "true",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "f77bcc23-a5b0-4a85-b884-fb1e7d2a05e3",
+      "name": "SurchargeType",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "On-Net Standard (0 €)",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "a4016f99-b2e2-40eb-974d-660dfcba9d43",
+      "name": "ProductFamilyID",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "FNFamily40",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "d164666c-0ec0-43df-b007-050ea957e3db",
+      "name": "ProductFamilyName",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Regio Fee",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "43846568-5c0b-4b1c-83fe-2092296cadc9",
+      "name": "PackageSubtypeID",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Additional_services",
+          "isDefault": true
+        }
+      ]
+    }
+  ],
+  "productOfferingPrice": [
+    {
+      "id": "pop_regio_surcharge_rzg00",
+      "name": "Regio-Zuschlag Klasse 0 Monthly Fee (0.00 €)",
+      "version": "0",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productOfferingPrice/pop_regio_surcharge_rzg00:(version=0)",
+      "@referredType": "ProductOfferingPrice"
+    }
+  ]
+}

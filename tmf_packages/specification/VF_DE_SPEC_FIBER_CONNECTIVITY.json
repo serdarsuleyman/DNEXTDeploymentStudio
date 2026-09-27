@@ -1,0 +1,158 @@
+{
+  "id": "VF_DE_SPEC_FIBER_CONNECTIVITY",
+  "name": "VF_DE_Fiber_Connectivity_Specification",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "@type": "ProductSpecification",
+  "productSpecCharacteristic": [
+    {
+      "name": "SKU",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Stock keeping unit ID",
+      "configurable": true,
+      "extensible": false,
+      "isModifiable": false,
+      "isVisible": true
+    },
+    {
+      "name": "AccessName",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Commercial name of the access connection",
+      "configurable": true,
+      "extensible": false,
+      "isModifiable": false,
+      "isVisible": true
+    },
+    {
+      "name": "AccessTechnology",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Physical transmission medium standard",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "FTTH-GPON",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "FTTH-L2-BSA-DTAG",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "FTTH-L2-BSA",
+          "isDefault": false,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "name": "LineType",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Fixed line delivery medium technology",
+      "configurable": true,
+      "extensible": false,
+      "isModifiable": false,
+      "isVisible": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "FTTx",
+          "isDefault": true,
+          "valueType": "string"
+        },
+        {
+          "value": "CuDa",
+          "isDefault": false,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "name": "ProductCode",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "OGW technical product code",
+      "configurable": true,
+      "extensible": false,
+      "isModifiable": false,
+      "isVisible": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "I1203",
+          "isDefault": true,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "name": "MainAccessServiceCode",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "OGW main service activation code",
+      "configurable": true,
+      "extensible": false,
+      "isModifiable": false,
+      "isVisible": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "I1040",
+          "isDefault": true,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "name": "ProductFamilyID",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Primary product family grouping",
+      "configurable": true,
+      "extensible": false,
+      "isModifiable": false,
+      "isVisible": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "FNFamily30",
+          "isDefault": true,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "name": "ProductFamilyName",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Primary product family name",
+      "configurable": true,
+      "extensible": false,
+      "isModifiable": false,
+      "isVisible": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Technology",
+          "isDefault": true,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "name": "CheckoutProduct",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Indicates if the product is directly selectable in checkout",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1
+    }
+  ]
+}

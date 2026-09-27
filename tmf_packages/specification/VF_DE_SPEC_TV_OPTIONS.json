@@ -1,0 +1,246 @@
+{
+  "id": "VF_DE_SPEC_TV_OPTIONS",
+  "name": "VF_DE_TV_Options_Specification",
+  "version": "0",
+  "brand": "Vodafone Germany",
+  "isBundle": false,
+  "lifecycleStatus": "In study",
+  "description": "Product Specification for Vodafone Germany TV Options (GigaTV base tariffs, premium channel packs, foreign language options, and shipping/installation fees).",
+  "validFor": {
+    "startDateTime": "2026-08-24T00:00:00.000Z"
+  },
+  "productSpecCharacteristic": [
+    {
+      "name": "SKU",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "TV option SKU identifier",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1
+    },
+    {
+      "name": "OptionName",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Commercial Option Name in Vodafone Germany Catalog",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1
+    },
+    {
+      "name": "OptionType",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "TV Option category type",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "BaseTVTariff",
+          "isDefault": true,
+          "valueType": "string"
+        },
+        {
+          "value": "ChannelPack",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "ForeignLanguagePack",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "HDOption",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "InstallationFee",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "ShippingFee",
+          "isDefault": false,
+          "valueType": "string"
+        }
+      ],
+      "minCardinality": 0,
+      "maxCardinality": 1
+    },
+    {
+      "name": "DeviceType",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Associated hardware device option",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "GigaTV Home Net Box",
+          "isDefault": true,
+          "valueType": "string"
+        },
+        {
+          "value": "GigaTV Home Sound Box",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "Apple TV 4K Box",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "None",
+          "isDefault": false,
+          "valueType": "string"
+        }
+      ],
+      "minCardinality": 0,
+      "maxCardinality": 1
+    },
+    {
+      "name": "ForeignLanguage",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Foreign language channels package definition",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "None",
+          "isDefault": true,
+          "valueType": "string"
+        },
+        {
+          "value": "Turkish",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "Polish",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "Russian",
+          "isDefault": false,
+          "valueType": "string"
+        }
+      ],
+      "minCardinality": 0,
+      "maxCardinality": 1
+    },
+    {
+      "name": "MinimumContractDuration",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Minimum contract commitment duration",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1
+    },
+    {
+      "name": "MinimumContractDurationUnit",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Unit for contract commitment duration",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1
+    },
+    {
+      "name": "CancellationPeriod",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Cancellation notice period value",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1
+    },
+    {
+      "name": "CancellationPeriodUnit",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Cancellation notice period unit",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1
+    },
+    {
+      "name": "PackageSubtypeID",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Catalog Package Subtype Identifier",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1
+    },
+    {
+      "name": "ProductFamilyID",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Vodafone Rules Engine Product Family Identifier",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1
+    },
+    {
+      "name": "ProductFamilyName",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Vodafone Rules Engine Product Family Name",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1
+    },
+    {
+      "name": "CheckoutProduct",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Indicates if the product is directly selectable in checkout",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1
+    }
+  ]
+}

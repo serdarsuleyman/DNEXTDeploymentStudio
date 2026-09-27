@@ -1,0 +1,52 @@
+{
+  "id": "pop_fb_7530_ax_rental",
+  "name": "AVM FRITZ!Box 7530 AX Monatliche Miete",
+  "description": "Monatliche Ger\u00e4temiete f\u00fcr AVM FRITZ!Box 7530 AX (5.99 \u20ac/Monat)",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "@baseType": "ProductOfferingPrice",
+  "@type": "ProductOfferingPrice",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productofferingprice.json",
+  "isBundle": false,
+  "priceType": "Recurring charge",
+  "price": {
+    "unit": "EUR",
+    "value": 5.99
+  },
+  "validFor": {
+    "startDateTime": "2022-01-01T00:00:00.000Z"
+  },
+  "productOfferingPriceCharacteristic": [
+    {
+      "id": "1415ac21-5f9f-46c5-8c90-51eb0ba0eee3",
+      "name": "device_model",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "AVM FRITZ!Box 7530 AX"
+        }
+      ]
+    },
+    {
+      "id": "63f85d9f-e055-4074-b2d8-a4d004d281d5",
+      "name": "acquisition_mode",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Rental"
+        }
+      ]
+    },
+    {
+      "id": "cb0ec2f3-4050-44d4-aa87-dcce54c54e34",
+      "name": "recurring_period",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "MONTH"
+        }
+      ]
+    }
+  ],
+  "recurringChargePeriodType": "month"
+}

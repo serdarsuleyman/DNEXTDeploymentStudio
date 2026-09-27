@@ -1,0 +1,106 @@
+{
+  "id": "GS_HW_Miete_12x8_99E[br]",
+  "name": "Hardware Rabatt FRITZ!Box 7690",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "validFor": {
+    "startDateTime": "2026-08-27T18:46:02.568Z"
+  },
+  "@baseType": "ProductOffering",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productoffering.json",
+  "@type": "ProductOffering",
+  "isBundle": false,
+  "isSellable": true,
+  "productSpecification": {
+    "id": "VF_DE_SPEC_PROMOTION",
+    "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_PROMOTION:(version=0)",
+    "name": "VF_DE_Promotion_Specification",
+    "version": "1",
+    "@referredType": "ProductSpecification"
+  },
+  "category": [
+    {
+      "id": "2cddb75e-edf8-43e5-83f1-199b2b8f049c",
+      "href": "/api/productCatalogManagement/v4/category/2cddb75e-edf8-43e5-83f1-199b2b8f049c:(version=0)",
+      "name": "Vodafone Germany POC",
+      "version": "1",
+      "@referredType": "Category"
+    }
+  ],
+  "channel": [
+    {
+      "id": "*-*",
+      "name": "*-*",
+      "href": "/api/productCatalogManagement/v4/channel/*:*:(version=0)",
+      "@referredType": "Channel"
+    }
+  ],
+  "productOfferingPrice": [
+    {
+      "id": "pop-recurrent-GS_HW_Miete_12x8_99E_br_",
+      "href": "/api/productCatalogManagement/v4/productOfferingPrice/pop-recurrent-GS_HW_Miete_12x8_99E_br_:(version=0)",
+      "name": "Hardware Rabatt FRITZ!Box 7690 POP"
+    }
+  ],
+  "prodSpecCharValueUse": [
+    {
+      "name": "SKU",
+      "valueType": "string",
+      "configurable": false,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "GS_HW_Miete_12x8_99E[br]",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "name": "PromoType",
+      "valueType": "string",
+      "configurable": false,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "Financial Discount Credit",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "name": "BillingCode",
+      "valueType": "string",
+      "configurable": false,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "V0850",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "442ea858-57d8-43bb-b2be-08205a9aa232",
+      "name": "CheckoutProduct",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "no",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_SALES_PACKAGE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_SALES_PACKAGE:(version=0)",
+        "name": "VF_DE_Sales_Package_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    }
+  ]
+}

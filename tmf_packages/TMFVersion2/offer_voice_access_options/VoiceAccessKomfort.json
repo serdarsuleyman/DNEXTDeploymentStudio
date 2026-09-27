@@ -1,0 +1,246 @@
+{
+  "id": "VoiceAccessKomfort",
+  "name": "Komfort-Anschluss (C_comfort)",
+  "description": "Commercial premium ISDN-like multi-line voice connection with 2 simultaneous channels and up to 10 telephone numbers.",
+  "isBundle": false,
+  "isSellable": true,
+  "lifecycleStatus": "In study",
+  "version": "0",
+  "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productOffering/VoiceAccessKomfort:(version=0)",
+  "@type": "ProductOffering",
+  "productSpecification": {
+    "id": "spec_voice_access_option",
+    "name": "VF_DE_VOICE_ACCESS_SPEC",
+    "version": "0",
+    "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productSpecification/spec_voice_access_option:(version=0)",
+    "@referredType": "ProductSpecification"
+  },
+  "category": [
+    {
+      "id": "cat_voice_access_options",
+      "name": "Voice Access Options",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/cat_voice_access_options:(version=0)",
+      "@referredType": "Category"
+    }
+  ],
+  "prodSpecCharValueUse": [
+    {
+      "id": "dd233b7d-cfa9-4707-b384-b9cb00797f67",
+      "name": "SKU",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "C_comfort",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "8fbb09b7-9872-4b03-b962-32a5d8af1db0",
+      "name": "OptionName",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Komfort-Anschluss Plus",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "71e5c716-8819-4576-8157-cf057ed3a8fc",
+      "name": "Sorting",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "2",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "56e0672d-d9f6-49f7-8760-5b97824c11b0",
+      "name": "VoiceLineType",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Komfort",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "e83e773e-5277-4d93-adb9-a2e0a0e2ef27",
+      "name": "VoiceChannelsCount",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "2",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "db85342a-53b1-4725-b3d5-bda7364d8fbd",
+      "name": "MaxPhoneNumbersCount",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "10",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "8e700fff-6cf7-48de-a833-87b5b0acdf6a",
+      "name": "DeliveryInfrastructure",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Commercial Unified (Auto-resolved)",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "69eacba1-4797-43b0-963b-38f7c3f671db",
+      "name": "ValidForOfferAccessService",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "VI202VoiceAccessService, VI203VoiceAccessService",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "5e76e390-9347-46a9-bf0f-9718dc3307e1",
+      "name": "AccessServiceCode",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "C_comfort / VI003 / VI006",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "08d6f984-a2cc-4876-9bc3-51645e9dfa1a",
+      "name": "ParentVoiceProductCode",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "VI202 / VI203",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "c1ecabf5-c6b6-4c1e-9794-ac5c7b9b4e47",
+      "name": "SupportedFeatures",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "CLIP, CLIR, Call Forwarding, Parallel Ringing, Busy on Busy, Conference, Sprachbox",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "a092647e-8f05-4c93-a863-6c31ac8facf2",
+      "name": "CallBarringAllowed",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "true",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "9085084d-5cb6-4649-8b00-6e026a6a260e",
+      "name": "MinContractDuration",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "0",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "5ed4a384-c8cb-4c16-9e56-af26a763918e",
+      "name": "MinContractDurationUnit",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "MONTH",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "041fbd56-6ef2-4c1f-8791-46468466e17b",
+      "name": "CancellationPeriod",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "1",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "1f767b28-7ecc-4d6e-914c-412f3e22e2cf",
+      "name": "CancellationPeriodUnit",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "MONTH",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "d374aa7d-feed-4682-9144-af60083702ea",
+      "name": "ProductFamilyID",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "FNFamily8",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "cda78058-971b-4c9e-917b-048c4e9996e5",
+      "name": "ProductFamilyName",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Voice Access",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "4ea0f8e5-d50d-47f8-a097-3ee5a40dd5c0",
+      "name": "PackageSubtypeID",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Option",
+          "isDefault": true
+        }
+      ]
+    }
+  ],
+  "productOfferingPrice": [
+    {
+      "id": "pop_voice_access_komfort_c_comfort",
+      "name": "Komfort-Anschluss Plus (4.00 \u20ac)",
+      "version": "0",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productOfferingPrice/pop_voice_access_komfort_c_comfort:(version=0)",
+      "@referredType": "ProductOfferingPrice"
+    }
+  ]
+}

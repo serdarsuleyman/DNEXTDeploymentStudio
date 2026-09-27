@@ -1,0 +1,71 @@
+{
+  "id": "pop_fb_5530_fiber_purchase_unsubsidized",
+  "name": "AVM FRITZ!Box 5530 Fiber Kaufpreis unsubventioniert (Standard)",
+  "description": "Regul\u00e4rer Standard-Einmalpreis f\u00fcr AVM FRITZ!Box 5530 Fiber ohne Mindestvertragslaufzeit (169.9 \u20ac)",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "@baseType": "ProductOfferingPrice",
+  "@type": "ProductOfferingPrice",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productofferingprice.json",
+  "isBundle": false,
+  "priceType": "One time charge",
+  "price": {
+    "unit": "EUR",
+    "value": 169.9
+  },
+  "validFor": {
+    "startDateTime": "2022-01-01T00:00:00.000Z"
+  },
+  "productOfferingPriceCharacteristic": [
+    {
+      "id": "d3f42887-59c5-47fb-9c56-98a6133f298b",
+      "name": "device_model",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "AVM FRITZ!Box 5530 Fiber"
+        }
+      ]
+    },
+    {
+      "id": "d6e22b01-7d66-43c3-b499-3da6050617ce",
+      "name": "device_subsidized_status",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Unsubsidized"
+        }
+      ]
+    },
+    {
+      "id": "1f731d27-6f3b-46ba-9276-72b6921fb0d8",
+      "name": "contract_duration",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "0"
+        }
+      ]
+    },
+    {
+      "id": "e91587a6-fdae-4d1b-adcd-45cdad1be8e1",
+      "name": "contract_duration_unit",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "MONTH"
+        }
+      ]
+    },
+    {
+      "id": "76cad41c-daa6-4588-b30a-2127c5ea5d68",
+      "name": "acquisition_mode",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Purchase"
+        }
+      ]
+    }
+  ]
+}

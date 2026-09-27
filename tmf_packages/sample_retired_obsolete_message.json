@@ -1,0 +1,12 @@
+[
+    {
+        "op": "replace",
+        "path": "/lifecycleStatus",
+        "value": "Retired"
+    },
+    {
+        "op": "add",
+        "path": "/validFor/endDateTime",
+        "value": "2026-08-22T21:59:59.000Z"
+    }
+]

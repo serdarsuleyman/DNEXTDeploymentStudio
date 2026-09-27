@@ -1,0 +1,274 @@
+{
+  "id": "Offering_FB_5590_Fiber_Rental",
+  "name": "AVM FRITZ!Box 5590 Fiber (Mietger\u00e4t)",
+  "description": "AVM FRITZ!Box 5590 Fiber Premium Optical Fiber Router Mietger\u00e4t.",
+  "isBundle": false,
+  "isSellable": true,
+  "lifecycleStatus": "In study",
+  "version": "0",
+  "@type": "ProductOffering",
+  "productSpecification": {
+    "id": "spec_fiber_hardware",
+    "name": "VF_DE_FIBER_HARDWARE_SPEC",
+    "version": "0",
+    "@referredType": "ProductSpecification"
+  },
+  "category": [
+    {
+      "id": "FN0449",
+      "name": "NOT Super WLAN ready",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN0449:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN0479",
+      "name": "Telekom GF BK HW-Liste",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN0479:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN0485",
+      "name": "Telekom GF Router mit int-Modem",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN0485:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN0487",
+      "name": "obsolet - Telekom GF NK HW-Liste",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN0487:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN0529",
+      "name": "previous hardware for Komfort Goody",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN0529:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN114",
+      "name": "FRITZ!box",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN114:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN12",
+      "name": "Anschluss-Hardware",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN12:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN178",
+      "name": "Rental_AccessHW",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN178:(version=0)",
+      "@referredType": "Category"
+    }
+  ],
+  "prodSpecCharValueUse": [
+    {
+      "id": "eba44409-2a48-4044-8a06-f2a4b5335f18",
+      "name": "DeviceModel",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "AVM FRITZ!Box 5590 Fiber",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "0e37ca5c-d190-46e0-8382-849e71916846",
+      "name": "PAPSType",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "IAD",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "a9e548b7-a07d-41ec-9dc8-46eebb56c96c",
+      "name": "DeviceType",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Router",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "59180496-ed89-4199-abd0-013b69b32b60",
+      "name": "CPEBrand",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "AVM",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "3efc25e0-9386-4938-988f-7f0eaf0ffa48",
+      "name": "WifiStandard",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Wi-Fi 6",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "1b370232-4d66-4d8d-beea-8069547951d3",
+      "name": "RequiresONT",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "N",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "ed5c8e2c-1188-4086-99eb-b0546a6d7d53",
+      "name": "IsCompatibleDSL",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "false",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "54047101-29d7-4ca9-8d97-d727de96ffbf",
+      "name": "IsCompatibleFIBRE",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "true",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "7802acea-11d2-40cb-a610-ae9330600287",
+      "name": "IsCompatibleLTE",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "false",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "8cd5b9ac-cde6-4d44-bdbd-c42b62fa7f0a",
+      "name": "LANPortsInfo",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "1x 2.5-Gigabit LAN/WAN, 4x Gigabit LAN, 1x SFP Fiber Slot, 2x USB 3.0",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "f8d21e29-a4bf-4cb9-ab14-d723ded359bf",
+      "name": "SmartHomeSupport",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "DECT ULE",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "35ff0f1a-16d6-4e23-bb09-df801f8c5587",
+      "name": "ProductFamilyID",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "FNFamily22",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "6aba88ae-6b8e-4ce8-ad53-36e63a4a26c3",
+      "name": "ProductFamilyName",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "FN_Hardware",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "c7a27b53-c7ca-475a-8160-9a72faef8298",
+      "name": "PackageSubtypeID",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Hardware",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "76d9ecaa-9b18-44b0-8fb0-dfa9355db9f0",
+      "name": "FootprintCompatibility",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Both",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "405b1c84-aa84-4a91-adef-2f9b25d20e38",
+      "name": "WANInterfaceType",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "SFP",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "12eccb01-4cd8-485d-94a6-651f1882ed30",
+      "name": "SKU",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "20090216_sub",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "e0d60a7c-c524-4907-82f3-3db0157125d3",
+      "name": "HardwareAcquisitionMode",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Rental",
+          "isDefault": true
+        }
+      ]
+    }
+  ],
+  "productOfferingPrice": [
+    {
+      "id": "pop_fb_5590_fiber_rental",
+      "name": "AVM FRITZ!Box 5590 Fiber Miete (8.99 \u20ac/mo)",
+      "version": "0",
+      "@referredType": "ProductOfferingPrice"
+    }
+  ]
+}

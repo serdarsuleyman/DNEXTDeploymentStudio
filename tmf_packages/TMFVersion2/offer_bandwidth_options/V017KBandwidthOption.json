@@ -1,0 +1,248 @@
+{
+  "id": "V017KBandwidthOption",
+  "name": "Bandbreite 7,2 Mbit/s (V017K)",
+  "description": "Bandwidth option offering for speed profile V017K (Bandbreite 7,2 Mbit/s) over LTE transport using Access Service LTE.",
+  "isBundle": false,
+  "isSellable": true,
+  "lifecycleStatus": "In study",
+  "version": "0",
+  "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productOffering/V017KBandwidthOption:(version=0)",
+  "@type": "ProductOffering",
+  "productSpecification": {
+    "id": "spec_bandwidth_option",
+    "name": "VF_DE_BANDWIDTH_SPEC",
+    "version": "0",
+    "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productSpecification/spec_bandwidth_option:(version=0)",
+    "@referredType": "ProductSpecification"
+  },
+  "category": [
+    {
+      "id": "cat_lte_bandwidth",
+      "name": "LTE Bandwidth Options",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/cat_lte_bandwidth:(version=0)",
+      "@referredType": "Category"
+    }
+  ],
+  "prodSpecCharValueUse": [
+    {
+      "id": "b311471f-a84c-40c7-9d78-fe3b432540bf",
+      "name": "SKU",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "V017K",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "98c61e43-c943-47fd-a1fe-2c518afbb6c4",
+      "name": "OptionName",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Bandbreite 7,2 Mbit/s",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "7d6595bd-652a-4bd2-8eac-a00cfe2c88cd",
+      "name": "Sorting",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "33",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "cfc7132d-d8e0-42d4-a6e0-39d5267e0820",
+      "name": "Technology",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "LTE",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "26011e8c-782c-460e-bc27-a04f771c3337",
+      "name": "AccessServiceProductCode",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "LTE",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "e16d9e5f-505d-4df4-ba6c-c2d7048e311b",
+      "name": "NetworkProfile",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "LTE - Fixed-Wireless Access",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "0bce7044-223c-4f5c-8a2f-3c0ec4238929",
+      "name": "BandwidthDownstreamMax",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "7.20",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "c94b33c4-ab6f-4ea7-aab7-da73fd72baf0",
+      "name": "BandwidthDownstreamAvg",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "5.40",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "1eeb51bd-b3fc-4e31-be62-dec7cb5101bb",
+      "name": "BandwidthDownstreamMin",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "3.60",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "f507f522-41af-4f66-8bdd-e3eb5ed7b079",
+      "name": "BandwidthUpstreamMax",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "1.40",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "2d1d1b33-18f2-41d4-9a7a-47f37e8c1ce2",
+      "name": "BandwidthUpstreamAvg",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "1.00",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "5e000cc9-6551-4512-9364-aba8f158859f",
+      "name": "BandwidthUpstreamMin",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "0.70",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "4b1b4238-4aa8-4659-baf2-878a9dc39901",
+      "name": "BandwidthUnit",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Mbit/s",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "548e1cb8-9772-4d64-a4a3-f6504b0b9242",
+      "name": "AccessSupplier",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Vodafone On-Net",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "1edccdb5-ecc1-4c8c-86f2-4d51fe929508",
+      "name": "IsFallbackProfile",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "false",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "9411f67a-3ed9-4732-9cc3-faad54db17c4",
+      "name": "FallbackHierarchyLevel",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Nominal",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "277c8fa2-114b-4cce-bb3d-17e05750e806",
+      "name": "FallbackMappingKey",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "V017K-LTE",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "b4ab1f92-9979-455e-819a-53a8e842e6ed",
+      "name": "ProductFamilyID",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "FNFamily7",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "9eb92669-c6c3-4183-a904-68f8f255d241",
+      "name": "ProductFamilyName",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Bandwidth",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "59be0950-b89a-4d66-b620-7654c4224b1d",
+      "name": "PackageSubtypeID",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Option",
+          "isDefault": true
+        }
+      ]
+    }
+  ]
+}

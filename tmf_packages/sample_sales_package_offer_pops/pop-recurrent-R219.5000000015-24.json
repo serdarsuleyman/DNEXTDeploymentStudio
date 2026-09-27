@@ -1,0 +1,19 @@
+{
+  "id": "pop-recurrent-R219.5000000015-24",
+  "name": "GigaZuhause 1500 Glasfaser 24 Months Monthly Fee",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "priceType": "Recurring charge",
+  "recurringChargePeriodType": "month",
+  "price": {
+    "value": 199.99,
+    "unit": "EUR"
+  },
+  "tax": [
+    {
+      "taxCategory": "VAT",
+      "taxRate": 19
+    }
+  ],
+  "@type": "ProductOfferingPrice"
+}

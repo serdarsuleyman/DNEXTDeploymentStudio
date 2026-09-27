@@ -1,0 +1,69 @@
+{
+  "id": "pop_comp_voice_connection_cbasic",
+  "name": "Basis-Anschluss Voice Connection",
+  "version": "0",
+  "description": "Standard single-line voice connection (1 channel, 1 number)",
+  "lifecycleStatus": "In study",
+  "@baseType": "ProductOfferingPrice",
+  "@type": "ProductOfferingPrice",
+  "isBundle": false,
+  "priceType": "Recurring charge",
+  "recurringChargePeriodType": "month",
+  "price": {
+    "unit": "EUR",
+    "value": 0
+  },
+  "validFor": {
+    "startDateTime": "2025-10-26T00:00:00.000Z"
+  },
+  "productOfferingPriceCharacteristic": [
+    {
+      "id": "4661d0d8-6066-4006-a17d-9abe6e1a4ba5",
+      "name": "voice_connection_type",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "@type": "ProductOfferingPriceCharacteristic",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "C_basic",
+          "valueType": "string",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "dc3e6a38-fb8d-4983-9f79-238d270cc5db",
+      "name": "channels_count",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "@type": "ProductOfferingPriceCharacteristic",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "1",
+          "valueType": "string",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "491abce8-069c-4484-908d-121a6e68e5da",
+      "name": "numbers_count",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "@type": "ProductOfferingPriceCharacteristic",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "1",
+          "valueType": "string",
+          "isDefault": true
+        }
+      ]
+    }
+  ]
+}

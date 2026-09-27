@@ -1,0 +1,26 @@
+{
+  "id": "pop-recurrent-C_basic",
+  "name": "Basis-Anschluss Monthly Fee",
+  "description": "Recurring monthly voice option fee of 0.00 EUR for Basis-Anschluss",
+  "version": "0",
+  "priceType": "Recurring charge",
+  "recurringChargePeriodType": "monthly",
+  "recurringChargePeriodLength": 1,
+  "isBundle": false,
+  "lifecycleStatus": "In study",
+  "price": {
+    "value": 0.0,
+    "unit": "EUR"
+  },
+  "percentage": 0,
+  "tax": [
+    {
+      "taxCategory": "VAT",
+      "taxRate": 19
+    }
+  ],
+  "pricingCategory": "Fee",
+  "validFor": {
+    "startDateTime": "2026-08-23T10:10:00.000Z"
+  }
+}

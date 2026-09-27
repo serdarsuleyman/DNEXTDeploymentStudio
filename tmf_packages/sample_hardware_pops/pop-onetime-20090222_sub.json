@@ -1,0 +1,18 @@
+{
+  "id": "pop-onetime-20090222_sub",
+  "name": "FRITZ!Box 5530 Glasfaser (Kaufgerät) One-Time Fee",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "priceType": "One time charge",
+  "price": {
+    "value": 139.9,
+    "unit": "EUR"
+  },
+  "tax": [
+    {
+      "taxCategory": "VAT",
+      "taxRate": 19
+    }
+  ],
+  "@type": "ProductOfferingPrice"
+}

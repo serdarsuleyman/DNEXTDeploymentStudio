@@ -1,0 +1,18 @@
+{
+  "id": "pop-onetime-YI031V0083",
+  "name": "Bereitstellungsentgelt One-time Fee",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "priceType": "One time charge",
+  "price": {
+    "value": 59.95,
+    "unit": "EUR"
+  },
+  "tax": [
+    {
+      "taxCategory": "VAT",
+      "taxRate": 19
+    }
+  ],
+  "@type": "ProductOfferingPrice"
+}

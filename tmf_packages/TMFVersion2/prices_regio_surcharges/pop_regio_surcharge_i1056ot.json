@@ -1,0 +1,53 @@
+{
+  "id": "pop_regio_surcharge_i1056ot",
+  "name": "Regio-Zuschlag Generic Monthly Fee (5.00 €)",
+  "description": "Product offering price component for Regio-Zuschlag Generic Monthly Fee (5.00 €)",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "@baseType": "ProductOfferingPrice",
+  "@type": "ProductOfferingPrice",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productofferingprice.json",
+  "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productOfferingPrice/pop_regio_surcharge_i1056ot:(version=0)",
+  "isBundle": false,
+  "priceType": "Recurring charge",
+  "recurringChargePeriodType": "month",
+  "price": {
+    "unit": "EUR",
+    "value": 5.0
+  },
+  "validFor": {
+    "startDateTime": "2025-10-26T00:00:00.000Z"
+  },
+  "productOfferingPriceCharacteristic": [
+    {
+      "id": "99dce7ca-15e5-4ba2-9edc-a01f88474b9b",
+      "name": "regio_zone_code",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Generic"
+        }
+      ]
+    },
+    {
+      "id": "0d8b3f04-ec78-4fcd-8ebc-0a28b3a77af3",
+      "name": "access_supplier",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "DTAG Wholesale L2-BSA"
+        }
+      ]
+    },
+    {
+      "id": "daa0ebf1-37d8-42f6-bfca-d7cd48481dbb",
+      "name": "regio_sku",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "I1056OT"
+        }
+      ]
+    }
+  ]
+}

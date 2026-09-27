@@ -1,0 +1,52 @@
+{
+  "id": "pop_easybox_805_rental",
+  "name": "Vodafone EasyBox 805 Monatliche Miete",
+  "description": "Monatliche Ger\u00e4temiete f\u00fcr Vodafone EasyBox 805 (2.99 \u20ac/Monat)",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "@baseType": "ProductOfferingPrice",
+  "@type": "ProductOfferingPrice",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productofferingprice.json",
+  "isBundle": false,
+  "priceType": "Recurring charge",
+  "price": {
+    "unit": "EUR",
+    "value": 2.99
+  },
+  "validFor": {
+    "startDateTime": "2022-01-01T00:00:00.000Z"
+  },
+  "productOfferingPriceCharacteristic": [
+    {
+      "id": "611a38c6-f4d2-4a97-83c5-931c0a5ff47c",
+      "name": "device_model",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Vodafone EasyBox 805"
+        }
+      ]
+    },
+    {
+      "id": "60ea375b-7fea-4c0e-bd31-89d6bbabf82b",
+      "name": "acquisition_mode",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Rental"
+        }
+      ]
+    },
+    {
+      "id": "f0ef0158-f6bd-4287-a26e-be0881a4d3d2",
+      "name": "recurring_period",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "MONTH"
+        }
+      ]
+    }
+  ],
+  "recurringChargePeriodType": "month"
+}

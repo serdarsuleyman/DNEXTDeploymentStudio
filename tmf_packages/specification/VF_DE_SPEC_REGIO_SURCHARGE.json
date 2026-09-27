@@ -1,0 +1,333 @@
+{
+  "id": "VF_DE_SPEC_REGIO_SURCHARGE",
+  "name": "VF_DE_Regio_Surcharge_Specification",
+  "version": "0",
+  "brand": "Vodafone Germany",
+  "isBundle": false,
+  "lifecycleStatus": "In study",
+  "description": "Common TMF 620 Product Specification for Vodafone Germany Regional Surcharges (Regio-Zuschlag) applied on Partner/Wholesale footprints.",
+  "@baseType": "ProductSpecification",
+  "@type": "ProductSpecification",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productspecification.json",
+  "validFor": {
+    "startDateTime": "2026-08-21T00:00:00.000Z"
+  },
+  "productSpecCharacteristic": [
+    {
+      "id": "03e84cbf-ed60-4a90-a620-e1cb7aa9e1e0",
+      "name": "SKU",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Atomic Regional Surcharge SKU identifier (e.g. RZG00, RZG01, RZG02, I1056OT, IPR01, IPR02)",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic"
+    },
+    {
+      "id": "2aa3dee8-9339-4105-9245-62b993301c8c",
+      "name": "OptionName",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Commercial Option Name in Vodafone Catalog (e.g. 'Regio-Zuschlag Glasfaser Klasse 0', 'Regio-Zuschlag')",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic"
+    },
+    {
+      "id": "ca3d593f-39cf-4818-adc0-0e2c1b399442",
+      "name": "Sorting",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Display and catalog evaluation sorting order index",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic"
+    },
+    {
+      "id": "94cf1602-2a3a-48a0-bef9-5bbd6a414d5b",
+      "name": "RegionalZone",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Geographical surcharge zone class assigned via VFP line check",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "RZG00",
+          "isDefault": true,
+          "valueType": "string"
+        },
+        {
+          "value": "RZG01",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "RZG02",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "RZG03",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "RZG04",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "RZG05",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "RZG06",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "RZG07",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "RZG08",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "RZG09",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "Generic",
+          "isDefault": false,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "id": "2e3f86a9-5a93-4d92-bd09-a60a76cf6254",
+      "name": "AccessSupplier",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Access supplier associated with this surcharge zone",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Vodafone On-Net",
+          "isDefault": true,
+          "valueType": "string"
+        },
+        {
+          "value": "DTAG Wholesale L2-BSA",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "Wholebuy / Open Access (DG, OXG)",
+          "isDefault": false,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "id": "34736cd4-068d-4656-9b02-b3ac507e17fe",
+      "name": "Technology",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Physical transport medium and network technology",
+      "configurable": true,
+      "extensible": false,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "FIBRE",
+          "isDefault": true,
+          "valueType": "string"
+        },
+        {
+          "value": "DSL",
+          "isDefault": false,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "id": "83555f94-6c3b-4283-ae6a-76db5ee503de",
+      "name": "IsCompatibleDSL",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Indicates if the regional surcharge is compatible with DSL technology",
+      "configurable": true,
+      "extensible": false,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "true",
+          "isDefault": true,
+          "valueType": "string"
+        },
+        {
+          "value": "false",
+          "isDefault": false,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "id": "d77f2318-ef7b-4411-8cc5-777d79bb2ff0",
+      "name": "IsCompatibleFIBRE",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Indicates if the regional surcharge is compatible with Fiber technology",
+      "configurable": true,
+      "extensible": false,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "true",
+          "isDefault": true,
+          "valueType": "string"
+        },
+        {
+          "value": "false",
+          "isDefault": false,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "id": "84249491-5c4f-4d41-bb14-64cb5d825551",
+      "name": "SurchargeType",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Billing charging classification and zone surcharge type",
+      "configurable": true,
+      "extensible": false,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "On-Net Standard (0 €)",
+          "isDefault": true,
+          "valueType": "string"
+        },
+        {
+          "value": "Wholesale Zone Surcharge",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "Availability Check Indicator",
+          "isDefault": false,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "id": "4ddb0886-712e-4b6f-a86c-c2e56910849b",
+      "name": "ProductFamilyID",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Vodafone Rules Engine Product Family Identifier (FNFamily40)",
+      "configurable": false,
+      "extensible": false,
+      "isModifiable": false,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "FNFamily40",
+          "isDefault": true,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "id": "d51d5923-de37-4643-8700-481532b62a66",
+      "name": "ProductFamilyName",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Vodafone Rules Engine Product Family Name (Regio Fee)",
+      "configurable": false,
+      "extensible": false,
+      "isModifiable": false,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Regio Fee",
+          "isDefault": true,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "id": "2dbbcaae-443d-4510-a0c4-d4021a24c5a4",
+      "name": "PackageSubtypeID",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Catalog Package Subtype Identifier (Additional_services)",
+      "configurable": false,
+      "extensible": false,
+      "isModifiable": false,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Additional_services",
+          "isDefault": true,
+          "valueType": "string"
+        }
+      ]
+    }
+  ]
+}

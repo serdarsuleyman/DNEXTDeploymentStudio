@@ -1,0 +1,26 @@
+{
+  "id": "pop-recurrent-C_comfort",
+  "name": "Komfort-Anschluss Monthly Fee",
+  "description": "Recurring monthly voice option fee of 3.99 EUR for Komfort-Anschluss",
+  "version": "0",
+  "priceType": "Recurring charge",
+  "recurringChargePeriodType": "monthly",
+  "recurringChargePeriodLength": 1,
+  "isBundle": false,
+  "lifecycleStatus": "In study",
+  "price": {
+    "value": 3.99,
+    "unit": "EUR"
+  },
+  "percentage": 0,
+  "tax": [
+    {
+      "taxCategory": "VAT",
+      "taxRate": 19
+    }
+  ],
+  "pricingCategory": "Fee",
+  "validFor": {
+    "startDateTime": "2026-08-23T10:10:00.000Z"
+  }
+}

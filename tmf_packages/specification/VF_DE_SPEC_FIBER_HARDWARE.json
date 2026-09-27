@@ -1,0 +1,441 @@
+{
+  "id": "spec_fiber_hardware",
+  "name": "VF_DE_FIBER_HARDWARE_SPEC",
+  "version": "0",
+  "brand": "Vodafone Germany",
+  "isBundle": false,
+  "lifecycleStatus": "In study",
+  "description": "Common TMF 620 Product Specification for Vodafone Germany Native Optical Fiber Routers (with integrated SFP module) and Optical Network Termination Devices (ONT).",
+  "@baseType": "ProductSpecification",
+  "@type": "ProductSpecification",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productspecification.json",
+  "validFor": {
+    "startDateTime": "2022-01-01T00:00:00.000Z"
+  },
+  "productSpecCharacteristic": [
+    {
+      "name": "SKU",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Hardware SKU Identifier",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "id": "696e290f-6b00-4d79-9b96-ccae2d9cace5",
+      "@type": "ProductSpecCharacteristic"
+    },
+    {
+      "name": "DeviceModel",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Commercial Hardware Model Name",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "id": "9f261ef1-d6d4-4ffb-9a77-a526c60f0383",
+      "@type": "ProductSpecCharacteristic"
+    },
+    {
+      "name": "DeviceType",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Hardware Device Category Type",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Router",
+          "isDefault": true
+        },
+        {
+          "value": "Modem",
+          "isDefault": false
+        },
+        {
+          "value": "Repeater",
+          "isDefault": false
+        },
+        {
+          "value": "Backup-SIM",
+          "isDefault": false
+        }
+      ],
+      "id": "c5db24f0-e5eb-4fed-8a51-0e0a4f8b7806",
+      "@type": "ProductSpecCharacteristic"
+    },
+    {
+      "name": "PAPSType",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "PAPS Technical Classification Type",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "IAD",
+          "isDefault": true
+        },
+        {
+          "value": "NTD",
+          "isDefault": false
+        },
+        {
+          "value": "SWLAN_1V",
+          "isDefault": false
+        },
+        {
+          "value": "SWLAN_2V",
+          "isDefault": false
+        },
+        {
+          "value": "SIM",
+          "isDefault": false
+        }
+      ],
+      "id": "bb260618-163d-44c2-8ca5-359b72348ec6",
+      "@type": "ProductSpecCharacteristic"
+    },
+    {
+      "name": "CPEBrand",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Hardware Vendor Brand",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "AVM",
+          "isDefault": true
+        },
+        {
+          "value": "Vodafone",
+          "isDefault": false
+        },
+        {
+          "value": "Generic",
+          "isDefault": false
+        }
+      ],
+      "id": "c32b5c65-1fff-4505-a6ea-a39a90420541",
+      "@type": "ProductSpecCharacteristic"
+    },
+    {
+      "name": "HardwareAcquisitionMode",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Acquisition model for CPE hardware equipment",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Purchase",
+          "isDefault": true
+        },
+        {
+          "value": "Rental",
+          "isDefault": false
+        },
+        {
+          "value": "CustomerOwn",
+          "isDefault": false
+        },
+        {
+          "value": "Included",
+          "isDefault": false
+        }
+      ],
+      "id": "87423ceb-61d2-4f15-afc0-b3f5c2982d1d",
+      "@type": "ProductSpecCharacteristic"
+    },
+    {
+      "name": "WifiStandard",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Wireless network protocol tier supported by device",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Wi-Fi 7",
+          "isDefault": false
+        },
+        {
+          "value": "Wi-Fi 6",
+          "isDefault": true
+        },
+        {
+          "value": "Wi-Fi 5",
+          "isDefault": false
+        },
+        {
+          "value": "None",
+          "isDefault": false
+        }
+      ],
+      "id": "50bdc20a-7a91-48bd-aba9-12e69f4fcea6",
+      "@type": "ProductSpecCharacteristic"
+    },
+    {
+      "name": "RequiresONT",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Flag identifying if this router requires an external ONT optical modem on FTTH connections",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "N",
+          "isDefault": true
+        },
+        {
+          "value": "Y",
+          "isDefault": false
+        }
+      ],
+      "id": "7780b7ad-44a1-43e5-b8f9-46f59116f874",
+      "@type": "ProductSpecCharacteristic"
+    },
+    {
+      "name": "IsCompatibleDSL",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Indicates if the equipment supports DSL connections",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "true",
+          "isDefault": true
+        },
+        {
+          "value": "false",
+          "isDefault": false
+        }
+      ],
+      "id": "bbc5def4-2ddc-4901-b529-2d3bb43685ce",
+      "@type": "ProductSpecCharacteristic"
+    },
+    {
+      "name": "IsCompatibleFIBRE",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Indicates if the equipment supports Fiber connections",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "true",
+          "isDefault": true
+        },
+        {
+          "value": "false",
+          "isDefault": false
+        }
+      ],
+      "id": "9d9c4b4f-ae12-4e2d-a25d-16b69f7c2514",
+      "@type": "ProductSpecCharacteristic"
+    },
+    {
+      "name": "IsCompatibleLTE",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Indicates if the equipment supports LTE/cellular connections",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "false",
+          "isDefault": true
+        },
+        {
+          "value": "true",
+          "isDefault": false
+        }
+      ],
+      "id": "c4443fdc-f128-4f8a-9330-8b4d01a1cbdf",
+      "@type": "ProductSpecCharacteristic"
+    },
+    {
+      "name": "LANPortsInfo",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Number and speed specification of Ethernet LAN ports",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "id": "67415e46-6f4b-453b-b168-893ca12ef11c",
+      "@type": "ProductSpecCharacteristic"
+    },
+    {
+      "name": "SmartHomeSupport",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Integrated Smart Home connection standards",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Zigbee",
+          "isDefault": false
+        },
+        {
+          "value": "DECT ULE",
+          "isDefault": false
+        },
+        {
+          "value": "Both",
+          "isDefault": false
+        },
+        {
+          "value": "None",
+          "isDefault": true
+        }
+      ],
+      "id": "f3ff0c56-1ace-434e-bfd6-2bdc2e3948b0",
+      "@type": "ProductSpecCharacteristic"
+    },
+    {
+      "name": "ProductFamilyID",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Vodafone Rules Engine Product Family Identifier",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "id": "52640097-07ba-4f3c-ae41-7de1ec276a4f",
+      "@type": "ProductSpecCharacteristic"
+    },
+    {
+      "name": "ProductFamilyName",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Vodafone Rules Engine Product Family Name",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "id": "736f76d0-00c9-4cef-8d38-5faa25a2150b",
+      "@type": "ProductSpecCharacteristic"
+    },
+    {
+      "name": "PackageSubtypeID",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Catalog Package Subtype Identifier",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "id": "c36b0847-d0a3-4dd4-b39f-9d77ae362ea2",
+      "@type": "ProductSpecCharacteristic"
+    },
+    {
+      "name": "FootprintCompatibility",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Network footprint deployment compatibility",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "GPON",
+          "isDefault": false
+        },
+        {
+          "value": "Partner Fiber",
+          "isDefault": false
+        },
+        {
+          "value": "Both",
+          "isDefault": true
+        }
+      ],
+      "id": "30338f36-676a-4f6f-964a-423f841945fd",
+      "@type": "ProductSpecCharacteristic"
+    },
+    {
+      "name": "WANInterfaceType",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Uplink physical connection interface type",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "SFP",
+          "isDefault": true
+        },
+        {
+          "value": "RJ-45-Ethernet",
+          "isDefault": false
+        }
+      ],
+      "id": "7053d2c9-b22d-4a85-a9c3-ea053802d4e3",
+      "@type": "ProductSpecCharacteristic"
+    }
+  ]
+}

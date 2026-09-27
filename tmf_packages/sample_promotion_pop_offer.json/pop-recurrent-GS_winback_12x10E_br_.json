@@ -1,0 +1,85 @@
+{
+  "id": "pop-recurrent-GS_winback_12x10E_br_",
+  "name": "Aktionsgutschrift 12 x 10 Euro Pricing",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "priceType": "Recurring charge",
+  "unitOfMeasure": {
+    "amount": 1
+  },
+  "recurringChargePeriodType": "monthly",
+  "recurringChargePeriodLength": 1,
+  "isBundle": false,
+  "price": {
+    "value": 10,
+    "unit": "EUR"
+  },
+  "percentage": 0,
+  "tax": [
+    {
+      "taxCategory": "VAT",
+      "taxRate": 19
+    }
+  ],
+  "pricingCategory": "Fee",
+  "productOfferingPriceCharacteristic": [
+    {
+      "characteristicType": "Simple Value",
+      "configurable": false,
+      "extensible": false,
+      "id": "5dff2d2b-e98a-405a-a5da-ccf04937f51d",
+      "isUnique": false,
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "name": "start_month",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "isDefault": false,
+          "value": "0",
+          "valueType": "string"
+        }
+      ],
+      "valueType": "string",
+      "@type": "ProductOfferingPriceCharacteristic"
+    },
+    {
+      "characteristicType": "Simple Value",
+      "configurable": true,
+      "extensible": true,
+      "id": "d25d854a-ca03-4e6d-b5e5-cda077c399e6",
+      "isUnique": false,
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "name": "end_month",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "isDefault": false,
+          "value": "12",
+          "valueType": "string"
+        }
+      ],
+      "valueType": "string",
+      "@type": "ProductOfferingPriceCharacteristic"
+    },
+    {
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "id": "f42a9bfb-4f5d-4c5c-9907-4c43fa55f5f4",
+      "isUnique": false,
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "name": "Price Type",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "isDefault": false,
+          "value": "Discount",
+          "valueType": "string"
+        }
+      ],
+      "valueType": "string",
+      "@type": "ProductOfferingPriceCharacteristic"
+    }
+  ],
+  "@type": "ProductOfferingPrice"
+}

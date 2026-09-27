@@ -1,0 +1,51 @@
+{
+  "id": "pop_always_on_sim_zero",
+  "name": "Always On SIM (500GB) Bereitstellung (0.00 \u20ac)",
+  "description": "Kostenfreie Bereitstellung f\u00fcr Always On SIM (500GB) (0.00 \u20ac)",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "@baseType": "ProductOfferingPrice",
+  "@type": "ProductOfferingPrice",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productofferingprice.json",
+  "isBundle": false,
+  "priceType": "One time charge",
+  "price": {
+    "unit": "EUR",
+    "value": 0.0
+  },
+  "validFor": {
+    "startDateTime": "2022-01-01T00:00:00.000Z"
+  },
+  "productOfferingPriceCharacteristic": [
+    {
+      "id": "e1d3c79e-91b3-4e84-90e1-2bf4f44dc7b6",
+      "name": "device_model",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Always On SIM (500GB)"
+        }
+      ]
+    },
+    {
+      "id": "2b63bc62-7929-42b5-ad1d-c2853d7fdf9a",
+      "name": "acquisition_mode",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Included"
+        }
+      ]
+    },
+    {
+      "id": "8969858b-3ca0-4a84-8167-78dfc2308b11",
+      "name": "contract_duration",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "0"
+        }
+      ]
+    }
+  ]
+}

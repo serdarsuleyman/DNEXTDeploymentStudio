@@ -1,0 +1,86 @@
+{
+  "id": "pop_comp_regio_fee_ip527_rzg00",
+  "name": "Regio Fee Component (RZG00 - 0.00€)",
+  "version": "0",
+  "description": "Monthly recurring regional surcharge fee (RZG00 - Standard (On-Net))",
+  "lifecycleStatus": "In study",
+  "@baseType": "ProductOfferingPrice",
+  "@type": "ProductOfferingPrice",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productofferingprice.json",
+  "isBundle": false,
+  "priceType": "Recurring charge",
+  "recurringChargePeriodType": "month",
+  "price": {
+    "unit": "EUR",
+    "value": 0
+  },
+  "validFor": {
+    "startDateTime": "2025-10-26T00:00:00.000Z"
+  },
+  "productOfferingPriceCharacteristic": [
+    {
+      "id": "de686724-05ec-42e5-8ba2-5ee39098cd29",
+      "name": "regio_class_sku",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "@type": "ProductOfferingPriceCharacteristic",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "IP527RZG00",
+          "valueType": "string",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "99f28ee6-7b77-4d22-8819-f166381b3183",
+      "name": "regio_zone_code",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "@type": "ProductOfferingPriceCharacteristic",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "RZG00",
+          "valueType": "string",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "a11cd784-4e1e-46de-8819-5b054e9a8a5d",
+      "name": "regio_zone_name",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "@type": "ProductOfferingPriceCharacteristic",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Standard (On-Net)",
+          "valueType": "string",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "5e2241fd-019e-49e3-a6f6-6b1ff2139b98",
+      "name": "access_supplier",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "@type": "ProductOfferingPriceCharacteristic",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "DTAG",
+          "valueType": "string",
+          "isDefault": true
+        }
+      ]
+    }
+  ]
+}

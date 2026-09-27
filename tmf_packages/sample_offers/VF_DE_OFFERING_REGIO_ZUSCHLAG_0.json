@@ -1,0 +1,270 @@
+{
+  "id": "VF_DE_OFFERING_REGIO_ZUSCHLAG_0",
+  "name": "VF_DE_Regional_Zuschlag Option Class 0",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "validFor": {
+    "startDateTime": "2026-08-21T00:00:00.000Z"
+  },
+  "@baseType": "ProductOffering",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productoffering.json",
+  "@type": "ProductOffering",
+  "isBundle": false,
+  "isSellable": true,
+  "productSpecification": {
+    "id": "VF_DE_SPEC_REGIO_SURCHARGE",
+    "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_REGIO_SURCHARGE:(version=0)",
+    "name": "VF_DE_Regio_Surcharge_Specification",
+    "version": "1",
+    "@referredType": "ProductSpecification"
+  },
+  "productOfferingPrice": [],
+  "category": [
+    {
+      "id": "2cddb75e-edf8-43e5-83f1-199b2b8f049c",
+      "href": "/api/productCatalogManagement/v4/category/2cddb75e-edf8-43e5-83f1-199b2b8f049c:(version=0)",
+      "name": "Vodafone Germany POC",
+      "version": "1",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN0619",
+      "href": "/api/productCatalogManagement/v4/category/FN0619:(version=0)",
+      "name": "Regio-Zuschlag Glasfaser Klasse 0",
+      "version": "1",
+      "@referredType": "Category"
+    }
+  ],
+  "prodSpecCharValueUse": [
+    {
+      "id": "89b147d3-1383-4903-b9ca-7e9b25dc4c2b",
+      "name": "SKU",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "IP527RZG00",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_REGIO_SURCHARGE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_REGIO_SURCHARGE:(version=0)",
+        "name": "VF_DE_Regio_Surcharge_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "f4a6d71f-cf92-4fdb-9ef0-0a5611cb89b2",
+      "name": "OptionName",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "VF_DE_Regional_Zuschlag Option Class 0",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_REGIO_SURCHARGE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_REGIO_SURCHARGE:(version=0)",
+        "name": "VF_DE_Regio_Surcharge_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "a63bcf3d-5192-4e4b-9721-39fae6bf2a9d",
+      "name": "RegionalZone",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "RZG01",
+          "isDefault": true
+        }
+      ],
+      "mandatory": false,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_REGIO_SURCHARGE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_REGIO_SURCHARGE:(version=0)",
+        "name": "VF_DE_Regio_Surcharge_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "d36b8e3a-7f12-4cf0-bbca-5bc4b831ad76",
+      "name": "AccessSupplier",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "DTAG",
+          "isDefault": true
+        }
+      ],
+      "mandatory": false,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_REGIO_SURCHARGE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_REGIO_SURCHARGE:(version=0)",
+        "name": "VF_DE_Regio_Surcharge_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "5e2b83ef-d890-4a87-b9c1-efd581a93b4e",
+      "name": "IsCompatibleDSL",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "true",
+          "isDefault": true
+        }
+      ],
+      "mandatory": false,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_REGIO_SURCHARGE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_REGIO_SURCHARGE:(version=0)",
+        "name": "VF_DE_Regio_Surcharge_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "f73c4e23-81b4-4b53-a5e2-2db1cb7d559a",
+      "name": "IsCompatibleFIBRE",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "true",
+          "isDefault": true
+        }
+      ],
+      "mandatory": false,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_REGIO_SURCHARGE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_REGIO_SURCHARGE:(version=0)",
+        "name": "VF_DE_Regio_Surcharge_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "b1a523d4-28b9-44d5-89f1-a1e4c76a59b2",
+      "name": "BillingCode",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "RZG00",
+          "isDefault": true
+        }
+      ],
+      "mandatory": false,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_REGIO_SURCHARGE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_REGIO_SURCHARGE:(version=0)",
+        "name": "VF_DE_Regio_Surcharge_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "2b6e7a5d-4f81-4b13-a8c0-3fb7e891ad62",
+      "name": "SurchargeType",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "Standard",
+          "isDefault": true
+        }
+      ],
+      "mandatory": false,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_REGIO_SURCHARGE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_REGIO_SURCHARGE:(version=0)",
+        "name": "VF_DE_Regio_Surcharge_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "9cb517a2-f81d-403d-bc65-8bdf129bc7ea",
+      "name": "PackageSubtypeID",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "Option",
+          "isDefault": true
+        }
+      ],
+      "mandatory": false,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_REGIO_SURCHARGE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_REGIO_SURCHARGE:(version=0)",
+        "name": "VF_DE_Regio_Surcharge_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "a1d827f3-bc4e-48f5-93ca-a1f9a2d8b5c4",
+      "name": "ProductFamilyID",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "FNFamily28",
+          "isDefault": true
+        }
+      ],
+      "mandatory": false,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_REGIO_SURCHARGE",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_REGIO_SURCHARGE:(version=0)",
+        "name": "VF_DE_Regio_Surcharge_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    }
+  ]
+}

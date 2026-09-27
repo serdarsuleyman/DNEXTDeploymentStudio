@@ -1,0 +1,20 @@
+{
+  "id": "pop_comp_internet_tariff_ip527",
+  "name": "Internet Tariff Base (IP527)",
+  "version": "0",
+  "description": "Monthly recurring base fee for Internet Tariff IP527",
+  "lifecycleStatus": "In study",
+  "@baseType": "ProductOfferingPrice",
+  "@type": "ProductOfferingPrice",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productofferingprice.json",
+  "isBundle": false,
+  "priceType": "Recurring charge",
+  "recurringChargePeriodType": "month",
+  "price": {
+    "unit": "EUR",
+    "value": 24.99
+  },
+  "validFor": {
+    "startDateTime": "2025-10-26T00:00:00.000Z"
+  }
+}

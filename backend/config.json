@@ -1,0 +1,21 @@
+{
+  "sourcePath": "tmf_packages",
+  "environments": [
+    {
+      "name": "Default (dev-gcu)",
+      "url": "https://dpc-api.pi.dev-gcu.com/ui/productCatalogManagement/",
+      "apiUrl": "https://dpc-api.pi.dev-gcu.com",
+      "authUrl": "https://diam.pi.dev-gcu.com/realms/orbitant-realm/protocol/openid-connect/token",
+      "username": "nora",
+      "password": "1234"
+    },
+    {
+      "name": "dpc_ui.test-g",
+      "url": "https://dpc-ui.test-gcu.com/ui/productCatalogManagement/",
+      "apiUrl": "https://dpc-api.test-gcu.com",
+      "authUrl": "https://diam.test-gcu.com/realms/orbitant-realm/protocol/openid-connect/token",
+      "username": "vfde",
+      "password": "1234"
+    }
+  ]
+}

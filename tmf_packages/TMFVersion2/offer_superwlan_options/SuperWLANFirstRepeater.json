@@ -1,0 +1,202 @@
+{
+  "id": "SuperWLANFirstRepeater",
+  "name": "Bereitstellung SuperWLAN-Verst\u00e4rker (SW002)",
+  "description": "Monthly lease and provisioning of the first SuperWLAN Wi-Fi 6 Mesh Repeater with a 6-month initial commitment.",
+  "isBundle": false,
+  "isSellable": true,
+  "lifecycleStatus": "In study",
+  "version": "0",
+  "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productOffering/SuperWLANFirstRepeater:(version=0)",
+  "@type": "ProductOffering",
+  "productSpecification": {
+    "id": "spec_superwlan_option",
+    "name": "VF_DE_SUPERWLAN_SPEC",
+    "version": "0",
+    "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productSpecification/spec_superwlan_option:(version=0)",
+    "@referredType": "ProductSpecification"
+  },
+  "category": [
+    {
+      "id": "cat_superwlan_options",
+      "name": "SuperWLAN & Mesh Options",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/cat_superwlan_options:(version=0)",
+      "@referredType": "Category"
+    }
+  ],
+  "prodSpecCharValueUse": [
+    {
+      "id": "190dd049-9405-478d-8409-3c46f884afda",
+      "name": "SKU",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "SW002",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "93343f81-51d6-46cb-92eb-367a4e1f600e",
+      "name": "OptionName",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Bereitstellung SuperWLAN-Verst\u00e4rker",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "d03e0d0b-d130-4438-9546-018ecafef95f",
+      "name": "Sorting",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "14",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "87aeda3d-806d-42a9-a831-f9b925d62c8c",
+      "name": "SuperWLANType",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Mesh Extender Hardware Lease",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "219b1ab7-f927-4223-bb0b-a27989ab0718",
+      "name": "MeshDeviceRole",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Primary Extender (6M)",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "b66f83f5-3fba-4c54-8e2f-2f3c7b94e894",
+      "name": "MinContractDuration",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "6",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "e69e94a3-15e7-44c5-bfa6-4c3eba592ad3",
+      "name": "MinContractDurationUnit",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "MONTH",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "7ff5e2dd-c2f8-43cc-a28b-a3eb026783df",
+      "name": "CancellationPeriod",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "1",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "26d93978-6db4-4917-be4f-3916e17023d8",
+      "name": "CancellationPeriodUnit",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "MONTH",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "8e31a1bd-2882-43db-86b6-2a7a48265498",
+      "name": "SupportedHardware",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Vodafone EasyBox 805",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "c3259896-405e-4c55-80fe-cdba81a93073",
+      "name": "SuperWifiMode",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "active",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "03fbb3c9-55f8-449e-8140-4115f24852af",
+      "name": "SummaryText",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Bereitstellung SuperWLAN-Verst\u00e4rker (Erstger\u00e4t mit 6 Monaten Mindestvertragslaufzeit)",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "9db3928a-68ca-4a6c-bf96-e97fc7ed4306",
+      "name": "ProductFamilyID",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "FNFamily29",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "9883889b-6501-4fdc-8366-91767896c079",
+      "name": "ProductFamilyName",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Internet Tariff Option",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "7447a67f-8a2e-42c4-80fe-14b8e520e652",
+      "name": "PackageSubtypeID",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Option",
+          "isDefault": true
+        }
+      ]
+    }
+  ],
+  "productOfferingPrice": [
+    {
+      "id": "pop_superwlan_first_repeater_sw002",
+      "name": "SuperWLAN 1st Repeater Monthly Fee (2.99 \u20ac)",
+      "version": "0",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productOfferingPrice/pop_superwlan_first_repeater_sw002:(version=0)",
+      "@referredType": "ProductOfferingPrice"
+    }
+  ]
+}

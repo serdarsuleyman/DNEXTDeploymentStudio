@@ -1,0 +1,73 @@
+{
+  "id": "pop_voice_access_basis_ngn_vi002",
+  "name": "Basis-Anschluss NGN (0.00 \u20ac)",
+  "description": "Product offering price component for Basis-Anschluss NGN (VI002) (0.00 \u20ac/mo)",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "@baseType": "ProductOfferingPrice",
+  "@type": "ProductOfferingPrice",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productofferingprice.json",
+  "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productOfferingPrice/pop_voice_access_basis_ngn_vi002:(version=0)",
+  "isBundle": false,
+  "priceType": "Recurring charge",
+  "recurringChargePeriodType": "month",
+  "price": {
+    "unit": "EUR",
+    "value": 0.0
+  },
+  "validFor": {
+    "startDateTime": "2022-01-01T00:00:00.000Z"
+  },
+  "productOfferingPriceCharacteristic": [
+    {
+      "id": "df8e7afe-f059-4fce-89d9-4b9d56bfae0c",
+      "name": "option_sku",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "VI002"
+        }
+      ]
+    },
+    {
+      "id": "71ea5078-a52d-45c9-ac23-633f68324dba",
+      "name": "voice_line_type",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Basis"
+        }
+      ]
+    },
+    {
+      "id": "b612ebc8-55ed-4693-a47e-89881d3fc516",
+      "name": "delivery_infrastructure",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Vodafone On-Net NGN (VI202)"
+        }
+      ]
+    },
+    {
+      "id": "52557dbf-2b2d-4c20-afc6-596bf2559a5b",
+      "name": "valid_for_access_service",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "VI202VoiceAccessService"
+        }
+      ]
+    },
+    {
+      "id": "a30ca196-fd1c-44f2-9780-139384897636",
+      "name": "voice_channels_count",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "1"
+        }
+      ]
+    }
+  ]
+}

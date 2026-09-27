@@ -1,0 +1,19 @@
+{
+  "id": "pop-recurrent-I6202TV",
+  "name": "TV LoungePaket Monthly Fee",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "priceType": "Recurring charge",
+  "price": {
+    "value": 9.95,
+    "unit": "EUR"
+  },
+  "tax": [
+    {
+      "taxCategory": "VAT",
+      "taxRate": 19
+    }
+  ],
+  "@type": "ProductOfferingPrice",
+  "recurringChargePeriodType": "month"
+}

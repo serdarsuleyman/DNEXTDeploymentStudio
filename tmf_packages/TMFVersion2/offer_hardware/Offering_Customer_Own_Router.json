@@ -1,0 +1,282 @@
+{
+  "id": "Offering_Customer_Own_Router",
+  "name": "Eigenhardware Kunde",
+  "description": "Customer-owned router provisioned without Vodafone hardware dispatch (0.00 \u20ac).",
+  "isBundle": false,
+  "isSellable": true,
+  "lifecycleStatus": "In study",
+  "version": "0",
+  "@type": "ProductOffering",
+  "productSpecification": {
+    "id": "spec_router_hardware",
+    "name": "VF_DE_ROUTER_HARDWARE_SPEC",
+    "version": "0",
+    "@referredType": "ProductSpecification"
+  },
+  "category": [
+    {
+      "id": "FN0449",
+      "name": "NOT Super WLAN ready",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN0449:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN0479",
+      "name": "Telekom GF BK HW-Liste",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN0479:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN0487",
+      "name": "obsolet - Telekom GF NK HW-Liste",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN0487:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN0519",
+      "name": "ownHardware",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN0519:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN12",
+      "name": "Anschluss-Hardware",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN12:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN132",
+      "name": "VDSL Vectoring",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN132:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN133",
+      "name": "ISDN",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN133:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN137",
+      "name": "VDSL",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN137:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN138",
+      "name": "ADSL",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN138:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN199",
+      "name": "VDSL Super Vectoring",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN199:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN200",
+      "name": "subsidized",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN200:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN209",
+      "name": "ownHW",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN209:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN210",
+      "name": "FIBRE",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN210:(version=0)",
+      "@referredType": "Category"
+    }
+  ],
+  "prodSpecCharValueUse": [
+    {
+      "id": "cfb11fa8-bf5f-4401-aaaa-ad5e103734c7",
+      "name": "DeviceModel",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Eigenhardware Kunde",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "0819c6f6-aeb5-40e0-b9c7-7173a2ccea96",
+      "name": "PAPSType",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "IAD",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "95b3a0d6-bb8b-459b-a92e-062f138fa7d8",
+      "name": "DeviceType",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Router",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "c9aab259-f005-4106-9d12-6ca059db6b17",
+      "name": "CPEBrand",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Generic",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "d4780d15-bfc8-4215-9a9e-5e0d1505bd89",
+      "name": "WifiStandard",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "None",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "ce73c518-e278-41b6-a5f9-9ea665503687",
+      "name": "RequiresONT",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Y",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "296df503-6217-4a33-a34a-c035f5f68d65",
+      "name": "IsCompatibleDSL",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "true",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "eaf73c53-6d28-454f-814b-b174aea8bc9c",
+      "name": "IsCompatibleFIBRE",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "true",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "61697c1e-f38f-4d06-91f9-6ab6ba62da9a",
+      "name": "IsCompatibleLTE",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "false",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "7974a869-1f8a-409c-820d-36d232706d91",
+      "name": "LANPortsInfo",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Customer Specific",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "0c45f42b-c849-489f-af54-6ed36a4acd82",
+      "name": "SmartHomeSupport",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "None",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "cdaea166-5393-435d-8f69-ca472993f979",
+      "name": "ProductFamilyID",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "FNFamily22",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "8f943c22-61c7-481c-9dff-9f31ea6af18f",
+      "name": "ProductFamilyName",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "FN_Hardware",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "26c94eb8-5d16-4cf1-a3cc-798ef707bd31",
+      "name": "PackageSubtypeID",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Hardware",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "66b853ce-f552-4fa3-83c2-507a3e20ed0f",
+      "name": "SKU",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "20099900_sub",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "160a58e6-8a9b-45a0-9724-8134dae211b7",
+      "name": "HardwareAcquisitionMode",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "CustomerOwn",
+          "isDefault": true
+        }
+      ]
+    }
+  ],
+  "productOfferingPrice": [
+    {
+      "id": "pop_customer_own_router_zero",
+      "name": "Eigenhardware Kunde Bereitstellung (0.00 \u20ac)",
+      "version": "0",
+      "@referredType": "ProductOfferingPrice"
+    }
+  ]
+}

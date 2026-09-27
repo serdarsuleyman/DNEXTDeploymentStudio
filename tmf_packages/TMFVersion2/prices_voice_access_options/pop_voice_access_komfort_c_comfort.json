@@ -1,0 +1,73 @@
+{
+  "id": "pop_voice_access_komfort_c_comfort",
+  "name": "Komfort-Anschluss Plus (4.00 \u20ac)",
+  "description": "Product offering price component for Komfort-Anschluss (C_comfort) (4.00 \u20ac/mo)",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "@baseType": "ProductOfferingPrice",
+  "@type": "ProductOfferingPrice",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productofferingprice.json",
+  "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productOfferingPrice/pop_voice_access_komfort_c_comfort:(version=0)",
+  "isBundle": false,
+  "priceType": "Recurring charge",
+  "recurringChargePeriodType": "month",
+  "price": {
+    "unit": "EUR",
+    "value": 4.0
+  },
+  "validFor": {
+    "startDateTime": "2022-01-01T00:00:00.000Z"
+  },
+  "productOfferingPriceCharacteristic": [
+    {
+      "id": "8003650f-788a-4bfa-9dab-0e9ce91c28a4",
+      "name": "option_sku",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "C_comfort"
+        }
+      ]
+    },
+    {
+      "id": "ee4d841a-3e52-4ba4-be8d-a28fb8261f8b",
+      "name": "voice_line_type",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Komfort"
+        }
+      ]
+    },
+    {
+      "id": "b25f1f9e-d8cf-4365-b8bb-428f3b7ca4b7",
+      "name": "delivery_infrastructure",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Commercial Unified (Auto-resolved)"
+        }
+      ]
+    },
+    {
+      "id": "f638a483-7e86-4a55-a0e5-a7b91a4a00e4",
+      "name": "valid_for_access_service",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "VI202VoiceAccessService, VI203VoiceAccessService"
+        }
+      ]
+    },
+    {
+      "id": "47a19c8c-bdbe-44ce-bbd8-e29c74590ad6",
+      "name": "voice_channels_count",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "2"
+        }
+      ]
+    }
+  ]
+}

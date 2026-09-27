@@ -1,0 +1,254 @@
+{
+  "id": "FTTH-GPON",
+  "name": "FTTH-GPON Connection",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "validFor": {
+    "startDateTime": "2026-08-24T00:00:00.000Z"
+  },
+  "@baseType": "ProductOffering",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productoffering.json",
+  "@type": "ProductOffering",
+  "isBundle": false,
+  "isSellable": false,
+  "productSpecification": {
+    "id": "VF_DE_SPEC_FIBER_CONNECTIVITY",
+    "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_FIBER_CONNECTIVITY:(version=0)",
+    "name": "VF_DE_Fiber_Connectivity_Specification",
+    "version": "1",
+    "@referredType": "ProductSpecification"
+  },
+  "category": [
+    {
+      "id": "2cddb75e-edf8-43e5-83f1-199b2b8f049c",
+      "href": "/api/productCatalogManagement/v4/category/2cddb75e-edf8-43e5-83f1-199b2b8f049c:(version=0)",
+      "name": "Vodafone Germany POC",
+      "version": "1",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN220",
+      "href": "/api/productCatalogManagement/v4/category/FN220:(version=0)",
+      "name": "Internet FTTH-GPON",
+      "version": "1",
+      "@referredType": "Category"
+    }
+  ],
+  "channel": [
+    {
+      "id": "*-*",
+      "name": "*-*",
+      "href": "/api/productCatalogManagement/v4/channel/*:*:(version=0)",
+      "@referredType": "Channel"
+    }
+  ],
+  "prodSpecCharValueUse": [
+    {
+      "id": "98fe0f47-98ff-4aaf-b86d-a75bb20cb06c",
+      "name": "SKU",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "FTTH-GPON",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": false,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_FIBER_CONNECTIVITY",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_FIBER_CONNECTIVITY:(version=0)",
+        "name": "VF_DE_Fiber_Connectivity_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "67388395-8d2f-459e-9ebd-2c1dc620194d",
+      "name": "AccessName",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "FTTH-GPON Connection",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": false,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_FIBER_CONNECTIVITY",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_FIBER_CONNECTIVITY:(version=0)",
+        "name": "VF_DE_Fiber_Connectivity_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "adacbcd7-1e9b-4685-a080-0307cc9cf35a",
+      "name": "AccessTechnology",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "FTTH-GPON",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_FIBER_CONNECTIVITY",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_FIBER_CONNECTIVITY:(version=0)",
+        "name": "VF_DE_Fiber_Connectivity_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "214e2274-7c6e-4552-9f35-02d6543b6ec6",
+      "name": "LineType",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "FTTx",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": false,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_FIBER_CONNECTIVITY",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_FIBER_CONNECTIVITY:(version=0)",
+        "name": "VF_DE_Fiber_Connectivity_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "ce8e38a3-a209-455e-98b0-2e1c28617e7b",
+      "name": "ProductCode",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "I1203",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": false,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_FIBER_CONNECTIVITY",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_FIBER_CONNECTIVITY:(version=0)",
+        "name": "VF_DE_Fiber_Connectivity_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "87cb3c29-b4f1-4188-86e3-95a3692f27f4",
+      "name": "MainAccessServiceCode",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "I1040",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": false,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_FIBER_CONNECTIVITY",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_FIBER_CONNECTIVITY:(version=0)",
+        "name": "VF_DE_Fiber_Connectivity_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "d19d4ce8-387b-42db-9bfb-118facbc8ed8",
+      "name": "ProductFamilyID",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "FNFamily30",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": false,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_FIBER_CONNECTIVITY",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_FIBER_CONNECTIVITY:(version=0)",
+        "name": "VF_DE_Fiber_Connectivity_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "5693cb48-931f-4a15-a4c8-52caa55ed6e9",
+      "name": "ProductFamilyName",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "Technology",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": false,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_FIBER_CONNECTIVITY",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_FIBER_CONNECTIVITY:(version=0)",
+        "name": "VF_DE_Fiber_Connectivity_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "d55dab9a-1b56-4131-b924-c56d41580434",
+      "name": "CheckoutProduct",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "no",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_FIBER_CONNECTIVITY",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_FIBER_CONNECTIVITY:(version=0)",
+        "name": "VF_DE_Fiber_Connectivity_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    }
+  ]
+}

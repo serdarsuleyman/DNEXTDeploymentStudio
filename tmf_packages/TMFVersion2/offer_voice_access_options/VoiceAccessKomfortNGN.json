@@ -1,0 +1,246 @@
+{
+  "id": "VoiceAccessKomfortNGN",
+  "name": "Komfort-Anschluss Plus NGN (VI003)",
+  "description": "Vodafone premium ISDN-like multi-line voice connection with 2 simultaneous channels and up to 10 telephone numbers on Vodafone On-Net NGN infrastructure.",
+  "isBundle": false,
+  "isSellable": true,
+  "lifecycleStatus": "In study",
+  "version": "0",
+  "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productOffering/VoiceAccessKomfortNGN:(version=0)",
+  "@type": "ProductOffering",
+  "productSpecification": {
+    "id": "spec_voice_access_option",
+    "name": "VF_DE_VOICE_ACCESS_SPEC",
+    "version": "0",
+    "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productSpecification/spec_voice_access_option:(version=0)",
+    "@referredType": "ProductSpecification"
+  },
+  "category": [
+    {
+      "id": "cat_voice_access_options",
+      "name": "Voice Access Options",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/cat_voice_access_options:(version=0)",
+      "@referredType": "Category"
+    }
+  ],
+  "prodSpecCharValueUse": [
+    {
+      "id": "c8e22b31-fb4b-4da7-8a1b-30c714509244",
+      "name": "SKU",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "VI003",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "669967f9-907d-4062-99fa-6be09e918d02",
+      "name": "OptionName",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Komfort-Anschluss Plus",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "bc78eade-3c72-47fa-8e07-7178394173f9",
+      "name": "Sorting",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "2",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "663d31bd-5588-45b6-8917-aca1bdad1be0",
+      "name": "VoiceLineType",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Komfort",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "e3800be3-6c1f-49d0-a221-bd299124f76b",
+      "name": "VoiceChannelsCount",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "2",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "a4be9489-fbb3-40cb-80d1-a16346b6d3ef",
+      "name": "MaxPhoneNumbersCount",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "10",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "e2c6e3e5-73b4-4b08-a1c2-ecc23e406c4f",
+      "name": "DeliveryInfrastructure",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Vodafone On-Net NGN (VI202)",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "8fbca5a5-0d46-4985-98ae-0c003b96dc60",
+      "name": "ValidForOfferAccessService",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "VI202VoiceAccessService",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "356075f6-4232-41a8-936e-1823724d5c88",
+      "name": "AccessServiceCode",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "VI003",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "aaf561c8-cab7-4231-ad37-182da969df23",
+      "name": "ParentVoiceProductCode",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "VI202",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "c2b3fc87-a03c-4efe-9bbe-d5ddbf7b640a",
+      "name": "SupportedFeatures",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "CLIP, CLIR, Call Forwarding, Parallel Ringing, Busy on Busy, Conference, Sprachbox",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "1e0a98f0-d722-4b0b-a4a0-7a004c6cc79d",
+      "name": "CallBarringAllowed",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "true",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "54f98878-1b43-486f-a07e-b621f7d03437",
+      "name": "MinContractDuration",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "0",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "532612f8-5997-4e34-81ed-17bcf3472d5a",
+      "name": "MinContractDurationUnit",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "MONTH",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "737755b8-fbb3-41c3-b64c-66d413de909d",
+      "name": "CancellationPeriod",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "1",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "76a3242e-20bc-4aea-acc0-c37bd0d7229b",
+      "name": "CancellationPeriodUnit",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "MONTH",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "c8ba92a4-f81e-4f5d-9b26-d3f6600bce6c",
+      "name": "ProductFamilyID",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "FNFamily8",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "76b4d304-3d89-4549-a1a1-81e71c0286b7",
+      "name": "ProductFamilyName",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Voice Access",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "7e9cf6b3-2c07-4d47-84a8-3ecb7bf7b9e2",
+      "name": "PackageSubtypeID",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Option",
+          "isDefault": true
+        }
+      ]
+    }
+  ],
+  "productOfferingPrice": [
+    {
+      "id": "pop_voice_access_komfort_ngn_vi003",
+      "name": "Komfort-Anschluss Plus NGN (4.00 \u20ac)",
+      "version": "0",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productOfferingPrice/pop_voice_access_komfort_ngn_vi003:(version=0)",
+      "@referredType": "ProductOfferingPrice"
+    }
+  ]
+}

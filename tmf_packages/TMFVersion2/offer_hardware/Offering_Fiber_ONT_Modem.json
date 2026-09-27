@@ -1,0 +1,244 @@
+{
+  "id": "Offering_Fiber_ONT_Modem",
+  "name": "Glasfaser-Modem (ONT)",
+  "description": "Glasfaser-Modem (Optical Network Termination Device - ONT) for optical FTTH demarcation on wholesale partner bitstream lines. Auto-injected at 0.00 \u20ac.",
+  "isBundle": false,
+  "isSellable": true,
+  "lifecycleStatus": "In study",
+  "version": "0",
+  "@type": "ProductOffering",
+  "productSpecification": {
+    "id": "spec_fiber_hardware",
+    "name": "VF_DE_FIBER_HARDWARE_SPEC",
+    "version": "0",
+    "@referredType": "ProductSpecification"
+  },
+  "category": [
+    {
+      "id": "FN0477",
+      "name": "Glasfaser Modem",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN0477:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN200",
+      "name": "subsidized",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN200:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN32",
+      "name": "Zubeh\u00f6r",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN32:(version=0)",
+      "@referredType": "Category"
+    }
+  ],
+  "prodSpecCharValueUse": [
+    {
+      "id": "98048f4d-15cf-4640-965f-b92121c8eda3",
+      "name": "DeviceModel",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Glasfaser-Modem (ONT)",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "5bc68899-81dc-4457-ab63-30f87c3587f3",
+      "name": "PAPSType",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "NTD",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "13ee6c95-93d5-4061-8fb5-27ea089abe0b",
+      "name": "DeviceType",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Modem",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "87d0922d-9786-4d72-975b-75764f685ab9",
+      "name": "CPEBrand",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Generic",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "80fbadc7-b322-415d-95c3-172c27e3502a",
+      "name": "WifiStandard",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "None",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "c44a2861-f34d-474c-ad54-a5e077948fdf",
+      "name": "RequiresONT",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "N",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "54ead336-97e6-48c6-88ed-e11a71c1e762",
+      "name": "IsCompatibleDSL",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "false",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "ce622d91-aae3-442f-b018-ad4981b317fc",
+      "name": "IsCompatibleFIBRE",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "true",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "d29b3f84-4b40-4711-ad3c-bd9ff467f0f5",
+      "name": "IsCompatibleLTE",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "false",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "5003d574-cb35-4c22-a0c0-716aa7ca8c4e",
+      "name": "LANPortsInfo",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "1x Gigabit Ethernet RJ-45",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "ed00470c-8a3b-4b46-a38c-fb57a2f767b6",
+      "name": "SmartHomeSupport",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "None",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "be6b638e-95fe-4ec4-9ade-e8dc94bc7380",
+      "name": "ProductFamilyID",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "FNFamily27",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "d5148947-75b5-48c9-9bd4-3d1b52ef2d61",
+      "name": "ProductFamilyName",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "FN_Hardware",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "0b07a069-a427-469e-a933-0815e313abce",
+      "name": "PackageSubtypeID",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Hardware",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "de1c4aa3-6631-485d-902e-85d12a9c4d53",
+      "name": "FootprintCompatibility",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Both",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "1b418cff-a8b9-49a3-8be7-b78f9c019570",
+      "name": "WANInterfaceType",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "RJ-45-Ethernet",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "9b153bc6-47e6-4a64-a994-574505a71417",
+      "name": "SKU",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "20090213_sub",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "8c346173-05f0-435f-b990-2056f4baf266",
+      "name": "HardwareAcquisitionMode",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Included",
+          "isDefault": true
+        }
+      ]
+    }
+  ],
+  "productOfferingPrice": [
+    {
+      "id": "pop_fiber_ont_modem_zero",
+      "name": "Glasfaser-Modem (ONT) Bereitstellung (0.00 \u20ac)",
+      "version": "0",
+      "@referredType": "ProductOfferingPrice"
+    }
+  ]
+}

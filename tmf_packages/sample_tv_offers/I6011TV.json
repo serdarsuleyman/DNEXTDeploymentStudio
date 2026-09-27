@@ -1,0 +1,307 @@
+{
+  "id": "I6011TV",
+  "name": "TV DigiTurk",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "validFor": {
+    "startDateTime": "2026-08-24T00:00:00.000Z"
+  },
+  "@baseType": "ProductOffering",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productoffering.json",
+  "@type": "ProductOffering",
+  "isBundle": false,
+  "isSellable": true,
+  "productSpecification": {
+    "id": "VF_DE_SPEC_TV_OPTIONS",
+    "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_TV_OPTIONS:(version=0)",
+    "name": "VF_DE_TV_Options_Specification",
+    "version": "1",
+    "@referredType": "ProductSpecification"
+  },
+  "category": [
+    {
+      "id": "2cddb75e-edf8-43e5-83f1-199b2b8f049c",
+      "href": "/api/productCatalogManagement/v4/category/2cddb75e-edf8-43e5-83f1-199b2b8f049c:(version=0)",
+      "name": "Vodafone Germany POC",
+      "version": "1",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN50",
+      "href": "/api/productCatalogManagement/v4/category/FN50:(version=0)",
+      "name": "TV Tariff Options",
+      "version": "1",
+      "@referredType": "Category"
+    }
+  ],
+  "channel": [
+    {
+      "id": "*-*",
+      "name": "*-*",
+      "href": "/api/productCatalogManagement/v4/channel/*:*:(version=0)",
+      "@referredType": "Channel"
+    }
+  ],
+  "productOfferingPrice": [
+    {
+      "id": "pop-recurrent-I6011TV",
+      "href": "/api/productCatalogManagement/v4/productOfferingPrice/pop-recurrent-I6011TV:(version=0)",
+      "name": "TV DigiTurk Monthly Fee"
+    }
+  ],
+  "prodSpecCharValueUse": [
+    {
+      "id": "char-use-I6011TV-SKU",
+      "name": "SKU",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "I6011TV",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_TV_OPTIONS",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_TV_OPTIONS:(version=0)",
+        "name": "VF_DE_TV_Options_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "char-use-I6011TV-OptionName",
+      "name": "OptionName",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "TV DigiTurk",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_TV_OPTIONS",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_TV_OPTIONS:(version=0)",
+        "name": "VF_DE_TV_Options_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "char-use-I6011TV-OptionType",
+      "name": "OptionType",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "ForeignLanguagePack",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_TV_OPTIONS",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_TV_OPTIONS:(version=0)",
+        "name": "VF_DE_TV_Options_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "char-use-I6011TV-DeviceType",
+      "name": "DeviceType",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "None",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_TV_OPTIONS",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_TV_OPTIONS:(version=0)",
+        "name": "VF_DE_TV_Options_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "char-use-I6011TV-ForeignLanguage",
+      "name": "ForeignLanguage",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "Turkish",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_TV_OPTIONS",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_TV_OPTIONS:(version=0)",
+        "name": "VF_DE_TV_Options_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "char-use-I6011TV-MinimumContractDuration",
+      "name": "MinimumContractDuration",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "0",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_TV_OPTIONS",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_TV_OPTIONS:(version=0)",
+        "name": "VF_DE_TV_Options_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "char-use-I6011TV-MinimumContractDurationUnit",
+      "name": "MinimumContractDurationUnit",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "MONTH",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_TV_OPTIONS",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_TV_OPTIONS:(version=0)",
+        "name": "VF_DE_TV_Options_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "char-use-I6011TV-CancellationPeriod",
+      "name": "CancellationPeriod",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "1",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_TV_OPTIONS",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_TV_OPTIONS:(version=0)",
+        "name": "VF_DE_TV_Options_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "char-use-I6011TV-CancellationPeriodUnit",
+      "name": "CancellationPeriodUnit",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "MONTH",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_TV_OPTIONS",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_TV_OPTIONS:(version=0)",
+        "name": "VF_DE_TV_Options_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "char-use-I6011TV-PackageSubtypeID",
+      "name": "PackageSubtypeID",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "Option",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_TV_OPTIONS",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_TV_OPTIONS:(version=0)",
+        "name": "VF_DE_TV_Options_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "char-use-I6011TV-ProductFamilyID",
+      "name": "ProductFamilyID",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "FNFamily19",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_TV_OPTIONS",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_TV_OPTIONS:(version=0)",
+        "name": "VF_DE_TV_Options_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    }
+  ]
+}

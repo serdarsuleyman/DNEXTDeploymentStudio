@@ -1,0 +1,47 @@
+{
+  "id": "pop-recurrent-B-0076-01",
+  "name": "Tuniberg Sonder-Promotion Campaign Pricing",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "priceType": "Recurring charge",
+  "unitOfMeasure": {
+    "amount": 1
+  },
+  "recurringChargePeriodType": "monthly",
+  "recurringChargePeriodLength": 1,
+  "isBundle": false,
+  "price": {
+    "value": 0,
+    "unit": "EUR"
+  },
+  "percentage": 0,
+  "tax": [
+    {
+      "taxCategory": "VAT",
+      "taxRate": 19
+    }
+  ],
+  "pricingCategory": "Fee",
+  "productOfferingPriceCharacteristic": [
+    {
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "id": "f42a9bfb-4f5d-4c5c-9907-4c43fa55f5f4",
+      "isUnique": false,
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "name": "Price Type",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "isDefault": false,
+          "value": "Fee",
+          "valueType": "string"
+        }
+      ],
+      "valueType": "string",
+      "@type": "ProductOfferingPriceCharacteristic"
+    }
+  ],
+  "@type": "ProductOfferingPrice"
+}

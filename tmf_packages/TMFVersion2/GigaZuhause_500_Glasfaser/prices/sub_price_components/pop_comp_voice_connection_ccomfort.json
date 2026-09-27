@@ -1,0 +1,85 @@
+{
+  "id": "pop_comp_voice_connection_ccomfort",
+  "name": "Komfort-Anschluss Voice Connection",
+  "version": "0",
+  "description": "ISDN multi-line voice connection (2 channels, up to 10 MSNs)",
+  "lifecycleStatus": "In study",
+  "@baseType": "ProductOfferingPrice",
+  "@type": "ProductOfferingPrice",
+  "isBundle": false,
+  "priceType": "Recurring charge",
+  "recurringChargePeriodType": "month",
+  "price": {
+    "unit": "EUR",
+    "value": 3.99
+  },
+  "validFor": {
+    "startDateTime": "2025-10-26T00:00:00.000Z"
+  },
+  "productOfferingPriceCharacteristic": [
+    {
+      "id": "0ef95acf-a1fd-40a1-85c3-492710df98ff",
+      "name": "voice_connection_type",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "@type": "ProductOfferingPriceCharacteristic",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "C_comfort",
+          "valueType": "string",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "77a72d1d-f93d-4255-9ea4-16dc7008c123",
+      "name": "tivano_sku",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "@type": "ProductOfferingPriceCharacteristic",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "YK004VI019VC",
+          "valueType": "string",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "fef03861-6ba6-4010-b18c-f54976416bf2",
+      "name": "channels_count",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "@type": "ProductOfferingPriceCharacteristic",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "2",
+          "valueType": "string",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "92407deb-aa62-4561-b1e5-92cc78d91cb2",
+      "name": "numbers_count",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "@type": "ProductOfferingPriceCharacteristic",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "10",
+          "valueType": "string",
+          "isDefault": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "id": "pop_customer_own_router_zero",
+  "name": "Eigenhardware Kunde Bereitstellung (0.00 \u20ac)",
+  "description": "Kostenfreie Bereitstellung f\u00fcr Eigenhardware Kunde (0.00 \u20ac)",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "@baseType": "ProductOfferingPrice",
+  "@type": "ProductOfferingPrice",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productofferingprice.json",
+  "isBundle": false,
+  "priceType": "One time charge",
+  "price": {
+    "unit": "EUR",
+    "value": 0.0
+  },
+  "validFor": {
+    "startDateTime": "2022-01-01T00:00:00.000Z"
+  },
+  "productOfferingPriceCharacteristic": [
+    {
+      "id": "1a9ed283-9a4d-4d85-818b-161e72e216bf",
+      "name": "device_model",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Eigenhardware Kunde"
+        }
+      ]
+    },
+    {
+      "id": "44952afc-cc59-4ef1-a3dd-d0cb8ed6e7f6",
+      "name": "acquisition_mode",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Included"
+        }
+      ]
+    },
+    {
+      "id": "385167e2-e452-4f0f-8aeb-0a954a10fe69",
+      "name": "contract_duration",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "0"
+        }
+      ]
+    }
+  ]
+}

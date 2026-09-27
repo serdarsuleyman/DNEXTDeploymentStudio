@@ -1,0 +1,525 @@
+{
+  "id": "spec_bandwidth_option",
+  "name": "VF_DE_BANDWIDTH_SPEC",
+  "version": "0",
+  "brand": "Vodafone",
+  "description": "Common TMF 620 Product Specification for Vodafone Germany atomic physical bandwidth speed profiles across Fiber (FTTH GPON / XGS-PON), Copper (VDSL2 Vectoring / Supervectoring 35b / ADSL2+), and Mobile (LTE) infrastructures, mapped to Access Service Product Types and Fallback concatenated keys.",
+  "lifecycleStatus": "In study",
+  "isBundle": false,
+  "@baseType": "ProductSpecification",
+  "@type": "ProductSpecification",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productspecification.json",
+  "validFor": {
+    "startDateTime": "2025-10-26T00:00:00.000Z"
+  },
+  "productSpecCharacteristic": [
+    {
+      "id": "579bd5c1-1f42-4773-b312-3add4e7d8cfc",
+      "name": "SKU",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Atomic Bandwidth SKU Identifier (e.g., IG018, IG006, V018V, V018H, V018C, V018U, V018G, V0178)",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic"
+    },
+    {
+      "id": "e4ada47b-8595-4390-b09e-7cdb925356f1",
+      "name": "OptionName",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Commercial / Technical Speed Profile Display Name (e.g., 'Glasfaser Bandbreite 250 Mbit/s', 'Bandbreite 100 Mbit/s')",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic"
+    },
+    {
+      "id": "262f5620-69cd-4c03-a1a5-214bfcdbd5f9",
+      "name": "Sorting",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Display and catalog evaluation sorting order index",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic"
+    },
+    {
+      "id": "2c727f25-c9c1-46e4-80d7-6705b53d1cfa",
+      "name": "Technology",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Physical transport medium and network technology",
+      "configurable": true,
+      "extensible": false,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "FIBRE",
+          "isDefault": true,
+          "valueType": "string"
+        },
+        {
+          "value": "DSL",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "LTE",
+          "isDefault": false,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "id": "ce7e6d2f-1a20-422d-9a6a-84e6f5007f64",
+      "name": "AccessServiceProductCode",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Technical Access Service Product Type Code mapping this bandwidth profile to downstream delivery infrastructure",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "I1204",
+          "isDefault": true,
+          "valueType": "string"
+        },
+        {
+          "value": "I1203",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "I1209",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "I1208",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "I1410",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "I1100",
+          "isDefault": false,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "id": "11b38b02-24be-4ac4-b230-615a27925496",
+      "name": "NetworkProfile",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Physical line protocol and modulation profile combined with Access Service Product Type",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "I1204 - Supervectoring Profile 35b (On-Net)",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "I1204 - VDSL2 Vectoring Profile 17a (On-Net)",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "I1204 - ADSL2+ Annex B/J (On-Net)",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "I1203 - Supervectoring Profile 35b (Wholesale L2-BSA)",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "I1203 - VDSL2 Vectoring Profile 17a (Wholesale L2-BSA)",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "I1203 - ADSL2+ Annex J (Wholesale L2-BSA)",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "I1100 - ADSL Annex B (Legacy ATM)",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "I1209 - FTTH GPON (On-Net)",
+          "isDefault": true,
+          "valueType": "string"
+        },
+        {
+          "value": "I1208 - FTTH GPON (Wholesale DTAG / Wholebuy)",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "I1410 - FTTH XGS-PON (Multi-Gigabit)",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "LTE - Fixed-Wireless Access",
+          "isDefault": false,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "id": "780c6512-ea2f-4ce5-bd87-5f11a82ca843",
+      "name": "BandwidthDownstreamMax",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Maximum advertised downstream throughput in Mbit/s (e.g. 2000.00, 1000.00, 500.00, 250.00, 100.00, 50.00, 16.00)",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic"
+    },
+    {
+      "id": "62c330c6-94eb-4279-b03d-5e3358f5e5bc",
+      "name": "BandwidthDownstreamAvg",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Normally available / average downstream throughput in Mbit/s",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic"
+    },
+    {
+      "id": "135ad2e1-f035-435d-900c-73767c1b0f0b",
+      "name": "BandwidthDownstreamMin",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Minimum guaranteed downstream throughput in Mbit/s",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic"
+    },
+    {
+      "id": "a75b685e-3e73-4f18-8727-aa0d43a20a0c",
+      "name": "BandwidthUpstreamMax",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Maximum advertised upstream throughput in Mbit/s (e.g. 1000.00, 500.00, 250.00, 125.00, 50.00, 40.00, 20.00, 2.40)",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic"
+    },
+    {
+      "id": "3608750c-efa8-4c84-b9c8-d67b224895c2",
+      "name": "BandwidthUpstreamAvg",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Normally available / average upstream throughput in Mbit/s",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic"
+    },
+    {
+      "id": "8aa2d4e2-6ac5-4f33-a3bd-d74e92b78e8a",
+      "name": "BandwidthUpstreamMin",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Minimum guaranteed upstream throughput in Mbit/s",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic"
+    },
+    {
+      "id": "8397ff3d-83a2-4a73-bc13-312047266c17",
+      "name": "BandwidthUnit",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Measurement unit for throughput bandwidth rates",
+      "configurable": false,
+      "extensible": false,
+      "isModifiable": false,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Mbit/s",
+          "isDefault": true,
+          "valueType": "string"
+        },
+        {
+          "value": "kbit/s",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "Gbit/s",
+          "isDefault": false,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "id": "b85b7b09-0724-4d69-b82a-73bd8722243b",
+      "name": "AccessSupplier",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Wholesale or On-Net infrastructure provider",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Vodafone On-Net",
+          "isDefault": true,
+          "valueType": "string"
+        },
+        {
+          "value": "DTAG Wholesale L2-BSA",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "Wholebuy / Open Access (DG, OXG)",
+          "isDefault": false,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "id": "43a80848-5974-42e4-a94a-ca0431951fcb",
+      "name": "IsFallbackProfile",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Indicates whether this speed tier acts as a line-attenuation fallback profile",
+      "configurable": true,
+      "extensible": false,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "false",
+          "isDefault": true,
+          "valueType": "string"
+        },
+        {
+          "value": "true",
+          "isDefault": false,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "id": "4ad87f77-cdf4-49e0-99d4-bc4f087092e5",
+      "name": "FallbackHierarchyLevel",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Tier ranking in the line feasibility degradation step-ladder",
+      "configurable": true,
+      "extensible": false,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Nominal",
+          "isDefault": true,
+          "valueType": "string"
+        },
+        {
+          "value": "Fallback-1",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "Fallback-2",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "Fallback-3",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "Fallback-4",
+          "isDefault": false,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "id": "f867a0ba-e992-49ba-aba0-fe6f29644e09",
+      "name": "FallbackMappingKey",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Concatenated fallback mapping key format: {BandwidthID}-{AccessServiceTypeCode} (e.g., V018U-I1204, V018U-I1203, V018G-I1204, V018G-I1203, V0178-I1204, V0178-I1203, V0175-I1203, V0116-I1100, IG012-I1208)",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic"
+    },
+    {
+      "id": "235d2271-c39b-4f57-b7a9-572e244ec13f",
+      "name": "FallbackTargetNominalMapping",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Concatenated target nominal mapping key format: {NominalBandwidthID}-{AccessServiceTypeCode} (e.g., V018V-I1204, V018V-I1203, V018H-I1204, V018H-I1203, V018C-I1204, V018C-I1203, IG018-I1208)",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic"
+    },
+    {
+      "id": "be103d05-7642-4219-b611-6ca6f0186c8b",
+      "name": "FallbackTargetNominalSKU",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Reference to the nominal target speed SKU (e.g., V018U -> V018V, V018G -> V018H, V0178 -> V018C)",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic"
+    },
+    {
+      "id": "3f742a33-d3cd-41a5-b592-1983ce8128e3",
+      "name": "ProductFamilyID",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Vodafone Rules Engine Product Family Identifier (FNFamily7)",
+      "configurable": false,
+      "extensible": false,
+      "isModifiable": false,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "FNFamily7",
+          "isDefault": true,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "id": "8afe9d09-3f91-4280-859c-d56c340852bd",
+      "name": "ProductFamilyName",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Vodafone Rules Engine Product Family Name (Bandwidth)",
+      "configurable": false,
+      "extensible": false,
+      "isModifiable": false,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Bandwidth",
+          "isDefault": true,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "id": "01278b91-493b-4821-8404-47ec4aae562d",
+      "name": "PackageSubtypeID",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Catalog Package Subtype Identifier (Option)",
+      "configurable": false,
+      "extensible": false,
+      "isModifiable": false,
+      "isVisible": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "@type": "ProductSpecCharacteristic",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Option",
+          "isDefault": true,
+          "valueType": "string"
+        }
+      ]
+    }
+  ]
+}

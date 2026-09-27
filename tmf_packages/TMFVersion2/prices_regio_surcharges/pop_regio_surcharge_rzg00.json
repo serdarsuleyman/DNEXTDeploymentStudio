@@ -1,0 +1,53 @@
+{
+  "id": "pop_regio_surcharge_rzg00",
+  "name": "Regio-Zuschlag Klasse 0 Monthly Fee (0.00 €)",
+  "description": "Product offering price component for Regio-Zuschlag Klasse 0 Monthly Fee (0.00 €)",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "@baseType": "ProductOfferingPrice",
+  "@type": "ProductOfferingPrice",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productofferingprice.json",
+  "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productOfferingPrice/pop_regio_surcharge_rzg00:(version=0)",
+  "isBundle": false,
+  "priceType": "Recurring charge",
+  "recurringChargePeriodType": "month",
+  "price": {
+    "unit": "EUR",
+    "value": 0.0
+  },
+  "validFor": {
+    "startDateTime": "2025-10-26T00:00:00.000Z"
+  },
+  "productOfferingPriceCharacteristic": [
+    {
+      "id": "f7f0bdac-672f-44a9-b79c-8f0ddc8270bd",
+      "name": "regio_zone_code",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "RZG00"
+        }
+      ]
+    },
+    {
+      "id": "0a3eaeac-8bec-494b-bba9-7397a12979c0",
+      "name": "access_supplier",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Vodafone On-Net"
+        }
+      ]
+    },
+    {
+      "id": "1212e2a0-ed16-4cd0-9fcc-abf2a698cc60",
+      "name": "regio_sku",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "RZG00"
+        }
+      ]
+    }
+  ]
+}

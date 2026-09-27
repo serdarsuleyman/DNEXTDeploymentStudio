@@ -1,0 +1,283 @@
+{
+  "id": "C_basic",
+  "name": "Basis-Anschluss",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "validFor": {
+    "startDateTime": "2026-08-23T10:10:00.000Z"
+  },
+  "@baseType": "ProductOffering",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productoffering.json",
+  "@type": "ProductOffering",
+  "isBundle": false,
+  "isSellable": true,
+  "productSpecification": {
+    "id": "VF_DE_SPEC_VOICE_ANSCHLUSS",
+    "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_VOICE_ANSCHLUSS:(version=0)",
+    "name": "VF_DE_Voice_Anschluss_Specification",
+    "version": "1",
+    "@referredType": "ProductSpecification"
+  },
+  "category": [
+    {
+      "id": "2cddb75e-edf8-43e5-83f1-199b2b8f049c",
+      "href": "/api/productCatalogManagement/v4/category/2cddb75e-edf8-43e5-83f1-199b2b8f049c:(version=0)",
+      "name": "Vodafone Germany POC",
+      "version": "1",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN78",
+      "href": "/api/productCatalogManagement/v4/category/FN78:(version=0)",
+      "name": "Basic Access",
+      "version": "1",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN7",
+      "href": "/api/productCatalogManagement/v4/category/FN7:(version=0)",
+      "name": "Anschluss-Optionen",
+      "version": "1",
+      "@referredType": "Category"
+    }
+  ],
+  "productOfferingPrice": [
+    {
+      "id": "pop-recurrent-C_basic",
+      "href": "/api/productCatalogManagement/v4/productOfferingPrice/pop-recurrent-C_basic:(version=0)",
+      "name": "Basis-Anschluss Monthly Fee"
+    }
+  ],
+  "prodSpecCharValueUse": [
+    {
+      "id": "89b147d3-1383-4903-b9ca-7e9b25dc4c2b",
+      "name": "SKU",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "C_basic",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_VOICE_ANSCHLUSS",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_VOICE_ANSCHLUSS:(version=0)",
+        "name": "VF_DE_Voice_Anschluss_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "f4a6d71f-cf92-4fdb-9ef0-0a5611cb89b2",
+      "name": "OptionName",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "Basis-Anschluss",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_VOICE_ANSCHLUSS",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_VOICE_ANSCHLUSS:(version=0)",
+        "name": "VF_DE_Voice_Anschluss_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "a63bcf3d-5192-4e4b-9721-39fae6bf2a9d",
+      "name": "AccessOptionType",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "Basic-Anschluss",
+          "isDefault": true
+        }
+      ],
+      "mandatory": false,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_VOICE_ANSCHLUSS",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_VOICE_ANSCHLUSS:(version=0)",
+        "name": "VF_DE_Voice_Anschluss_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "d36b8e3a-7f12-4cf0-bbca-5bc4b831ad76",
+      "name": "VoiceLinesLimit",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "1",
+          "isDefault": true
+        }
+      ],
+      "mandatory": false,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_VOICE_ANSCHLUSS",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_VOICE_ANSCHLUSS:(version=0)",
+        "name": "VF_DE_Voice_Anschluss_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "e47b8c3a-9f12-4cf0-bbca-6bc4b831ad77",
+      "name": "RufnummernLimit",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "1",
+          "isDefault": true
+        }
+      ],
+      "mandatory": false,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_VOICE_ANSCHLUSS",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_VOICE_ANSCHLUSS:(version=0)",
+        "name": "VF_DE_Voice_Anschluss_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "f58b8c3a-0f12-4cf0-bbca-7bc4b831ad78",
+      "name": "IsComfortVoiceFeaturesEnabled",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "false",
+          "isDefault": true
+        }
+      ],
+      "mandatory": false,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_VOICE_ANSCHLUSS",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_VOICE_ANSCHLUSS:(version=0)",
+        "name": "VF_DE_Voice_Anschluss_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "6e3b8b1a-9f12-4c22-990a-a1b4b831ad77",
+      "name": "IsCompatibleDSL",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "true",
+          "isDefault": true
+        }
+      ],
+      "mandatory": false,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_VOICE_ANSCHLUSS",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_VOICE_ANSCHLUSS:(version=0)",
+        "name": "VF_DE_Voice_Anschluss_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "4e1b83ef-d890-4a87-b9c1-efd581a93b4f",
+      "name": "IsCompatibleFIBRE",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "true",
+          "isDefault": true
+        }
+      ],
+      "mandatory": false,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_VOICE_ANSCHLUSS",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_VOICE_ANSCHLUSS:(version=0)",
+        "name": "VF_DE_Voice_Anschluss_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "ecb517a2-f81d-403d-bc65-8bdf129bc7eb",
+      "name": "PackageSubtypeID",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "Option",
+          "isDefault": true
+        }
+      ],
+      "mandatory": false,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_VOICE_ANSCHLUSS",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_VOICE_ANSCHLUSS:(version=0)",
+        "name": "VF_DE_Voice_Anschluss_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "b1d827f3-bc4e-48f5-93ca-a1f9a2d8b5c5",
+      "name": "ProductFamilyID",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "FNFamily8",
+          "isDefault": true
+        }
+      ],
+      "mandatory": false,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_VOICE_ANSCHLUSS",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_VOICE_ANSCHLUSS:(version=0)",
+        "name": "VF_DE_Voice_Anschluss_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    }
+  ]
+}

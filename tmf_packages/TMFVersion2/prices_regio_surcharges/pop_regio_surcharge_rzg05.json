@@ -1,0 +1,53 @@
+{
+  "id": "pop_regio_surcharge_rzg05",
+  "name": "Regio-Zuschlag Klasse 5 Monthly Fee (12.50 €)",
+  "description": "Product offering price component for Regio-Zuschlag Klasse 5 Monthly Fee (12.50 €)",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "@baseType": "ProductOfferingPrice",
+  "@type": "ProductOfferingPrice",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productofferingprice.json",
+  "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productOfferingPrice/pop_regio_surcharge_rzg05:(version=0)",
+  "isBundle": false,
+  "priceType": "Recurring charge",
+  "recurringChargePeriodType": "month",
+  "price": {
+    "unit": "EUR",
+    "value": 12.5
+  },
+  "validFor": {
+    "startDateTime": "2025-10-26T00:00:00.000Z"
+  },
+  "productOfferingPriceCharacteristic": [
+    {
+      "id": "d74d71a2-d001-4ee7-ac75-aa16172499d8",
+      "name": "regio_zone_code",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "RZG05"
+        }
+      ]
+    },
+    {
+      "id": "8df03826-7fbe-45da-a197-1add7cfb66c1",
+      "name": "access_supplier",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "DTAG Wholesale L2-BSA"
+        }
+      ]
+    },
+    {
+      "id": "bf96da18-703e-4b0d-9c3c-179210f2abd8",
+      "name": "regio_sku",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "RZG05"
+        }
+      ]
+    }
+  ]
+}

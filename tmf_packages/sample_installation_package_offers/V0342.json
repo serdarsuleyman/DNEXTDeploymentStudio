@@ -1,0 +1,192 @@
+{
+  "id": "V0342",
+  "name": "Experten-Service Einrichtung",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "validFor": {
+    "startDateTime": "2026-08-27T20:50:51.202Z"
+  },
+  "@baseType": "ProductOffering",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productoffering.json",
+  "@type": "ProductOffering",
+  "isBundle": false,
+  "isSellable": true,
+  "productSpecification": {
+    "id": "VF_DE_SPEC_INSTALLATION",
+    "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_INSTALLATION:(version=0)",
+    "name": "VF_DE_Installation_Specification",
+    "version": "1",
+    "@referredType": "ProductSpecification"
+  },
+  "category": [
+    {
+      "id": "2cddb75e-edf8-43e5-83f1-199b2b8f049c",
+      "href": "/api/productCatalogManagement/v4/category/2cddb75e-edf8-43e5-83f1-199b2b8f049c:(version=0)",
+      "name": "Vodafone Germany POC",
+      "version": "1",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN0433",
+      "href": "/api/productCatalogManagement/v4/category/FN0433:(version=0)",
+      "name": "Experten-Service",
+      "version": "1",
+      "@referredType": "Category"
+    }
+  ],
+  "channel": [
+    {
+      "id": "*-*",
+      "name": "*-*",
+      "href": "/api/productCatalogManagement/v4/channel/*:*:(version=0)",
+      "@referredType": "Channel"
+    }
+  ],
+  "productOfferingPrice": [
+    {
+      "id": "pop-onetime-V0342",
+      "href": "/api/productCatalogManagement/v4/productOfferingPrice/pop-onetime-V0342:(version=0)",
+      "name": "Experten-Service Einrichtung One-time Fee"
+    }
+  ],
+  "prodSpecCharValueUse": [
+    {
+      "id": "9ef78fd6-1c57-4bf4-914f-4f8395d2e87e",
+      "name": "SKU",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "V0342",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_INSTALLATION",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_INSTALLATION:(version=0)",
+        "name": "VF_DE_Installation_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "3d6fee54-b8a7-423b-a89f-931cc6d8f2f0",
+      "name": "OptionName",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "Experten-Service Einrichtung",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_INSTALLATION",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_INSTALLATION:(version=0)",
+        "name": "VF_DE_Installation_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "ab9f72ed-3b93-4a76-bb8b-bdf626620a36",
+      "name": "PackageSubtypeID",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "Option",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_INSTALLATION",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_INSTALLATION:(version=0)",
+        "name": "VF_DE_Installation_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "53ce3cd1-2fdc-4d70-8fbc-f74dde06d8a8",
+      "name": "ProductFamilyID",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "FNFamily13",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_INSTALLATION",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_INSTALLATION:(version=0)",
+        "name": "VF_DE_Installation_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "8f1fa3aa-b736-418b-9ec0-f3283b3e2a29",
+      "name": "ProductFamilyName",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "Installation Fee",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_INSTALLATION",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_INSTALLATION:(version=0)",
+        "name": "VF_DE_Installation_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    },
+    {
+      "id": "e7e3ea7a-8099-4225-a9ce-f7140b963535",
+      "name": "CheckoutProduct",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "valueType": "string",
+          "value": "no",
+          "isDefault": true
+        }
+      ],
+      "mandatory": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecification": {
+        "id": "VF_DE_SPEC_INSTALLATION",
+        "href": "/api/productCatalogManagement/v4/productSpecification/VF_DE_SPEC_INSTALLATION:(version=0)",
+        "name": "VF_DE_Installation_Specification",
+        "version": "1",
+        "@referredType": "ProductSpecification"
+      }
+    }
+  ]
+}

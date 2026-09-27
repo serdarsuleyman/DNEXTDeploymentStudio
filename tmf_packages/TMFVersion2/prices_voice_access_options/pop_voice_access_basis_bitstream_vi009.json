@@ -1,0 +1,73 @@
+{
+  "id": "pop_voice_access_basis_bitstream_vi009",
+  "name": "Basis-Anschluss Regio (0.00 \u20ac)",
+  "description": "Product offering price component for Basis-Anschluss Regio (VI009) (0.00 \u20ac/mo)",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "@baseType": "ProductOfferingPrice",
+  "@type": "ProductOfferingPrice",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productofferingprice.json",
+  "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productOfferingPrice/pop_voice_access_basis_bitstream_vi009:(version=0)",
+  "isBundle": false,
+  "priceType": "Recurring charge",
+  "recurringChargePeriodType": "month",
+  "price": {
+    "unit": "EUR",
+    "value": 0.0
+  },
+  "validFor": {
+    "startDateTime": "2022-01-01T00:00:00.000Z"
+  },
+  "productOfferingPriceCharacteristic": [
+    {
+      "id": "dfe16e88-5997-4440-97c4-ffd413b6a848",
+      "name": "option_sku",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "VI009"
+        }
+      ]
+    },
+    {
+      "id": "c9aafc67-7c38-4bbb-bf4c-a0956aa7628d",
+      "name": "voice_line_type",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Basis"
+        }
+      ]
+    },
+    {
+      "id": "fbbbb6f3-842f-4a60-ba0e-108e59fecc03",
+      "name": "delivery_infrastructure",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Wholesale Bitstream / DTAG L2-BSA (VI203)"
+        }
+      ]
+    },
+    {
+      "id": "992c3709-89bb-4654-975a-bea2102702d4",
+      "name": "valid_for_access_service",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "VI203VoiceAccessService"
+        }
+      ]
+    },
+    {
+      "id": "a5a0cf96-088d-4f28-9b37-ec95fcad4ec6",
+      "name": "voice_channels_count",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "1"
+        }
+      ]
+    }
+  ]
+}

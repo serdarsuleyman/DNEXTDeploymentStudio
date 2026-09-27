@@ -1,0 +1,220 @@
+{
+  "id": "VF_DE_SPEC_VOICE_ANSCHLUSS",
+  "name": "VF_DE_Voice_Anschluss_Specification",
+  "version": "0",
+  "brand": "Vodafone Germany",
+  "isBundle": false,
+  "lifecycleStatus": "In study",
+  "description": "Common TMF 620 Product Specification for Vodafone Germany Voice/Telephony Access connections (Basic and Comfort Anschluss).",
+  "validFor": {
+    "startDateTime": "2026-08-21T00:00:00.000Z"
+  },
+  "productSpecCharacteristic": [
+    {
+      "name": "SKU",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Voice Option SKU identifier",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true
+    },
+    {
+      "name": "OptionName",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Commercial Option Name in Vodafone Catalog",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true
+    },
+    {
+      "name": "AccessOptionType",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Voice Access connection type variant",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Basic-Anschluss",
+          "isDefault": true,
+          "valueType": "string"
+        },
+        {
+          "value": "Komfort-Anschluss",
+          "isDefault": false,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "name": "VoiceLinesLimit",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Number of active voice phone lines",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "1",
+          "isDefault": true,
+          "valueType": "string"
+        },
+        {
+          "value": "2",
+          "isDefault": false,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "name": "RufnummernLimit",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Allocated phone numbers range count",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "1",
+          "isDefault": true,
+          "valueType": "string"
+        },
+        {
+          "value": "3-10",
+          "isDefault": false,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "name": "IsComfortVoiceFeaturesEnabled",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Indicates if advanced voice features (forwarding, conferencing) are enabled",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "true",
+          "isDefault": false,
+          "valueType": "string"
+        },
+        {
+          "value": "false",
+          "isDefault": true,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "name": "IsCompatibleDSL",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Indicates if the voice Anschluss is compatible with DSL technology",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "true",
+          "isDefault": true,
+          "valueType": "string"
+        },
+        {
+          "value": "false",
+          "isDefault": false,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "name": "IsCompatibleFIBRE",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "description": "Indicates if the voice Anschluss is compatible with Fiber technology",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "true",
+          "isDefault": true,
+          "valueType": "string"
+        },
+        {
+          "value": "false",
+          "isDefault": false,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "name": "BillingCode",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Downstream billing/SAP charging system identifier code",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true
+    },
+    {
+      "name": "PackageSubtypeID",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Catalog Package Subtype Identifier",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true
+    },
+    {
+      "name": "ProductFamilyID",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Vodafone Rules Engine Product Family Identifier",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true
+    },
+    {
+      "name": "ProductFamilyName",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Vodafone Rules Engine Product Family Name",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1
+    },
+    {
+      "name": "CheckoutProduct",
+      "valueType": "string",
+      "characteristicType": "Simple Value",
+      "description": "Indicates if the product is directly selectable in checkout",
+      "configurable": true,
+      "extensible": true,
+      "isModifiable": true,
+      "isVisible": true,
+      "minCardinality": 0,
+      "maxCardinality": 1
+    }
+  ]
+}

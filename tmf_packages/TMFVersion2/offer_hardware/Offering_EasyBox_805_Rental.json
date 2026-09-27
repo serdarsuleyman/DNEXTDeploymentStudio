@@ -1,0 +1,264 @@
+{
+  "id": "Offering_EasyBox_805_Rental",
+  "name": "Vodafone EasyBox 805 (Mietger\u00e4t)",
+  "description": "Vodafone EasyBox 805 Wi-Fi 6 Router Mietger\u00e4t with flexible monthly cancellation.",
+  "isBundle": false,
+  "isSellable": true,
+  "lifecycleStatus": "In study",
+  "version": "0",
+  "@type": "ProductOffering",
+  "productSpecification": {
+    "id": "spec_router_hardware",
+    "name": "VF_DE_ROUTER_HARDWARE_SPEC",
+    "version": "0",
+    "@referredType": "ProductSpecification"
+  },
+  "category": [
+    {
+      "id": "FN0300",
+      "name": "Super WLAN ready",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN0300:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN0321",
+      "name": "SecureNet+ Family Feature",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN0321:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN0375",
+      "name": "2_99 Box",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN0375:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN113",
+      "name": "easyBox",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN113:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN12",
+      "name": "Anschluss-Hardware",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN12:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN132",
+      "name": "VDSL Vectoring",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN132:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN137",
+      "name": "VDSL",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN137:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN138",
+      "name": "ADSL",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN138:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN178",
+      "name": "Rental_AccessHW",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN178:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN199",
+      "name": "VDSL Super Vectoring",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN199:(version=0)",
+      "@referredType": "Category"
+    }
+  ],
+  "prodSpecCharValueUse": [
+    {
+      "id": "38c1cc23-b01c-47ec-8334-b55cc5ee18ea",
+      "name": "DeviceModel",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Vodafone EasyBox 805",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "e1308eb0-cf6f-4268-a72a-82f4193c3c94",
+      "name": "PAPSType",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "IAD",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "23d54ee8-b4b7-4008-8ef3-e259d75d13db",
+      "name": "DeviceType",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Router",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "6107bc09-df1f-4231-906f-98c535e3d37b",
+      "name": "CPEBrand",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Vodafone",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "e7a36b02-4df4-49f5-ad70-8860fb4b0532",
+      "name": "WifiStandard",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Wi-Fi 6",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "c5a810dc-45ff-48fa-9caf-93f301a221d7",
+      "name": "RequiresONT",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Y",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "b27ab20f-930c-457a-888c-16115ca5e575",
+      "name": "IsCompatibleDSL",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "true",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "0332aafb-b318-441a-99eb-26ee3655bb67",
+      "name": "IsCompatibleFIBRE",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "true",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "6dc468e5-165c-4b1d-9330-54814c335af8",
+      "name": "IsCompatibleLTE",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "false",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "a721e92d-7cef-4093-a600-ac8858c6e36f",
+      "name": "LANPortsInfo",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "4x Gigabit LAN, 1x Gigabit WAN",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "c547c7de-dd72-4943-aa49-44fabe692648",
+      "name": "SmartHomeSupport",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "None",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "f5c1176e-13cb-43c1-8b30-640b125d4cc3",
+      "name": "ProductFamilyID",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "FNFamily22",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "2779de2b-eef8-4b97-9da5-394c00102586",
+      "name": "ProductFamilyName",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "FN_Hardware",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "e17f97fe-9954-4799-827d-3714fb50aa9f",
+      "name": "PackageSubtypeID",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Hardware",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "b7afb887-2a57-4e30-8d84-a8b00343d0c9",
+      "name": "SKU",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "20090200_sub",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "b62d1ac8-6f8d-426c-ac1d-71fd3d98f8af",
+      "name": "HardwareAcquisitionMode",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Rental",
+          "isDefault": true
+        }
+      ]
+    }
+  ],
+  "productOfferingPrice": [
+    {
+      "id": "pop_easybox_805_rental",
+      "name": "Vodafone EasyBox 805 Miete (2.99 \u20ac/mo)",
+      "version": "0",
+      "@referredType": "ProductOfferingPrice"
+    }
+  ]
+}

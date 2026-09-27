@@ -1,0 +1,19 @@
+{
+  "id": "pop-recurrent-V1210TO",
+  "name": "Mobile-Flat Monthly Fee",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "priceType": "Recurring charge",
+  "price": {
+    "value": 4.99,
+    "unit": "EUR"
+  },
+  "tax": [
+    {
+      "taxCategory": "VAT",
+      "taxRate": 19
+    }
+  ],
+  "@type": "ProductOfferingPrice",
+  "recurringChargePeriodType": "month"
+}

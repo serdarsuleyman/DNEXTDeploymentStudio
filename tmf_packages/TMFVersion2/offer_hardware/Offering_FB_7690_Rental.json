@@ -1,0 +1,282 @@
+{
+  "id": "Offering_FB_7690_Rental",
+  "name": "AVM FRITZ!Box 7690 (Mietger\u00e4t)",
+  "description": "AVM FRITZ!Box 7690 Next-Generation Wi-Fi 7 Router Mietger\u00e4t.",
+  "isBundle": false,
+  "isSellable": true,
+  "lifecycleStatus": "In study",
+  "version": "0",
+  "@type": "ProductOffering",
+  "productSpecification": {
+    "id": "spec_router_hardware",
+    "name": "VF_DE_ROUTER_HARDWARE_SPEC",
+    "version": "0",
+    "@referredType": "ProductSpecification"
+  },
+  "category": [
+    {
+      "id": "FN0449",
+      "name": "NOT Super WLAN ready",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN0449:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN0479",
+      "name": "Telekom GF BK HW-Liste",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN0479:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN0487",
+      "name": "obsolet - Telekom GF NK HW-Liste",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN0487:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN0527",
+      "name": "current hardware for Komfort Goody",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN0527:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN114",
+      "name": "FRITZ!box",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN114:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN12",
+      "name": "Anschluss-Hardware",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN12:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN132",
+      "name": "VDSL Vectoring",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN132:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN137",
+      "name": "VDSL",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN137:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN138",
+      "name": "ADSL",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN138:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN178",
+      "name": "Rental_AccessHW",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN178:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN199",
+      "name": "VDSL Super Vectoring",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN199:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN204",
+      "name": "eligibleFritzbox",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN204:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN210",
+      "name": "FIBRE",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/FN210:(version=0)",
+      "@referredType": "Category"
+    }
+  ],
+  "prodSpecCharValueUse": [
+    {
+      "id": "71eb0042-4d61-4f66-a051-54b8574bd45e",
+      "name": "DeviceModel",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "AVM FRITZ!Box 7690",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "0afb2efd-8452-4c48-8a3c-5826803290f0",
+      "name": "PAPSType",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "IAD",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "51fcb6ae-377a-47f7-a1c8-54ebd69e32c4",
+      "name": "DeviceType",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Router",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "168990ce-69e8-4488-ad97-b791c9cf5f4e",
+      "name": "CPEBrand",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "AVM",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "e7bd126b-28b9-4c10-a218-8284d80295f4",
+      "name": "WifiStandard",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Wi-Fi 7",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "a362a390-dbf7-43d4-87d0-f74e2c55178b",
+      "name": "RequiresONT",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Y",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "4d8040e9-e074-4eba-bec7-a7cc9765b897",
+      "name": "IsCompatibleDSL",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "true",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "7569e854-097a-47ad-bce0-dacd0802b07c",
+      "name": "IsCompatibleFIBRE",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "true",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "90499a61-eccf-415e-ad19-4d22d72c2919",
+      "name": "IsCompatibleLTE",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "false",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "365f7df7-d2af-4d2f-956c-25beb1c08d03",
+      "name": "LANPortsInfo",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "2x 2.5-Gigabit LAN/WAN, 2x Gigabit LAN",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "57bc6202-dee0-4ed9-ac6b-143e341608a6",
+      "name": "SmartHomeSupport",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Both",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "7f2b1b99-342d-417e-9a69-22f01024d53c",
+      "name": "ProductFamilyID",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "FNFamily22",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "cc55af70-5535-443a-b162-59433ba302e4",
+      "name": "ProductFamilyName",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "FN_Hardware",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "0f315a47-9f2b-42d8-84c1-80ee6499a7c0",
+      "name": "PackageSubtypeID",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Hardware",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "035b199f-b4b5-4233-9a27-a0dcba7c15f5",
+      "name": "SKU",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "20090230_sub",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "5815f85d-818b-436a-a650-d72ffde6f4a6",
+      "name": "HardwareAcquisitionMode",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Rental",
+          "isDefault": true
+        }
+      ]
+    }
+  ],
+  "productOfferingPrice": [
+    {
+      "id": "pop_fb_7690_rental",
+      "name": "AVM FRITZ!Box 7690 Miete (8.99 \u20ac/mo)",
+      "version": "0",
+      "@referredType": "ProductOfferingPrice"
+    }
+  ]
+}

@@ -1,0 +1,224 @@
+{
+  "id": "offering_gigazuhause_500_glasfaser",
+  "name": "GigaZuhause 500 Glasfaser",
+  "version": "0",
+  "description": "GigaZuhause 500 Glasfaser broadband internet and telephony flatrate package",
+  "lifecycleStatus": "In study",
+  "validFor": {
+    "startDateTime": "2025-10-26T00:00:00.000Z"
+  },
+  "@baseType": "ProductOffering",
+  "@type": "ProductOffering",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productoffering.json",
+  "isBundle": false,
+  "isSellable": true,
+  "productSpecification": {
+    "id": "spec_sales_package",
+    "name": "VF_DE_SALES_SPEC",
+    "version": "0",
+    "href": "/api/productCatalogManagement/v4/productSpecification/spec_sales_package:(version=0)",
+    "@referredType": "ProductSpecification"
+  },
+  "category": [
+    {
+      "id": "FN186",
+      "name": "Fibre Package FIBRE",
+      "version": "0",
+      "href": "/api/productCatalogManagement/v4/category/FN186:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN0505",
+      "name": "GigaZuhause Basic Glasfaser",
+      "version": "0",
+      "href": "/api/productCatalogManagement/v4/category/FN0505:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN0507",
+      "name": "Fibre Package GPON",
+      "version": "0",
+      "href": "/api/productCatalogManagement/v4/category/FN0507:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN155",
+      "name": "DSL_total",
+      "version": "0",
+      "href": "/api/productCatalogManagement/v4/category/FN155:(version=0)",
+      "@referredType": "Category"
+    },
+    {
+      "id": "FN0515",
+      "name": "SalesPackages less than 39,99 Euro",
+      "version": "0",
+      "href": "/api/productCatalogManagement/v4/category/FN0515:(version=0)",
+      "@referredType": "Category"
+    }
+  ],
+  "productOfferingTerm": [
+    {
+      "name": "24 Months Contract Commitment",
+      "description": "24-month minimum contract term",
+      "duration": {
+        "amount": 24,
+        "units": "month"
+      }
+    },
+    {
+      "name": "18 Months Contract Commitment",
+      "description": "18-month minimum contract term (Wechselgarantie)",
+      "duration": {
+        "amount": 18,
+        "units": "month"
+      }
+    },
+    {
+      "name": "12 Months Contract Commitment",
+      "description": "12-month minimum contract term",
+      "duration": {
+        "amount": 12,
+        "units": "month"
+      }
+    }
+  ],
+  "productOfferingPrice": [
+    {
+      "id": "pop_bundle_gigazuhause_500_glasfaser_bw500_cbasic",
+      "name": "GigaZuhause 500 Glasfaser Monthly Price (500M Nominal + Basis-Anschluss)",
+      "href": "/api/productCatalogManagement/v4/productOfferingPrice/pop_bundle_gigazuhause_500_glasfaser_bw500_cbasic:(version=0)",
+      "@referredType": "ProductOfferingPrice"
+    },
+    {
+      "id": "pop_bundle_gigazuhause_500_glasfaser_bw500_ccomfort",
+      "name": "GigaZuhause 500 Glasfaser Monthly Price (500M Nominal + Komfort-Anschluss)",
+      "href": "/api/productCatalogManagement/v4/productOfferingPrice/pop_bundle_gigazuhause_500_glasfaser_bw500_ccomfort:(version=0)",
+      "@referredType": "ProductOfferingPrice"
+    }
+  ],
+  "prodSpecCharValueUse": [
+    {
+      "id": "6658c351-dd45-48fd-9d75-7a2d597c3145",
+      "name": "Package_ID",
+      "valueType": "string",
+      "configurable": false,
+      "mandatory": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "R025.5000000961",
+          "isDefault": true,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "id": "1cbcb81e-962d-47bc-a469-9c0b6e7723d6",
+      "name": "PackageName",
+      "valueType": "string",
+      "configurable": false,
+      "mandatory": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "GigaZuhause 500 Glasfaser",
+          "isDefault": true,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "id": "792d33ff-9fc6-465c-b851-bcf9125200c9",
+      "name": "Technology",
+      "valueType": "string",
+      "configurable": false,
+      "mandatory": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Fiber/GPON",
+          "isDefault": true,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "id": "f6a5ac4d-e7db-49be-b0c0-bdfed919b21d",
+      "name": "InternetTariffCode",
+      "valueType": "string",
+      "configurable": false,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "IP527",
+          "isDefault": true,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "id": "876febb7-1b1b-44b5-afe6-cbaffd6ffdd9",
+      "name": "VoiceTariffCode",
+      "valueType": "string",
+      "configurable": false,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "VP527",
+          "isDefault": true,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "id": "dfd86571-5621-4e58-a5bc-f8e0c15fd698",
+      "name": "BandwidthDownstreamMax",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "500",
+          "isDefault": true,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "id": "369f80f4-7aa9-438c-aaf1-dcb645ef2513",
+      "name": "BandwidthUpstreamMax",
+      "valueType": "string",
+      "configurable": true,
+      "productSpecCharacteristicValue": [
+        {
+          "value": "100",
+          "isDefault": true,
+          "valueType": "string"
+        }
+      ]
+    },
+    {
+      "id": "84f5d6e5-b270-4ea7-92ac-da974916f7f3",
+      "name": "ContractDuration",
+      "valueType": "string",
+      "configurable": true,
+      "minCardinality": 1,
+      "maxCardinality": 1,
+      "@type": "ProductSpecificationCharacteristicValueUse",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "24",
+          "valueType": "string",
+          "isDefault": true,
+          "unitOfMeasure": "month"
+        },
+        {
+          "value": "18",
+          "valueType": "string",
+          "isDefault": false,
+          "unitOfMeasure": "month"
+        },
+        {
+          "value": "12",
+          "valueType": "string",
+          "isDefault": false,
+          "unitOfMeasure": "month"
+        }
+      ]
+    }
+  ]
+}

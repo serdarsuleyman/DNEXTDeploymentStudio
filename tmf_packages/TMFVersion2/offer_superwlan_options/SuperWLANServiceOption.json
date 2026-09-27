@@ -1,0 +1,202 @@
+{
+  "id": "SuperWLANServiceOption",
+  "name": "SuperWLAN (SW010)",
+  "description": "Software-based intelligent cloud Wi-Fi optimization for automated channel selection and band steering.",
+  "isBundle": false,
+  "isSellable": true,
+  "lifecycleStatus": "In study",
+  "version": "0",
+  "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productOffering/SuperWLANServiceOption:(version=0)",
+  "@type": "ProductOffering",
+  "productSpecification": {
+    "id": "spec_superwlan_option",
+    "name": "VF_DE_SUPERWLAN_SPEC",
+    "version": "0",
+    "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productSpecification/spec_superwlan_option:(version=0)",
+    "@referredType": "ProductSpecification"
+  },
+  "category": [
+    {
+      "id": "cat_superwlan_options",
+      "name": "SuperWLAN & Mesh Options",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/category/cat_superwlan_options:(version=0)",
+      "@referredType": "Category"
+    }
+  ],
+  "prodSpecCharValueUse": [
+    {
+      "id": "e09802db-bb9a-4af6-ada8-eb31ded80907",
+      "name": "SKU",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "SW010",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "28b312b6-88a9-4846-8feb-ed530f3a3279",
+      "name": "OptionName",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "SuperWLAN",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "7dab39a2-7c51-4df8-af6b-611b1b2afb85",
+      "name": "Sorting",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "13",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "d57d9a01-6f84-4159-a309-07a948a72482",
+      "name": "SuperWLANType",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Cloud Optimization Service",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "78408b14-1411-4bd8-9521-cb85a5866659",
+      "name": "MeshDeviceRole",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Cloud Controller",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "dcc544a8-8d5c-49b9-a916-a380432d3fc0",
+      "name": "MinContractDuration",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "0",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "a6f123e8-7a9f-4b8e-9854-510e64c5b9a7",
+      "name": "MinContractDurationUnit",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "MONTH",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "19366a43-a893-439d-9bb9-81c82622c0df",
+      "name": "CancellationPeriod",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "1",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "3635dc7c-982a-4af9-84d2-2b8b440ea600",
+      "name": "CancellationPeriodUnit",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "MONTH",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "2b6dc691-a146-496f-aeb0-3174256d8ae2",
+      "name": "SupportedHardware",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Vodafone EasyBox 805",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "d6afa0e4-db7e-4e14-a682-bc6a3564220d",
+      "name": "SuperWifiMode",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "active",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "2ff4a00a-bed3-4883-bc27-781b8deb7053",
+      "name": "SummaryText",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Softwarebasierte, intelligente WLAN-Optimierung",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "4291834c-919d-4618-ad06-9e0e1177f505",
+      "name": "ProductFamilyID",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "FNFamily29",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "a43ce348-753c-47cb-bfd4-868239d3c7c7",
+      "name": "ProductFamilyName",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Internet Tariff Option",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "4ab06a5a-b6ab-4ba6-b6ac-6caa3c26a045",
+      "name": "PackageSubtypeID",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Option",
+          "isDefault": true
+        }
+      ]
+    }
+  ],
+  "productOfferingPrice": [
+    {
+      "id": "pop_superwlan_service_sw010",
+      "name": "SuperWLAN Cloud Service (0.00 \u20ac)",
+      "version": "0",
+      "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productOfferingPrice/pop_superwlan_service_sw010:(version=0)",
+      "@referredType": "ProductOfferingPrice"
+    }
+  ]
+}

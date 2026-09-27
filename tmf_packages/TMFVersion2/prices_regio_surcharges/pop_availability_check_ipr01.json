@@ -1,0 +1,53 @@
+{
+  "id": "pop_availability_check_ipr01",
+  "name": "Kabel Verfügbarkeit Indicator Price (0.00 €)",
+  "description": "Product offering price component for Kabel Verfügbarkeit Indicator Price (0.00 €)",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "@baseType": "ProductOfferingPrice",
+  "@type": "ProductOfferingPrice",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productofferingprice.json",
+  "href": "https://api.vodafone.de/tmf-api/productCatalogManagement/v5/productOfferingPrice/pop_availability_check_ipr01:(version=0)",
+  "isBundle": false,
+  "priceType": "Recurring charge",
+  "recurringChargePeriodType": "month",
+  "price": {
+    "unit": "EUR",
+    "value": 0.0
+  },
+  "validFor": {
+    "startDateTime": "2025-10-26T00:00:00.000Z"
+  },
+  "productOfferingPriceCharacteristic": [
+    {
+      "id": "b9fcc8fb-bda9-4bd8-a127-5850f3578aed",
+      "name": "regio_zone_code",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Generic"
+        }
+      ]
+    },
+    {
+      "id": "5d6b3b96-379f-4354-89dd-b3fcf038b674",
+      "name": "access_supplier",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Vodafone On-Net"
+        }
+      ]
+    },
+    {
+      "id": "d8a51396-f47d-4841-8db0-5e2d7bb1cce1",
+      "name": "regio_sku",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "IPR01"
+        }
+      ]
+    }
+  ]
+}

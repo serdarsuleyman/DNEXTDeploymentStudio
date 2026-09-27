@@ -1,0 +1,71 @@
+{
+  "id": "pop_easybox_805_purchase_subsidized",
+  "name": "Vodafone EasyBox 805 Kaufpreis subventioniert (24M)",
+  "description": "Subventionierter Einmalpreis f\u00fcr Vodafone EasyBox 805 bei Abschluss eines 24-Monats-Vertrags (59.9 \u20ac)",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "@baseType": "ProductOfferingPrice",
+  "@type": "ProductOfferingPrice",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productofferingprice.json",
+  "isBundle": false,
+  "priceType": "One time charge",
+  "price": {
+    "unit": "EUR",
+    "value": 59.9
+  },
+  "validFor": {
+    "startDateTime": "2022-01-01T00:00:00.000Z"
+  },
+  "productOfferingPriceCharacteristic": [
+    {
+      "id": "2604c40a-760d-40a4-857c-42fa02129143",
+      "name": "device_model",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Vodafone EasyBox 805"
+        }
+      ]
+    },
+    {
+      "id": "517c6822-b626-4dec-b2f2-f0f76805c641",
+      "name": "device_subsidized_status",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Subsidized"
+        }
+      ]
+    },
+    {
+      "id": "d5d674c2-b9f3-435b-b053-c3f53daec174",
+      "name": "contract_duration",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "24"
+        }
+      ]
+    },
+    {
+      "id": "6ef674b2-1dc0-495b-8293-e94669455b5c",
+      "name": "contract_duration_unit",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "MONTH"
+        }
+      ]
+    },
+    {
+      "id": "710025fb-896e-4ebc-a6ea-ebe0075491c7",
+      "name": "acquisition_mode",
+      "valueType": "string",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Purchase"
+        }
+      ]
+    }
+  ]
+}

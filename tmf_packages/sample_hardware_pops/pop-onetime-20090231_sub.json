@@ -1,0 +1,18 @@
+{
+  "id": "pop-onetime-20090231_sub",
+  "name": "FRITZ!Box 7690 (Kaufgerät) One-Time Fee",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "priceType": "One time charge",
+  "price": {
+    "value": 229.9,
+    "unit": "EUR"
+  },
+  "tax": [
+    {
+      "taxCategory": "VAT",
+      "taxRate": 19
+    }
+  ],
+  "@type": "ProductOfferingPrice"
+}
