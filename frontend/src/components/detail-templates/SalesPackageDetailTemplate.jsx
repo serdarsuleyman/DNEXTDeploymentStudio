@@ -279,6 +279,56 @@ export default function SalesPackageDetailTemplate({
     return found.value !== undefined ? found.value : null;
   };
 
+  // ─── Commercial Terms Associated with Selling SKUs ───
+  const commercialTerms = useMemo(() => {
+    if (terms && terms.length > 0) {
+      return terms.map((t, idx) => {
+        const durationAmount = t.duration?.amount;
+        const durationUnits = t.duration?.units || 'Month';
+        const termChars = t.productOfferingTermCharacteristic || t.prodSpecCharValueUse || [];
+        const termSkuChar = termChars.find(c => (c.name || '').toLowerCase() === 'sku');
+        const termSku = termSkuChar?.productOfferingTermCharacteristicValue?.[0]?.value 
+          || termSkuChar?.value 
+          || (skus && skus[idx]) 
+          || (skus && skus.length === 1 ? skus[0] : null) 
+          || '-';
+
+        const termName = t.name || (durationAmount !== undefined ? `${durationAmount} ${durationUnits} Commitment` : `Contract Term #${idx + 1}`);
+        const durationLabel = durationAmount !== undefined ? `${durationAmount} ${durationUnits}` : (t.name?.match(/\d+\s*(?:month|monat|jahr|year)/i)?.[0] || 'Standard Duration');
+        const isFlex = durationAmount === 0 || termName.toLowerCase().includes('flex') || termName.toLowerCase().includes('ohne');
+        const noticePeriod = t.cancellationPeriod || extractChar(t, 'cancellation_period') || extractChar(t, 'notice_period') || '1 Month notice';
+
+        return {
+          id: t.id || `term-${idx}`,
+          name: termName,
+          durationAmount,
+          durationUnits,
+          durationLabel,
+          isFlex,
+          sku: termSku,
+          description: t.description || (isFlex ? 'Monthly cancellable flex contract with zero minimum commitment' : (durationAmount ? `${durationAmount}-${durationUnits.toLowerCase()} minimum contract commitment` : 'Standard contract commitment term')),
+          validFor: t.validFor,
+          cancellationPeriod: noticePeriod,
+          raw: t
+        };
+      });
+    } else if (skus && skus.length > 0) {
+      return skus.map((skuVal, idx) => ({
+        id: `sku-${idx}`,
+        name: `Selling SKU #${idx + 1}`,
+        durationAmount: 24,
+        durationUnits: 'Month',
+        durationLabel: '24 Months Commitment',
+        isFlex: false,
+        sku: skuVal,
+        description: 'Standard DBSS commercial selling contract term',
+        cancellationPeriod: '1 Month notice',
+        raw: null
+      }));
+    }
+    return [];
+  }, [terms, skus]);
+
   // ─── Bandwidth Options & Technology Detection ───
   const bandwidthOptionOffers = useMemo(() => {
     const map = new Map();
@@ -872,15 +922,136 @@ export default function SalesPackageDetailTemplate({
             </div>
           </div>
 
-          {/* ── Contract Terms Summary ── */}
-          {terms.length > 0 && (
-            <div style={{ background: C.panel, border: `1px solid ${C.cardBorder}`, borderRadius: '10px', padding: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-              <h4 style={{ margin: '0 0 10px 0', fontSize: '13px', fontWeight: '700', color: C.text }}>Contract Terms</h4>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {terms.map((t, idx) => (
-                  <div key={idx} style={{ background: 'var(--ds-surface-subtle)', border: `1px solid ${C.cardBorder}`, padding: '8px 10px', borderRadius: '6px' }}>
-                    <div style={{ fontSize: '12px', fontWeight: '600', color: C.text }}>{t.name || `Term #${idx + 1}`}</div>
-                    {t.duration && <div style={{ fontSize: '11px', color: 'var(--ds-ok)', fontWeight: '600' }}>Duration: {t.duration.amount} {t.duration.units}</div>}
+          {/* ── Contract Terms & Commercial SKUs ── */}
+          {commercialTerms.length > 0 && (
+            <div style={{
+              background: C.panel,
+              border: `1px solid ${C.cardBorder}`,
+              borderRadius: '10px',
+              padding: '20px',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap', gap: '8px' }}>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '13.5px', fontWeight: '700', color: C.text, textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Icon name="tag" size={15} />
+                    <span>Contract Commitment & Selling SKUs</span>
+                  </h3>
+                  <div style={{ fontSize: '12px', color: C.muted, marginTop: '2px' }}>
+                    Commercial selling SKU codes associated with contract commitment variants and orderable fulfillment terms.
+                  </div>
+                </div>
+                <span style={{ fontSize: '11px', background: 'rgba(230,0,0,0.08)', color: 'var(--ds-brand)', padding: '2px 8px', borderRadius: '12px', fontWeight: '700' }}>
+                  {commercialTerms.length} {commercialTerms.length === 1 ? 'Variant' : 'Variants'}
+                </span>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '14px' }}>
+                {commercialTerms.map((ct, idx) => (
+                  <div
+                    key={ct.id || idx}
+                    style={{
+                      background: ct.isFlex ? 'linear-gradient(135deg, rgba(2,132,199,0.04) 0%, #ffffff 85%)' : 'linear-gradient(135deg, rgba(16,185,129,0.04) 0%, #ffffff 85%)',
+                      border: `1px solid ${ct.isFlex ? 'rgba(2,132,199,0.25)' : 'rgba(16,185,129,0.25)'}`,
+                      borderRadius: '8px',
+                      padding: '14px 16px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
+                    }}
+                  >
+                    <div>
+                      {/* Header: Term Name & Status */}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px', marginBottom: '8px' }}>
+                        <div>
+                          <div style={{ fontSize: '13px', fontWeight: '700', color: C.text }}>
+                            {ct.name}
+                          </div>
+                          <div style={{ fontSize: '11px', color: ct.isFlex ? 'var(--ds-info)' : 'var(--ds-ok)', fontWeight: '600', marginTop: '2px' }}>
+                            Duration: {ct.durationLabel}
+                          </div>
+                        </div>
+                        <span style={{
+                          fontSize: '10.5px',
+                          background: ct.isFlex ? 'rgba(2,132,199,0.1)' : 'rgba(16,185,129,0.1)',
+                          color: ct.isFlex ? 'var(--ds-info)' : 'var(--ds-ok)',
+                          border: `1px solid ${ct.isFlex ? 'rgba(2,132,199,0.2)' : 'rgba(16,185,129,0.2)'}`,
+                          padding: '1px 7px',
+                          borderRadius: '10px',
+                          fontWeight: '700',
+                          whiteSpace: 'nowrap'
+                        }}>
+                          Active Term
+                        </span>
+                      </div>
+
+                      {/* Selling SKU Code Box with 1-Click Copy */}
+                      <div style={{ marginTop: '10px', marginBottom: '10px' }}>
+                        <span style={{ fontSize: '11px', color: C.muted, textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.04em', display: 'block', marginBottom: '4px' }}>
+                          Selling SKU Code
+                        </span>
+                        <div style={{
+                          background: '#ffffff',
+                          border: '1px solid var(--ds-border-strong)',
+                          borderRadius: '6px',
+                          padding: '6px 10px',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center'
+                        }}>
+                          <code style={{
+                            fontFamily: 'var(--ds-font-mono)',
+                            fontSize: '13px',
+                            fontWeight: '800',
+                            color: 'var(--ds-warn)',
+                            letterSpacing: '0.02em'
+                          }}>
+                            {ct.sku}
+                          </code>
+                          {copyToClipboard && ct.sku !== '-' && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                copyToClipboard(ct.sku, `sku_${idx}`);
+                              }}
+                              style={{
+                                background: copiedKey === `sku_${idx}` ? 'rgba(16,185,129,0.1)' : 'var(--ds-surface-2)',
+                                border: `1px solid ${copiedKey === `sku_${idx}` ? 'var(--ds-ok)' : 'var(--ds-border)'}`,
+                                color: copiedKey === `sku_${idx}` ? 'var(--ds-ok)' : C.text,
+                                borderRadius: '4px',
+                                padding: '3px 8px',
+                                fontSize: '11px',
+                                fontWeight: '600',
+                                cursor: 'pointer',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                                transition: 'all 0.15s'
+                              }}
+                              title="Copy SKU code to clipboard"
+                            >
+                              <Icon name={copiedKey === `sku_${idx}` ? 'check' : 'clipboard'} size={12} />
+                              <span>{copiedKey === `sku_${idx}` ? 'Copied' : 'Copy'}</span>
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Description */}
+                      <div style={{ fontSize: '11.5px', color: C.muted, lineHeight: '1.4', marginBottom: '6px' }}>
+                        {ct.description}
+                      </div>
+                    </div>
+
+                    {/* Footer: Notice & Validity */}
+                    <div style={{ borderTop: `1px solid ${C.cardBorder}`, paddingTop: '8px', marginTop: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11px', color: 'var(--ds-text-3)' }}>
+                      <span>Notice period: <strong>{ct.cancellationPeriod}</strong></span>
+                      {ct.raw?.validFor?.startDateTime && (
+                        <span>Valid: {new Date(ct.raw.validFor.startDateTime).toLocaleDateString()}</span>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -1708,9 +1879,6 @@ export default function SalesPackageDetailTemplate({
                     {resolvedPops.length} Bundle Variants
                   </span>
                 </h3>
-                <div style={{ fontSize: '12px', color: C.muted, marginTop: '2px' }}>
-                  Expand each Bundle POP (Tier 1) to inspect its 4 constituent simple price components (Tier 2) and CCB/PSM provisioning keys.
-                </div>
               </div>
 
               {/* Hierarchy Tree Controls */}
@@ -1906,48 +2074,6 @@ export default function SalesPackageDetailTemplate({
                                 Speed: {pop.bandwidth} Mbps · Dual Play (pt2)
                               </span>
 
-                              {/* PSM Sales Packet Badges */}
-                              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
-                                <span style={{
-                                  fontSize: '11px',
-                                  background: 'rgba(2,132,199,0.08)',
-                                  color: 'var(--ds-info)',
-                                  border: '1px solid rgba(2,132,199,0.25)',
-                                  padding: '1px 6px',
-                                  borderRadius: '4px',
-                                  fontFamily: 'var(--ds-font-mono)',
-                                  fontWeight: '700'
-                                }} title="PSM Sales Packet Code for Vodafone NGN Network">
-                                  NGN: {pop.psmNgn || '-'}
-                                </span>
-                                {pop.hasBitstream ? (
-                                  <span style={{
-                                    fontSize: '11px',
-                                    background: 'rgba(124,58,237,0.08)',
-                                    color: 'var(--ds-spec)',
-                                    border: '1px solid rgba(124,58,237,0.25)',
-                                    padding: '1px 6px',
-                                    borderRadius: '4px',
-                                    fontFamily: 'var(--ds-font-mono)',
-                                    fontWeight: '700'
-                                  }} title="PSM Sales Packet Code for Telekom Bitstream Network">
-                                    Bitstream: {pop.psmBitstream || '-'}
-                                  </span>
-                                ) : (
-                                  <span style={{
-                                    fontSize: '11px',
-                                    background: 'var(--ds-surface-2)',
-                                    color: 'var(--ds-text-3)',
-                                    border: '1px solid var(--ds-border)',
-                                    padding: '1px 6px',
-                                    borderRadius: '4px',
-                                    fontWeight: '600'
-                                  }} title="This POP is provisioned strictly on Vodafone NGN infrastructure">
-                                    NGN Only
-                                  </span>
-                                )}
-                              </div>
-
                               <span style={{ fontSize: '11px', color: 'var(--ds-ok)', background: 'rgba(16,185,129,0.1)', padding: '1px 6px', borderRadius: '4px' }}>
                                 4 Sub-Prices
                               </span>
@@ -1956,15 +2082,115 @@ export default function SalesPackageDetailTemplate({
                             <div style={{ fontSize: '13.5px', fontWeight: '700', color: C.text, marginTop: '3px' }}>
                               {pop.name || pop.id}
                             </div>
+
+                            {/* POP Details as in above table */}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap', marginTop: '6px' }}>
+                              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                                <span style={{ fontSize: '11px', color: C.muted, fontWeight: '600' }}>Bandwith Service ID:</span>
+                                {pop.bandwidthServiceId ? (
+                                  <code style={{
+                                    fontFamily: 'var(--ds-font-mono)',
+                                    fontSize: '11.5px',
+                                    fontWeight: '700',
+                                    color: 'var(--ds-warn)',
+                                    background: 'var(--ds-surface-2)',
+                                    border: '1px solid rgba(245, 158, 11, 0.25)',
+                                    padding: '2px 8px',
+                                    borderRadius: '4px'
+                                  }}>
+                                    {pop.bandwidthServiceId}
+                                  </code>
+                                ) : (
+                                  <span style={{ color: C.muted, fontSize: '11px' }}>-</span>
+                                )}
+                              </div>
+
+                              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                                <span style={{ fontSize: '11px', color: C.muted, fontWeight: '600' }}>NGN Packet Code:</span>
+                                {pop.psmNgn ? (
+                                  <code style={{
+                                    background: 'rgba(2,132,199,0.08)',
+                                    color: 'var(--ds-info)',
+                                    border: '1px solid rgba(2,132,199,0.2)',
+                                    padding: '2px 8px',
+                                    borderRadius: '4px',
+                                    fontWeight: '700',
+                                    fontFamily: 'var(--ds-font-mono)',
+                                    fontSize: '11.5px'
+                                  }}>
+                                    {pop.psmNgn}
+                                  </code>
+                                ) : (
+                                  <span style={{ color: C.muted, fontSize: '11px' }}>-</span>
+                                )}
+                              </div>
+
+                              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                                <span style={{ fontSize: '11px', color: C.muted, fontWeight: '600' }}>Bitstream Packet Code:</span>
+                                {pop.psmBitstream ? (
+                                  <code style={{
+                                    background: 'rgba(124,58,237,0.08)',
+                                    color: 'var(--ds-spec)',
+                                    border: '1px solid rgba(124,58,237,0.2)',
+                                    padding: '2px 8px',
+                                    borderRadius: '4px',
+                                    fontWeight: '700',
+                                    fontFamily: 'var(--ds-font-mono)',
+                                    fontSize: '11.5px'
+                                  }}>
+                                    {pop.psmBitstream}
+                                  </code>
+                                ) : (
+                                  <span style={{ color: C.muted, fontSize: '11px' }}>-</span>
+                                )}
+                              </div>
+
+                              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                                <span style={{ fontSize: '11px', color: C.muted, fontWeight: '600' }}>Internet Tariff Code:</span>
+                                {pop.tariffInternet ? (
+                                  <code style={{
+                                    background: 'rgba(59,130,246,0.08)',
+                                    color: '#2563eb',
+                                    border: '1px solid rgba(59,130,246,0.2)',
+                                    padding: '2px 8px',
+                                    borderRadius: '4px',
+                                    fontWeight: '700',
+                                    fontFamily: 'var(--ds-font-mono)',
+                                    fontSize: '11.5px'
+                                  }}>
+                                    {pop.tariffInternet}
+                                  </code>
+                                ) : (
+                                  <span style={{ color: C.muted, fontSize: '11px' }}>-</span>
+                                )}
+                              </div>
+
+                              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                                <span style={{ fontSize: '11px', color: C.muted, fontWeight: '600' }}>Voice Tariff Code:</span>
+                                {pop.tariffVoice ? (
+                                  <code style={{
+                                    background: 'rgba(16,185,129,0.08)',
+                                    color: '#059669',
+                                    border: '1px solid rgba(16,185,129,0.2)',
+                                    padding: '2px 8px',
+                                    borderRadius: '4px',
+                                    fontWeight: '700',
+                                    fontFamily: 'var(--ds-font-mono)',
+                                    fontSize: '11.5px'
+                                  }}>
+                                    {pop.tariffVoice}
+                                  </code>
+                                ) : (
+                                  <span style={{ color: C.muted, fontSize: '11px' }}>-</span>
+                                )}
+                              </div>
+                            </div>
                           </div>
                         </div>
 
                         {/* Bundle Price & Quick Links */}
                         <div style={{ display: 'flex', alignItems: 'center', gap: '14px', textAlign: 'right' }}>
                           <div>
-                            <div style={{ fontSize: '11px', color: C.muted, textTransform: 'uppercase', fontWeight: '600' }}>
-                              Monthly Recurring Fee
-                            </div>
                             <div style={{ fontSize: '19px', fontWeight: '800', color: 'var(--ds-warn)' }}>
                               €{pop.totalPrice.toFixed(2)} <span style={{ fontSize: '12px', color: C.muted, fontWeight: 'normal' }}>/ {pop.period}</span>
                             </div>
@@ -2103,31 +2329,36 @@ export default function SalesPackageDetailTemplate({
                                           background: '#ffffff',
                                           border: '1px solid #bfdbfe',
                                           borderRadius: '6px',
-                                          padding: '5px 10px',
+                                          padding: '6px 10px',
                                           fontFamily: 'var(--ds-font-mono)',
                                           fontSize: '12px',
                                           fontWeight: '700',
-                                          color: '#1e40af',
-                                          display: 'flex',
-                                          justifyContent: 'space-between',
-                                          alignItems: 'center'
+                                          color: '#1e40af'
                                         }}>
-                                          <span>{compBw?.serviceBitstream || compBw?.serviceNgn || (Number(pop.bandwidth) >= 250 ? 'V018V' : Number(pop.bandwidth) >= 100 ? 'V018N' : 'V018C')}</span>
-                                          {compBw && onNavigateToPrice && compBw.raw && (
-                                            <button
-                                              type="button"
-                                              onClick={(e) => { e.stopPropagation(); onNavigateToPrice(compBw.raw); }}
-                                              style={{ background: 'none', border: 'none', color: '#1e40af', fontSize: '10.5px', fontWeight: '700', cursor: 'pointer', padding: 0 }}
-                                              title="Inspect POP in drawer"
-                                            >
-                                              Inspect →
-                                            </button>
-                                          )}
+                                          {compBw?.serviceBitstream || compBw?.serviceNgn || (Number(pop.bandwidth) >= 250 ? 'V018V' : Number(pop.bandwidth) >= 100 ? 'V018N' : 'V018C')}
                                         </div>
                                       </div>
                                     </div>
-                                    <div style={{ fontSize: '11px', color: 'var(--ds-text-3)', borderTop: '1px solid #dbeafe', paddingTop: '6px' }}>
-                                      PSM: <code>{compBw?.packetBitstream || compBw?.packetNgn || pop.psmBitstream || pop.psmNgn || 'PR393'}</code> • Svc: <code>{compBw?.serviceBitstream || compBw?.serviceNgn || 'V018V'}</code>
+                                    <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', borderTop: '1px solid #dbeafe', paddingTop: '8px', marginTop: '6px' }}>
+                                      {compBw && onNavigateToPrice && compBw.raw && (
+                                        <button
+                                          type="button"
+                                          onClick={(e) => { e.stopPropagation(); onNavigateToPrice(compBw.raw); }}
+                                          style={{
+                                            background: '#ffffff',
+                                            border: '1px solid #bfdbfe',
+                                            color: '#1e40af',
+                                            fontSize: '11px',
+                                            fontWeight: '700',
+                                            padding: '4px 10px',
+                                            borderRadius: '5px',
+                                            cursor: 'pointer'
+                                          }}
+                                          title="Inspect POP in drawer"
+                                        >
+                                          Inspect →
+                                        </button>
+                                      )}
                                     </div>
                                   </div>
 
@@ -2184,31 +2415,36 @@ export default function SalesPackageDetailTemplate({
                                           background: '#ffffff',
                                           border: '1px solid #e9d5ff',
                                           borderRadius: '6px',
-                                          padding: '5px 10px',
+                                          padding: '6px 10px',
                                           fontFamily: 'var(--ds-font-mono)',
                                           fontSize: '12px',
                                           fontWeight: '700',
-                                          color: 'var(--ds-spec-text)',
-                                          display: 'flex',
-                                          justifyContent: 'space-between',
-                                          alignItems: 'center'
+                                          color: 'var(--ds-spec-text)'
                                         }}>
-                                          <span>{compIn?.serviceBitstream || compIn?.serviceNgn || 'V0017'}</span>
-                                          {compIn && onNavigateToPrice && compIn.raw && (
-                                            <button
-                                              type="button"
-                                              onClick={(e) => { e.stopPropagation(); onNavigateToPrice(compIn.raw); }}
-                                              style={{ background: 'none', border: 'none', color: 'var(--ds-spec-text)', fontSize: '10.5px', fontWeight: '700', cursor: 'pointer', padding: 0 }}
-                                              title="Inspect POP in drawer"
-                                            >
-                                              Inspect →
-                                            </button>
-                                          )}
+                                          {compIn?.serviceBitstream || compIn?.serviceNgn || 'V0017'}
                                         </div>
                                       </div>
                                     </div>
-                                    <div style={{ fontSize: '11px', color: 'var(--ds-text-3)', borderTop: '1px solid var(--ds-spec-soft)', paddingTop: '6px' }}>
-                                      Tariff: <code>{compIn?.tariffCodeNgn || compIn?.tariffCodeBitstream || 'IP076'}</code> • Svc: <code>{compIn?.serviceBitstream || compIn?.serviceNgn || 'V0017'}</code>
+                                    <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', borderTop: '1px solid var(--ds-spec-soft)', paddingTop: '8px', marginTop: '6px' }}>
+                                      {compIn && onNavigateToPrice && compIn.raw && (
+                                        <button
+                                          type="button"
+                                          onClick={(e) => { e.stopPropagation(); onNavigateToPrice(compIn.raw); }}
+                                          style={{
+                                            background: '#ffffff',
+                                            border: '1px solid #e9d5ff',
+                                            color: 'var(--ds-spec-text)',
+                                            fontSize: '11px',
+                                            fontWeight: '700',
+                                            padding: '4px 10px',
+                                            borderRadius: '5px',
+                                            cursor: 'pointer'
+                                          }}
+                                          title="Inspect POP in drawer"
+                                        >
+                                          Inspect →
+                                        </button>
+                                      )}
                                     </div>
                                   </div>
 
@@ -2265,31 +2501,36 @@ export default function SalesPackageDetailTemplate({
                                           background: '#ffffff',
                                           border: '1px solid var(--ds-ok-border)',
                                           borderRadius: '6px',
-                                          padding: '5px 10px',
+                                          padding: '6px 10px',
                                           fontFamily: 'var(--ds-font-mono)',
                                           fontSize: '11px',
                                           fontWeight: '700',
-                                          color: 'var(--ds-ok)',
-                                          display: 'flex',
-                                          justifyContent: 'space-between',
-                                          alignItems: 'center'
+                                          color: 'var(--ds-ok)'
                                         }}>
-                                          <span>NGN: {compVa?.serviceNgn || (isComfort ? 'VI003' : 'VI002')} • DSL: {compVa?.serviceBitstream || (isComfort ? 'VI006' : 'VI009')}</span>
-                                          {compVa && onNavigateToPrice && compVa.raw && (
-                                            <button
-                                              type="button"
-                                              onClick={(e) => { e.stopPropagation(); onNavigateToPrice(compVa.raw); }}
-                                              style={{ background: 'none', border: 'none', color: 'var(--ds-ok)', fontSize: '10.5px', fontWeight: '700', cursor: 'pointer', padding: 0 }}
-                                              title="Inspect POP in drawer"
-                                            >
-                                              Inspect →
-                                            </button>
-                                          )}
+                                          NGN: {compVa?.serviceNgn || (isComfort ? 'VI003' : 'VI002')} • DSL: {compVa?.serviceBitstream || (isComfort ? 'VI006' : 'VI009')}
                                         </div>
                                       </div>
                                     </div>
-                                    <div style={{ fontSize: '11px', color: 'var(--ds-text-3)', borderTop: '1px solid #d1fae5', paddingTop: '6px' }}>
-                                      NGN: <code>{compVa?.serviceNgn || (isComfort ? 'VI003' : 'VI002')}</code> • DSL: <code>{compVa?.serviceBitstream || (isComfort ? 'VI006' : 'VI009')}</code>
+                                    <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', borderTop: '1px solid #d1fae5', paddingTop: '8px', marginTop: '6px' }}>
+                                      {compVa && onNavigateToPrice && compVa.raw && (
+                                        <button
+                                          type="button"
+                                          onClick={(e) => { e.stopPropagation(); onNavigateToPrice(compVa.raw); }}
+                                          style={{
+                                            background: '#ffffff',
+                                            border: '1px solid var(--ds-ok-border)',
+                                            color: 'var(--ds-ok)',
+                                            fontSize: '11px',
+                                            fontWeight: '700',
+                                            padding: '4px 10px',
+                                            borderRadius: '5px',
+                                            cursor: 'pointer'
+                                          }}
+                                          title="Inspect POP in drawer"
+                                        >
+                                          Inspect →
+                                        </button>
+                                      )}
                                     </div>
                                   </div>
 
@@ -2346,31 +2587,36 @@ export default function SalesPackageDetailTemplate({
                                           background: '#ffffff',
                                           border: '1px solid #fed7aa',
                                           borderRadius: '6px',
-                                          padding: '5px 10px',
+                                          padding: '6px 10px',
                                           fontFamily: 'var(--ds-font-mono)',
                                           fontSize: '12px',
                                           fontWeight: '700',
-                                          color: 'var(--ds-warn)',
-                                          display: 'flex',
-                                          justifyContent: 'space-between',
-                                          alignItems: 'center'
+                                          color: 'var(--ds-warn)'
                                         }}>
-                                          <span>{compVt?.serviceBitstream || compVt?.serviceNgn || 'V0017'}</span>
-                                          {compVt && onNavigateToPrice && compVt.raw && (
-                                            <button
-                                              type="button"
-                                              onClick={(e) => { e.stopPropagation(); onNavigateToPrice(compVt.raw); }}
-                                              style={{ background: 'none', border: 'none', color: 'var(--ds-warn)', fontSize: '10.5px', fontWeight: '700', cursor: 'pointer', padding: 0 }}
-                                              title="Inspect POP in drawer"
-                                            >
-                                              Inspect →
-                                            </button>
-                                          )}
+                                          {compVt?.serviceBitstream || compVt?.serviceNgn || 'V0017'}
                                         </div>
                                       </div>
                                     </div>
-                                    <div style={{ fontSize: '11px', color: 'var(--ds-text-3)', borderTop: '1px solid #fed7aa', paddingTop: '6px' }}>
-                                      Tariff: <code>{compVt?.tariffCodeNgn || compVt?.tariffCodeBitstream || 'VP076'}</code> • Svc: <code>{compVt?.serviceBitstream || compVt?.serviceNgn || 'V0017'}</code>
+                                    <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', borderTop: '1px solid #fed7aa', paddingTop: '8px', marginTop: '6px' }}>
+                                      {compVt && onNavigateToPrice && compVt.raw && (
+                                        <button
+                                          type="button"
+                                          onClick={(e) => { e.stopPropagation(); onNavigateToPrice(compVt.raw); }}
+                                          style={{
+                                            background: '#ffffff',
+                                            border: '1px solid #fed7aa',
+                                            color: 'var(--ds-warn)',
+                                            fontSize: '11px',
+                                            fontWeight: '700',
+                                            padding: '4px 10px',
+                                            borderRadius: '5px',
+                                            cursor: 'pointer'
+                                          }}
+                                          title="Inspect POP in drawer"
+                                        >
+                                          Inspect →
+                                        </button>
+                                      )}
                                     </div>
                                   </div>
 
@@ -2401,15 +2647,18 @@ export default function SalesPackageDetailTemplate({
                                           €{Number(cExtra.price).toFixed(2)} EUR
                                         </div>
                                       </div>
-                                      {onNavigateToPrice && cExtra.raw && (
-                                        <button
-                                          type="button"
-                                          onClick={(e) => { e.stopPropagation(); onNavigateToPrice(cExtra.raw); }}
-                                          style={{ background: '#ffffff', border: `1px solid ${C.cardBorder}`, color: C.text, padding: '4px 8px', borderRadius: '4px', fontSize: '11px', cursor: 'pointer' }}
-                                        >
-                                          Inspect POP →
-                                        </button>
-                                      )}
+                                      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', borderTop: `1px solid ${C.cardBorder}`, paddingTop: '8px', marginTop: '6px' }}>
+                                        {onNavigateToPrice && cExtra.raw && (
+                                          <button
+                                            type="button"
+                                            onClick={(e) => { e.stopPropagation(); onNavigateToPrice(cExtra.raw); }}
+                                            style={{ background: '#ffffff', border: `1px solid ${C.cardBorder}`, color: C.text, padding: '4px 10px', borderRadius: '5px', fontSize: '11px', fontWeight: '700', cursor: 'pointer' }}
+                                            title="Inspect POP in drawer"
+                                          >
+                                            Inspect →
+                                          </button>
+                                        )}
+                                      </div>
                                     </div>
                                   ))}
                                 </div>
