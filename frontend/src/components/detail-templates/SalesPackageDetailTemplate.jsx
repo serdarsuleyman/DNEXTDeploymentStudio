@@ -220,19 +220,23 @@ export default function SalesPackageDetailTemplate({
     }
   };
 
+  // ─── Extract Normalized CCB & PSM Structure from Common Service ───
+  const psmStructure = useMemo(() => {
+    return extractPsmStructure(item?.raw || item, allEntities);
+  }, [item, allEntities]);
+
+  const effectiveTerms = useMemo(() => {
+    return (terms && terms.length > 0) ? terms : (psmStructure?.terms || []);
+  }, [terms, psmStructure]);
+
   const subTabs = [
     { id: 'overview', label: 'Overview', icon: 'chart' },
     { id: 'technology', label: 'Technology & Bandwidth', icon: 'zap' },
     { id: 'psm_structure', label: 'PSM Pricing Structure', icon: 'file' },
     { id: 'categories', label: `Categories/Groups (${treeGroups.length})`, icon: 'folder' },
     { id: 'network', label: 'Specification & Overrides', icon: 'clipboard' },
-    { id: 'terms', label: `Contract Terms (${terms.length})`, icon: 'edit' }
+    { id: 'terms', label: `Contract Terms (${effectiveTerms.length})`, icon: 'edit' }
   ];
-
-  // ─── Extract Normalized CCB & PSM Structure from Common Service ───
-  const psmStructure = useMemo(() => {
-    return extractPsmStructure(item?.raw || item, allEntities);
-  }, [item, allEntities]);
 
   const getCharValues = (charName) => {
     const target = (chars || []).find(c => (c.name || '').toLowerCase() === charName.toLowerCase());
@@ -281,53 +285,90 @@ export default function SalesPackageDetailTemplate({
 
   // ─── Commercial Terms Associated with Selling SKUs ───
   const commercialTerms = useMemo(() => {
-    if (terms && terms.length > 0) {
-      return terms.map((t, idx) => {
+    const list = [];
+    const sourceTerms = (terms && terms.length > 0) ? terms : (psmStructure?.terms || []);
+
+    if (sourceTerms && sourceTerms.length > 0) {
+      sourceTerms.forEach((t, termIdx) => {
         const durationAmount = t.duration?.amount;
         const durationUnits = t.duration?.units || 'Month';
         const termChars = t.productOfferingTermCharacteristic || t.prodSpecCharValueUse || [];
         const termSkuChar = termChars.find(c => (c.name || '').toLowerCase() === 'sku');
-        const termSku = termSkuChar?.productOfferingTermCharacteristicValue?.[0]?.value 
-          || termSkuChar?.value 
-          || (skus && skus[idx]) 
-          || (skus && skus.length === 1 ? skus[0] : null) 
-          || '-';
 
-        const termName = t.name || (durationAmount !== undefined ? `${durationAmount} ${durationUnits} Commitment` : `Contract Term #${idx + 1}`);
+        let termSkuValues = [];
+        if (Array.isArray(termSkuChar?.productOfferingTermCharacteristicValue)) {
+          termSkuValues = termSkuChar.productOfferingTermCharacteristicValue
+            .map(v => v?.value !== undefined ? String(v.value).trim() : String(v).trim())
+            .filter(Boolean);
+        } else if (termSkuChar?.value !== undefined && termSkuChar?.value !== null) {
+          termSkuValues = [String(termSkuChar.value).trim()];
+        } else if (t.sku) {
+          termSkuValues = [String(t.sku).trim()];
+        }
+
+        // If no SKUs on the term itself, fallback to skus array or generated packet-duration
+        if (termSkuValues.length === 0) {
+          const fallbackSku = (skus && skus[termIdx]) || (skus && skus.length === 1 ? skus[0] : null) || '-';
+          termSkuValues = [fallbackSku];
+        }
+
+        const termName = t.name || (durationAmount !== undefined ? `${durationAmount} ${durationUnits} Commitment` : `Contract Term #${termIdx + 1}`);
         const durationLabel = durationAmount !== undefined ? `${durationAmount} ${durationUnits}` : (t.name?.match(/\d+\s*(?:month|monat|jahr|year)/i)?.[0] || 'Standard Duration');
         const isFlex = durationAmount === 0 || termName.toLowerCase().includes('flex') || termName.toLowerCase().includes('ohne');
         const noticePeriod = t.cancellationPeriod || extractChar(t, 'cancellation_period') || extractChar(t, 'notice_period') || '1 Month notice';
 
-        return {
-          id: t.id || `term-${idx}`,
-          name: termName,
-          durationAmount,
-          durationUnits,
-          durationLabel,
-          isFlex,
-          sku: termSku,
-          description: t.description || (isFlex ? 'Monthly cancellable flex contract with zero minimum commitment' : (durationAmount ? `${durationAmount}-${durationUnits.toLowerCase()} minimum contract commitment` : 'Standard contract commitment term')),
-          validFor: t.validFor,
-          cancellationPeriod: noticePeriod,
-          raw: t
-        };
+        termSkuValues.forEach((skuVal, skuIdx) => {
+          list.push({
+            id: t.id ? `${t.id}_${skuVal}` : `term-${termIdx}-${skuIdx}`,
+            name: termSkuValues.length > 1 ? `${termName} (${skuVal})` : termName,
+            durationAmount,
+            durationUnits,
+            durationLabel,
+            isFlex,
+            sku: skuVal,
+            description: t.description || (isFlex ? 'Monthly cancellable flex contract with zero minimum commitment' : (durationAmount ? `${durationAmount}-${durationUnits.toLowerCase()} minimum contract commitment` : 'Standard contract commitment term')),
+            validFor: t.validFor,
+            cancellationPeriod: noticePeriod,
+            raw: t
+          });
+        });
       });
-    } else if (skus && skus.length > 0) {
-      return skus.map((skuVal, idx) => ({
-        id: `sku-${idx}`,
-        name: `Selling SKU #${idx + 1}`,
-        durationAmount: 24,
-        durationUnits: 'Month',
-        durationLabel: '24 Months Commitment',
-        isFlex: false,
-        sku: skuVal,
-        description: 'Standard DBSS commercial selling contract term',
-        cancellationPeriod: '1 Month notice',
-        raw: null
-      }));
     }
-    return [];
-  }, [terms, skus]);
+
+    // Also include any selling SKUs from skus (e.g. from prodSpecCharValueUse) not yet mapped
+    if (Array.isArray(skus) && skus.length > 0) {
+      const existingSkus = new Set(list.map(item => item.sku));
+      skus.forEach((skuVal, sIdx) => {
+        if (!existingSkus.has(skuVal)) {
+          const durMatch = String(skuVal).match(/-(\d+)$/);
+          const durAmount = durMatch ? parseInt(durMatch[1], 10) : 24;
+          list.push({
+            id: `sku-extra-${sIdx}`,
+            name: `${durAmount} Months Commitment (${skuVal})`,
+            durationAmount: durAmount,
+            durationUnits: 'Month',
+            durationLabel: `${durAmount} Months Commitment`,
+            isFlex: durAmount === 0,
+            sku: skuVal,
+            description: 'Standard DBSS commercial selling contract term',
+            cancellationPeriod: '1 Month notice',
+            raw: null
+          });
+          existingSkus.add(skuVal);
+        }
+      });
+    }
+
+    // Sort: 24M first (or descending duration), then SKU
+    list.sort((a, b) => {
+      const durA = a.durationAmount !== undefined ? a.durationAmount : 24;
+      const durB = b.durationAmount !== undefined ? b.durationAmount : 24;
+      if (durB !== durA) return durB - durA;
+      return String(a.sku).localeCompare(String(b.sku));
+    });
+
+    return list;
+  }, [terms, skus, psmStructure]);
 
   // ─── Bandwidth Options & Technology Detection ───
   const bandwidthOptionOffers = useMemo(() => {
@@ -3185,82 +3226,6 @@ export default function SalesPackageDetailTemplate({
               </div>
             )}
           </div>
-
-          {/* 4. Dual-Network Code Lookup Table */}
-          <div style={{
-            background: C.panel,
-            border: `1px solid ${C.cardBorder}`,
-            borderRadius: '10px',
-            padding: '18px 20px',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
-          }}>
-            <h3 style={{ margin: '0 0 4px 0', fontSize: '14.5px', fontWeight: '700', color: C.text }}>
-              <Icon name="globe" size={14} /> Network Code Provisioning Matrix (NGN vs. Bitstream)
-            </h3>
-            <p style={{ margin: '0 0 12px 0', fontSize: '12px', color: C.muted }}>
-              Technical billing translation parameters assigned to physical provisioning lines in CCB and downstream network activation gateways.
-            </p>
-
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', textAlign: 'left' }}>
-                <thead>
-                  <tr style={{ borderBottom: `1px solid ${C.cardBorder}`, color: C.muted, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                    <th style={{ padding: '8px' }}>Service Domain</th>
-                    <th style={{ padding: '8px' }}>Parameter</th>
-                    <th style={{ padding: '8px' }}>NGN (Vodafone Owned)</th>
-                    <th style={{ padding: '8px' }}>Bitstream (Telekom Wholesale)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr style={{ borderBottom: `1px solid ${C.cardBorder}` }}>
-                    <td rowSpan={3} style={{ padding: '8px', verticalAlign: 'top', fontWeight: '700', color: 'var(--ds-info)', background: 'var(--ds-surface-subtle)' }}>
-                      <Icon name="globe" size={14} /> Internet Service
-                    </td>
-                    <td style={{ padding: '8px', color: C.muted }}>Product Code</td>
-                    <td style={{ padding: '8px', fontFamily: 'var(--ds-font-mono)', fontWeight: '700' }}>{prodCodeInternetNgn}</td>
-                    <td style={{ padding: '8px', fontFamily: 'var(--ds-font-mono)', fontWeight: '700' }}>{prodCodeInternetBitstream}</td>
-                  </tr>
-                  <tr style={{ borderBottom: `1px solid ${C.cardBorder}` }}>
-                    <td style={{ padding: '8px', color: C.muted }}>Tariff Code</td>
-                    <td style={{ padding: '8px', fontFamily: 'var(--ds-font-mono)', fontWeight: '700' }}>{tariffCodeInternetNgn}</td>
-                    <td style={{ padding: '8px', fontFamily: 'var(--ds-font-mono)', fontWeight: '700' }}>{tariffCodeInternetBitstream}</td>
-                  </tr>
-                  <tr style={{ borderBottom: `1px solid ${C.cardBorder}` }}>
-                    <td style={{ padding: '8px', color: C.muted }}>Service Codes</td>
-                    <td style={{ padding: '8px', fontFamily: 'var(--ds-font-mono)', color: 'var(--ds-ok)' }}>
-                      {serviceCodeInternetNgn.length > 0 ? serviceCodeInternetNgn.join(', ') : '-'}
-                    </td>
-                    <td style={{ padding: '8px', fontFamily: 'var(--ds-font-mono)', color: 'var(--ds-ok)' }}>
-                      {serviceCodeInternetBitstream.length > 0 ? serviceCodeInternetBitstream.join(', ') : '-'}
-                    </td>
-                  </tr>
-
-                  <tr style={{ borderBottom: `1px solid ${C.cardBorder}` }}>
-                    <td rowSpan={3} style={{ padding: '8px', verticalAlign: 'top', fontWeight: '700', color: 'var(--ds-spec)', background: 'var(--ds-surface-subtle)' }}>
-                      <Icon name="phone" size={14} /> Voice Telephony
-                    </td>
-                    <td style={{ padding: '8px', color: C.muted }}>Product Code</td>
-                    <td style={{ padding: '8px', fontFamily: 'var(--ds-font-mono)', fontWeight: '700' }}>{prodCodeVoiceNgn}</td>
-                    <td style={{ padding: '8px', fontFamily: 'var(--ds-font-mono)', fontWeight: '700' }}>{prodCodeVoiceBitstream}</td>
-                  </tr>
-                  <tr style={{ borderBottom: `1px solid ${C.cardBorder}` }}>
-                    <td style={{ padding: '8px', color: C.muted }}>Tariff Code</td>
-                    <td style={{ padding: '8px', fontFamily: 'var(--ds-font-mono)', fontWeight: '700' }}>{tariffCodeVoiceNgn}</td>
-                    <td style={{ padding: '8px', fontFamily: 'var(--ds-font-mono)', fontWeight: '700' }}>{tariffCodeVoiceBitstream}</td>
-                  </tr>
-                  <tr>
-                    <td style={{ padding: '8px', color: C.muted }}>Service Codes</td>
-                    <td style={{ padding: '8px', fontFamily: 'var(--ds-font-mono)', color: 'var(--ds-spec)' }}>
-                      {serviceCodeVoiceNgn.length > 0 ? serviceCodeVoiceNgn.join(', ') : '-'}
-                    </td>
-                    <td style={{ padding: '8px', fontFamily: 'var(--ds-font-mono)', color: 'var(--ds-spec)' }}>
-                      {serviceCodeVoiceBitstream.length > 0 ? serviceCodeVoiceBitstream.join(', ') : '-'}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
         </div>
       )}
 
@@ -3779,26 +3744,44 @@ export default function SalesPackageDetailTemplate({
         <div style={{ background: C.panel, border: `1px solid ${C.cardBorder}`, borderRadius: '10px', padding: '18px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
           <h3 style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: '700', color: C.text, display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span><Icon name="edit" size={14} /> Contract Terms</span>
-            <span style={{ fontSize: '11px', color: C.muted, fontWeight: '400' }}>({terms.length})</span>
+            <span style={{ fontSize: '11px', color: C.muted, fontWeight: '400' }}>({effectiveTerms.length})</span>
           </h3>
 
-          {terms.length === 0 ? (
+          {effectiveTerms.length === 0 ? (
             <div style={{ fontSize: '12px', color: C.muted, fontStyle: 'italic', padding: '8px 0' }}>
               No contract terms associated directly with this offering.
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {terms.map((t, idx) => (
-                <div key={idx} style={{ background: 'var(--ds-surface-subtle)', border: `1px solid ${C.cardBorder}`, padding: '12px 14px', borderRadius: '8px' }}>
-                  <div style={{ fontSize: '13px', fontWeight: '600', color: C.text }}>{t.name || `Term #${idx + 1}`}</div>
-                  {t.description && <div style={{ fontSize: '12px', color: C.muted, marginTop: '4px' }}>{t.description}</div>}
-                  {t.duration && (
-                    <div style={{ fontSize: '12px', color: 'var(--ds-ok)', fontWeight: '600', marginTop: '6px' }}>
-                      Duration: {t.duration.amount} {t.duration.units}
+              {effectiveTerms.map((t, idx) => {
+                const termChars = t.productOfferingTermCharacteristic || t.prodSpecCharValueUse || [];
+                const termSkuChar = termChars.find(c => (c.name || '').toLowerCase() === 'sku');
+                const termSku = termSkuChar?.productOfferingTermCharacteristicValue?.[0]?.value || termSkuChar?.value || t.sku || null;
+
+                return (
+                  <div key={idx} style={{ background: 'var(--ds-surface-subtle)', border: `1px solid ${C.cardBorder}`, padding: '12px 14px', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <div style={{ fontSize: '13px', fontWeight: '600', color: C.text }}>{t.name || `Term #${idx + 1}`}</div>
+                      {t.description && <div style={{ fontSize: '12px', color: C.muted, marginTop: '4px' }}>{t.description}</div>}
+                      {t.duration && (
+                        <div style={{ fontSize: '12px', color: 'var(--ds-ok)', fontWeight: '600', marginTop: '6px' }}>
+                          Duration: {t.duration.amount} {t.duration.units}
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-              ))}
+                    {termSku && (
+                      <div style={{ textAlign: 'right' }}>
+                        <span style={{ fontSize: '10px', color: C.muted, textTransform: 'uppercase', fontWeight: '700', display: 'block', marginBottom: '2px' }}>
+                          Selling SKU
+                        </span>
+                        <code style={{ fontFamily: 'var(--ds-font-mono)', fontSize: '12px', fontWeight: '700', color: 'var(--ds-warn)', background: '#ffffff', padding: '2px 8px', borderRadius: '4px', border: '1px solid var(--ds-border-strong)' }}>
+                          {termSku}
+                        </code>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>

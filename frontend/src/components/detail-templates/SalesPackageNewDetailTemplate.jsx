@@ -930,22 +930,55 @@ export default function SalesPackageNewDetailTemplate({
       : [tplPacket];
     const primaryPacket = resolvedPacketIds[0] || tplPacket;
 
-    // Generate contract terms per PSM AAW Paket ID (36, 24, 18, 12 months with 24M as primary)
-    const copiedTerms = [];
-    resolvedPacketIds.forEach((pktId, pktIdx) => {
-      [36, 24, 18, 12].forEach(dur => {
-        const isDefault = (pktIdx === 0 && dur === 24);
+    // Extract actual contract terms and SKUs from template offering
+    let copiedTerms = [];
+    if (psmStruct?.terms && psmStruct.terms.length > 0) {
+      copiedTerms = psmStruct.terms.map((t, idx) => {
+        const durAmount = Number(t.duration?.amount) || 24;
+        const durUnits = t.duration?.units || 'Month';
+        const pktId = t.packetId || (t.sku && t.sku.includes('-') ? t.sku.split('-')[0] : primaryPacket);
+        return {
+          id: t.id || `term_${pktId}_${durAmount}_${idx}`,
+          packetId: pktId,
+          name: t.name || 'minimum_contract_duration',
+          description: t.description || `${durAmount} ${durUnits}s Commitment`,
+          duration: { amount: durAmount, units: durUnits },
+          sku: t.sku || `${pktId}-${durAmount}`,
+          isDefault: t.isDefault !== undefined ? t.isDefault : (durAmount === 24 && idx === 0)
+        };
+      });
+    } else {
+      // Fallback only when template has no terms or SKUs defined
+      resolvedPacketIds.forEach((pktId, pktIdx) => {
         copiedTerms.push({
-          id: `term_${pktId}_${dur}`,
+          id: `term_${pktId}_24`,
           packetId: pktId,
           name: 'minimum_contract_duration',
-          description: `${dur} Months Commitment`,
-          duration: { amount: dur, units: 'Month' },
-          sku: `${pktId}-${dur}`,
-          isDefault
+          description: '24 Months Commitment',
+          duration: { amount: 24, units: 'Month' },
+          sku: `${pktId}-24`,
+          isDefault: pktIdx === 0
         });
       });
-    });
+    }
+
+    // Ensure at least one term is marked default (prefer 24 months on primary packet)
+    if (!copiedTerms.some(t => t.isDefault)) {
+      const default24 = copiedTerms.find(t => t.duration?.amount === 24 && t.packetId === primaryPacket) 
+        || copiedTerms.find(t => t.duration?.amount === 24) 
+        || copiedTerms[0];
+      if (default24) default24.isDefault = true;
+    }
+
+    // Update resolvedPacketIds to include any packetIds present in copiedTerms
+    const termPacketIds = Array.from(new Set(copiedTerms.map(t => t.packetId).filter(Boolean)));
+    if (termPacketIds.length > 0) {
+      termPacketIds.forEach(p => {
+        if (!resolvedPacketIds.includes(p)) {
+          resolvedPacketIds.push(p);
+        }
+      });
+    }
 
     const defaultTerm = copiedTerms.find(t => t.isDefault) || copiedTerms[0];
 
@@ -1257,7 +1290,8 @@ export default function SalesPackageNewDetailTemplate({
     setFormData(prev => ({
       ...prev,
       name: `Copy of ${tpl.name}`,
-      code: `PO_NEW_${tpl.id.replace(/^po_/i, '').toUpperCase()}_V1`,
+      code: tpl.id,
+      id: tpl.id,
       specificationId: tpl.specId,
       specificationName: tpl.specName,
       specificationVersion: tpl.specVersion,
@@ -1889,53 +1923,6 @@ export default function SalesPackageNewDetailTemplate({
         ccbMasterPacketId: nextMaster,
         terms: nextTerms,
         categoryGroupings: nextCategoryGroupings,
-        characteristics: nextChars
-      };
-    });
-  };
-
-  const handleSetPrimaryPsmAawPacketId = (packetId) => {
-    setFormData(prev => {
-      const currentList = prev.psmAawPacketIds || (prev.ccbMasterPacketId ? [prev.ccbMasterPacketId] : []);
-      const nextPacketIds = [packetId, ...currentList.filter(p => p !== packetId)];
-
-      // Prioritize 24M on this packet if available
-      let defaultAssigned = false;
-      const nextTerms = (prev.terms || []).map(t => {
-        if (t.packetId === packetId && t.duration?.amount === 24 && !defaultAssigned) {
-          defaultAssigned = true;
-          return { ...t, isDefault: true };
-        }
-        return { ...t, isDefault: false };
-      });
-
-      if (!defaultAssigned && nextTerms.some(t => t.packetId === packetId)) {
-        const firstPacketTerm = nextTerms.find(t => t.packetId === packetId);
-        if (firstPacketTerm) firstPacketTerm.isDefault = true;
-      } else if (!defaultAssigned && nextTerms.length > 0) {
-        nextTerms[0].isDefault = true;
-      }
-
-      const defaultTerm = nextTerms.find(t => t.isDefault) || nextTerms[0];
-
-      const nextChars = (prev.characteristics || []).map(ch => {
-        const n = (ch.name || '').toLowerCase();
-        if (n === 'psm_aaw_packet_id' || n === 'psmaawpacketid' || n === 'psm_packet_id') {
-          return {
-            ...ch,
-            values: nextPacketIds,
-            value: nextPacketIds.join(', ')
-          };
-        }
-        return ch;
-      });
-
-      return {
-        ...prev,
-        psmAawPacketIds: nextPacketIds,
-        ccbMasterPacketId: packetId,
-        terms: nextTerms,
-        minContractTermMonths: defaultTerm ? defaultTerm.duration.amount : prev.minContractTermMonths,
         characteristics: nextChars
       };
     });
@@ -3225,8 +3212,10 @@ export default function SalesPackageNewDetailTemplate({
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {formData.psmAawPacketIds.map((pktId, idx) => {
-                      const isPrimary = (formData.ccbMasterPacketId === pktId) || idx === 0;
-                      const packetTerms = (formData.terms || []).filter(t => t.packetId === pktId || (!t.packetId && isPrimary));
+                      const packetTerms = (formData.terms || []).filter(t => {
+                        const tPkt = t.packetId || (t.sku && t.sku.includes('-') ? t.sku.split('-')[0] : null);
+                        return tPkt ? tPkt === pktId : idx === 0;
+                      });
                       return (
                         <div
                           key={`psm_pkt_${idx}`}
@@ -3235,11 +3224,10 @@ export default function SalesPackageNewDetailTemplate({
                             alignItems: 'center',
                             justifyContent: 'space-between',
                             background: '#ffffff',
-                            border: `1px solid ${isPrimary ? 'var(--ds-warn)' : 'var(--ds-border)'}`,
+                            border: '1px solid var(--ds-border)',
                             borderRadius: '6px',
                             padding: '8px 12px',
-                            gap: '10px',
-                            boxShadow: isPrimary ? '0 1px 3px rgba(245, 158, 11, 0.1)' : 'none'
+                            gap: '10px'
                           }}
                         >
                           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
@@ -3264,35 +3252,6 @@ export default function SalesPackageNewDetailTemplate({
                               onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--ds-warn)'; e.currentTarget.style.background = '#ffffff'; }}
                               onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--ds-border-strong)'; e.currentTarget.style.background = 'var(--ds-surface-2)'; }}
                             />
-                            {isPrimary ? (
-                              <span style={{
-                                fontSize: '11px',
-                                fontWeight: '700',
-                                background: 'rgba(245, 158, 11, 0.15)',
-                                color: 'var(--ds-warn)',
-                                padding: '2px 8px',
-                                borderRadius: '4px',
-                                border: '1px solid rgba(245, 158, 11, 0.3)'
-                              }}>
-                                ★ Primary Paket
-                              </span>
-                            ) : (
-                              <button
-                                type="button"
-                                onClick={() => handleSetPrimaryPsmAawPacketId(pktId)}
-                                style={{
-                                  background: 'none',
-                                  border: '1px solid var(--ds-border-strong)',
-                                  borderRadius: '4px',
-                                  padding: '2px 8px',
-                                  fontSize: '11px',
-                                  color: 'var(--ds-text-3)',
-                                  cursor: 'pointer'
-                                }}
-                              >
-                                Set as Primary
-                              </button>
-                            )}
                             <span style={{ fontSize: '11px', color: 'var(--ds-text-3)' }}>
                               {packetTerms.length} contract term{packetTerms.length !== 1 ? 's' : ''} configured
                             </span>
@@ -3436,15 +3395,17 @@ export default function SalesPackageNewDetailTemplate({
                   </div>
                 ) : (
                   formData.psmAawPacketIds.map((pktId, pIdx) => {
-                    const isPrimaryPaket = (formData.ccbMasterPacketId === pktId) || pIdx === 0;
-                    const packetTerms = (formData.terms || []).filter(t => t.packetId === pktId || (!t.packetId && isPrimaryPaket));
+                    const packetTerms = (formData.terms || []).filter(t => {
+                      const tPkt = t.packetId || (t.sku && t.sku.includes('-') ? t.sku.split('-')[0] : null);
+                      return tPkt ? tPkt === pktId : pIdx === 0;
+                    });
 
                     return (
                       <div
                         key={`psm_term_card_${pIdx}`}
                         style={{
                           background: '#ffffff',
-                          border: `1px solid ${isPrimaryPaket ? 'var(--ds-warn)' : 'var(--ds-border)'}`,
+                          border: '1px solid var(--ds-border)',
                           borderRadius: '8px',
                           padding: '14px 16px',
                           boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
@@ -3480,19 +3441,6 @@ export default function SalesPackageNewDetailTemplate({
                               onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--ds-warn)'; e.currentTarget.style.background = '#ffffff'; }}
                               onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--ds-border-strong)'; e.currentTarget.style.background = 'var(--ds-surface-2)'; }}
                             />
-                            {isPrimaryPaket && (
-                              <span style={{
-                                fontSize: '10px',
-                                fontWeight: '700',
-                                background: 'rgba(245, 158, 11, 0.15)',
-                                color: 'var(--ds-warn)',
-                                padding: '2px 6px',
-                                borderRadius: '4px',
-                                border: '1px solid rgba(245, 158, 11, 0.3)'
-                              }}>
-                                ★ Primary Paket
-                              </span>
-                            )}
                           </div>
                           <span style={{ fontSize: '11px', color: 'var(--ds-text-3)' }}>
                             {packetTerms.length} of 4 durations selected
@@ -3509,16 +3457,16 @@ export default function SalesPackageNewDetailTemplate({
                           ].map(opt => {
                             const isSelected = packetTerms.some(t => t.duration?.amount === opt.amount);
                             const matchingTerm = packetTerms.find(t => t.duration?.amount === opt.amount);
-                            const isPrimary = matchingTerm?.isDefault;
+                            const isDefault = matchingTerm?.isDefault;
                             return (
                               <button
                                 key={opt.amount}
                                 type="button"
                                 onClick={() => handleToggleTerm(pktId, opt.amount)}
                                 style={{
-                                  background: isSelected ? (isPrimary ? 'var(--ds-danger)' : 'var(--ds-danger-soft)') : '#ffffff',
-                                  border: `1px solid ${isSelected ? (isPrimary ? 'var(--ds-danger)' : '#f87171') : 'var(--ds-border-strong)'}`,
-                                  color: isSelected ? (isPrimary ? '#ffffff' : 'var(--ds-brand-text)') : 'var(--ds-text-2)',
+                                  background: isSelected ? (isDefault ? 'var(--ds-danger)' : 'var(--ds-danger-soft)') : '#ffffff',
+                                  border: `1px solid ${isSelected ? (isDefault ? 'var(--ds-danger)' : '#f87171') : 'var(--ds-border-strong)'}`,
+                                  color: isSelected ? (isDefault ? '#ffffff' : 'var(--ds-brand-text)') : 'var(--ds-text-2)',
                                   fontWeight: isSelected ? '700' : '500',
                                   borderRadius: '6px',
                                   padding: '6px 14px',
@@ -3532,9 +3480,9 @@ export default function SalesPackageNewDetailTemplate({
                               >
                                 <span>{isSelected ? '✓' : '+'}</span>
                                 <span>{opt.label}</span>
-                                {isPrimary && (
+                                {isDefault && (
                                   <span style={{ fontSize: '10px', background: 'rgba(255,255,255,0.3)', padding: '1px 4px', borderRadius: '3px', fontWeight: '800' }}>
-                                    Primary
+                                    Default
                                   </span>
                                 )}
                               </button>
@@ -3555,7 +3503,7 @@ export default function SalesPackageNewDetailTemplate({
                                 <tr style={{ background: 'var(--ds-surface-subtle)', borderBottom: '1px solid var(--ds-border)', color: 'var(--ds-text-2)', textAlign: 'left' }}>
                                   <th style={{ padding: '6px 10px', width: '28px', fontSize: '11px', fontWeight: '700' }}>#</th>
                                   <th style={{ padding: '6px 10px', width: '130px', fontSize: '11px', fontWeight: '700' }}>Commitment</th>
-                                  <th style={{ padding: '6px 10px', width: '110px', fontSize: '11px', fontWeight: '700' }}>Primary Term</th>
+                                  <th style={{ padding: '6px 10px', width: '110px', fontSize: '11px', fontWeight: '700' }}>Default Term</th>
                                   <th style={{ padding: '6px 10px', fontSize: '11px', fontWeight: '700' }}>Contract Term SKU</th>
                                   <th style={{ padding: '6px 10px', width: '36px', textAlign: 'center', fontSize: '11px', fontWeight: '700' }}>Action</th>
                                 </tr>
@@ -3590,7 +3538,7 @@ export default function SalesPackageNewDetailTemplate({
                                           borderRadius: '4px',
                                           border: '1px solid var(--ds-ok-border)'
                                         }}>
-                                          ★ Primary
+                                          ★ Default
                                         </span>
                                       ) : (
                                         <button
@@ -3606,7 +3554,7 @@ export default function SalesPackageNewDetailTemplate({
                                             cursor: 'pointer'
                                           }}
                                         >
-                                          Make Primary
+                                          Set as Default
                                         </button>
                                       )}
                                     </td>
@@ -5635,7 +5583,7 @@ export default function SalesPackageNewDetailTemplate({
                               padding: '1px 6px',
                               borderRadius: '4px'
                             }}>
-                              PRIMARY
+                              DEFAULT
                             </span>
                           )}
                         </div>
@@ -6399,7 +6347,7 @@ export default function SalesPackageNewDetailTemplate({
                   Bundled Product Offering Prices ({(formData.bundledPops || []).length})
                 </span>
                 <span style={{ fontSize: '11px', color: 'var(--ds-text-3)' }}>
-                  Primary Standard Price: <strong>€{formData.standardPrice} / mo</strong>
+                  Standard Price: <strong>€{formData.standardPrice} / mo</strong>
                 </span>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>

@@ -307,28 +307,68 @@ export function extractTermsAndSkus(offering, masterPacketId = null) {
   let terms = [];
 
   if (rawTerms.length > 0) {
-    terms = rawTerms
+    rawTerms
       .filter(t => validDurations.includes(Number(t.duration?.amount)))
-      .map((t, idx) => {
+      .forEach((t, idx) => {
         const amount = Number(t.duration?.amount);
         const units = t.duration?.units || 'Month';
-        const termSkuChar = t.productOfferingTermCharacteristic?.find(c => (c.name || '').toLowerCase() === 'sku')?.productOfferingTermCharacteristicValue?.[0]?.value;
-        const sku = termSkuChar || `${mPacket}-${amount}`;
-        return {
-          id: t.id || `term_${amount}_${idx}`,
-          name: t.name || 'minimum_contract_duration',
-          description: `${amount} ${units}s Commitment`,
-          duration: { amount, units },
-          sku,
-          isDefault: amount === 24
-        };
+        const termChars = t.productOfferingTermCharacteristic || t.prodSpecCharValueUse || [];
+        const termSkuChar = termChars.find(c => (c.name || '').toLowerCase() === 'sku');
+        
+        let skuValues = [];
+        if (Array.isArray(termSkuChar?.productOfferingTermCharacteristicValue)) {
+          skuValues = termSkuChar.productOfferingTermCharacteristicValue
+            .map(v => v?.value !== undefined ? String(v.value).trim() : String(v).trim())
+            .filter(Boolean);
+        } else if (termSkuChar?.value !== undefined && termSkuChar?.value !== null) {
+          skuValues = [String(termSkuChar.value).trim()];
+        }
+
+        if (skuValues.length === 0) {
+          skuValues = [`${mPacket}-${amount}`];
+        }
+
+        skuValues.forEach((skuVal, sIdx) => {
+          const pkt = skuVal.includes('-') ? skuVal.split('-')[0] : mPacket;
+          terms.push({
+            id: t.id ? `${t.id}_${skuVal}` : `term_${amount}_${idx}_${sIdx}`,
+            packetId: pkt,
+            name: t.name || 'minimum_contract_duration',
+            description: `${amount} ${units}s Commitment`,
+            duration: { amount, units },
+            sku: skuVal,
+            isDefault: amount === 24 && sIdx === 0
+          });
+        });
       });
   }
 
-  // Ensure 24 Months is ALWAYS present
-  if (!terms.some(t => t.duration?.amount === 24)) {
-    terms.unshift({
+  // If rawTerms was empty or yielded no terms, check if rawSkus exists
+  if (terms.length === 0 && rawSkus.length > 0) {
+    const rawDuration = extractChar(raw, 'ContractDuration') || extractChar(raw, 'minimum_contract_duration');
+    const defaultDur = parseInt(rawDuration, 10) || 24;
+
+    rawSkus.forEach((skuVal, idx) => {
+      const durMatch = String(skuVal).match(/-(\d+)$/);
+      const amount = durMatch ? parseInt(durMatch[1], 10) : defaultDur;
+      const pkt = skuVal.includes('-') ? skuVal.split('-')[0] : mPacket;
+      terms.push({
+        id: `term_${amount}_${skuVal}`,
+        packetId: pkt,
+        name: 'minimum_contract_duration',
+        description: `${amount} Months Commitment`,
+        duration: { amount, units: 'Month' },
+        sku: skuVal,
+        isDefault: amount === 24 && idx === 0
+      });
+    });
+  }
+
+  // If still empty (offering had neither terms nor SKUs), supply standard 24 Months default
+  if (terms.length === 0) {
+    terms.push({
       id: 'term_24',
+      packetId: mPacket,
       name: 'minimum_contract_duration',
       description: '24 Months Commitment',
       duration: { amount: 24, units: 'Month' },
@@ -337,33 +377,23 @@ export function extractTermsAndSkus(offering, masterPacketId = null) {
     });
   }
 
-  // Complement standard terms 18 and 12 if missing
-  if (!terms.some(t => t.duration?.amount === 18)) {
-    terms.push({
-      id: 'term_18',
-      name: 'minimum_contract_duration',
-      description: '18 Months Commitment',
-      duration: { amount: 18, units: 'Month' },
-      sku: `${mPacket}-18`,
-      isDefault: false
-    });
-  }
-  if (!terms.some(t => t.duration?.amount === 12)) {
-    terms.push({
-      id: 'term_12',
-      name: 'minimum_contract_duration',
-      description: '12 Months Commitment',
-      duration: { amount: 12, units: 'Month' },
-      sku: `${mPacket}-12`,
-      isDefault: false
-    });
+  // Ensure default flag is set on at least one term (prefer 24 months)
+  if (!terms.some(t => t.isDefault)) {
+    const term24 = terms.find(t => t.duration?.amount === 24);
+    if (term24) {
+      term24.isDefault = true;
+    } else if (terms.length > 0) {
+      terms[0].isDefault = true;
+    }
   }
 
-  // Ensure 24 months is default and order descending
-  terms = terms.map(t => ({ ...t, isDefault: t.duration?.amount === 24 }));
+  // Order descending by duration amount
   terms.sort((a, b) => (b.duration?.amount || 0) - (a.duration?.amount || 0));
 
-  const skus = rawSkus.length > 0 ? rawSkus : terms.map(t => t.sku);
+  const skus = Array.from(new Set([
+    ...rawSkus,
+    ...terms.map(t => t.sku).filter(Boolean)
+  ]));
 
   return { terms, skus };
 }
