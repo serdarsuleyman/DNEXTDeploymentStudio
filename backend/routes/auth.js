@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const path = require('path');
 const fs = require('fs');
-const { dnextFetch } = require('../services/dnextClient');
+const { dnextFetch, getActiveEnvironment } = require('../services/dnextClient');
 
 const CONFIG_PATH = path.join(__dirname, '..', 'config.json');
 
@@ -21,25 +21,12 @@ function getEnvironments() {
 router.post('/login', async (req, res) => {
   try {
     const { username, password, envName, authUrl, apiUrl } = req.body;
-    const environments = getEnvironments();
-
-    let selectedEnv = environments[0] || {
-      name: "Default (dev-gcu)",
-      apiUrl: "https://dpc-api.pi.dev-gcu.com",
-      authUrl: "https://diam.pi.dev-gcu.com/realms/orbitant-realm/protocol/openid-connect/token",
-      username: "nora",
-      password: ""
-    };
-
-    if (envName) {
-      const found = environments.find(e => e.name === envName);
-      if (found) selectedEnv = found;
-    }
+    const selectedEnv = getActiveEnvironment(envName, apiUrl);
 
     const finalAuthUrl = (authUrl && authUrl.trim()) || selectedEnv.authUrl;
     const finalApiUrl = (apiUrl && apiUrl.trim()) || selectedEnv.apiUrl;
-    const finalUsername = username || selectedEnv.username;
-    const finalPassword = password || selectedEnv.password;
+    const finalUsername = (username && username.trim()) || selectedEnv.username || process.env.DNEXT_USERNAME;
+    const finalPassword = (password && password.trim()) || selectedEnv.password || process.env.DNEXT_PASSWORD;
     const finalEnvName = envName || selectedEnv.name;
 
     if (!finalUsername || !finalPassword) {

@@ -1,0 +1,95 @@
+/*
+ * DNEXT Studio design tokens.
+ * Single source of truth for colour, type, radius, spacing and elevation.
+ * Components should reference var(--ds-*) instead of hard-coded hex values.
+ * Vodafone look & feel: red brand banner, white surfaces, Vodafone grey text.
+ */
+:root {
+  /* Surfaces */
+  --ds-bg: #f6f7f9;
+  --ds-surface: #ffffff;
+  --ds-surface-subtle: #f8f9fb;
+  --ds-surface-2: #f1f3f6;
+  --ds-surface-3: #e9ecf1;
+  --ds-nav: #ffffff;
+  --ds-overlay: rgba(15, 23, 42, 0.45);
+
+  /* Borders */
+  --ds-border: #e4e7ec;
+  --ds-border-strong: #cfd4dc;
+
+  /* Text */
+  --ds-text: #25282b;
+  --ds-text-2: #4a4d4e;
+  --ds-text-3: #8a93a3;
+  --ds-text-on-brand: #ffffff;
+
+  /* Brand (Vodafone red) — use sparingly: primary actions, active state, errors */
+  --ds-brand: #e60000;
+  --ds-brand-hover: #c80000;
+  --ds-brand-soft: #fdecec;
+  --ds-brand-text: #b80000;
+  --ds-brand-dark: #bd0000;
+  --ds-brand-gradient: linear-gradient(90deg, #e60000 0%, #d10000 100%);
+
+  /* Status */
+  --ds-ok: #12805c;
+  --ds-ok-soft: #e7f5ef;
+  --ds-warn: #a35c00;
+  --ds-warn-soft: #fdf3e3;
+  --ds-info: #1d5fd1;
+  --ds-info-soft: #e9f0fd;
+  --ds-danger: #e60000;
+  --ds-danger-soft: #fdecec;
+
+  /* Status borders (for tinted badges) */
+  --ds-ok-border: #a7f3d0;
+  --ds-warn-border: #fde68a;
+  --ds-info-border: #bfdbfe;
+  --ds-danger-border: #fecaca;
+
+  /* Entity accent: Product Specifications (purple) */
+  --ds-spec: #6d28d9;
+  --ds-spec-text: #5b21b6;
+  --ds-spec-soft: #f5f3ff;
+  --ds-spec-border: #ddd6fe;
+
+  /* Focus */
+  --ds-focus-ring: 0 0 0 3px rgba(230, 0, 0, 0.18);
+
+  /* Elevation */
+  --ds-shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.05);
+  --ds-shadow: 0 1px 2px rgba(16, 24, 40, 0.05), 0 1px 3px rgba(16, 24, 40, 0.06);
+  --ds-shadow-lg: 0 12px 32px rgba(16, 24, 40, 0.14), 0 2px 6px rgba(16, 24, 40, 0.06);
+
+  /* Shape */
+  --ds-radius-sm: 6px;
+  --ds-radius: 8px;
+  --ds-radius-lg: 12px;
+  --ds-radius-full: 999px;
+
+  /* Typography */
+  --ds-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --ds-font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --ds-fs-xs: 11px;
+  --ds-fs-sm: 12px;
+  --ds-fs-md: 13px;
+  --ds-fs-lg: 15px;
+  --ds-fs-xl: 18px;
+  --ds-fs-2xl: 22px;
+
+  /* Spacing scale */
+  --ds-space-1: 4px;
+  --ds-space-2: 8px;
+  --ds-space-3: 12px;
+  --ds-space-4: 16px;
+  --ds-space-5: 24px;
+  --ds-space-6: 32px;
+
+  /* Layout */
+  --ds-header-h: 56px;
+  --ds-nav-w: 260px;
+  --ds-rail-w: 76px;
+
+  color-scheme: light;
+}

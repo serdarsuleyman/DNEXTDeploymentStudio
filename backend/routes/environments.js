@@ -7,16 +7,20 @@ const CONFIG_PATH = path.join(__dirname, '..', 'config.json');
 
 function deriveUrls(inputUrl) {
   try {
-    const parsed = new URL(inputUrl);
+    let raw = (inputUrl || '').trim();
+    if (!raw.startsWith('http://') && !raw.startsWith('https://')) {
+      raw = `https://${raw}`;
+    }
+    const parsed = new URL(raw);
     const origin = parsed.origin;
     let apiOrigin = origin;
     if (origin.includes('dpc-ui')) {
       apiOrigin = origin.replace('dpc-ui', 'dpc-api');
     }
     let authOrigin = origin.replace('dpc-ui', 'diam').replace('dpc-api', 'diam');
-    if (origin.includes('dev-gcu')) {
+    if (origin.includes('dev-gcu') || raw.includes('dev')) {
       authOrigin = 'https://diam.pi.dev-gcu.com';
-    } else if (origin.includes('test-gcu')) {
+    } else if (origin.includes('test-gcu') || raw.includes('test')) {
       authOrigin = 'https://diam.test-gcu.com';
     }
     return {
@@ -24,9 +28,12 @@ function deriveUrls(inputUrl) {
       authUrl: `${authOrigin}/realms/orbitant-realm/protocol/openid-connect/token`
     };
   } catch (e) {
+    const isTest = (inputUrl || '').toLowerCase().includes('test');
     return {
-      apiUrl: inputUrl,
-      authUrl: 'https://diam.pi.dev-gcu.com/realms/orbitant-realm/protocol/openid-connect/token'
+      apiUrl: isTest ? 'https://dpc-api.test-gcu.com' : 'https://dpc-api.pi.dev-gcu.com',
+      authUrl: isTest
+        ? 'https://diam.test-gcu.com/realms/orbitant-realm/protocol/openid-connect/token'
+        : 'https://diam.pi.dev-gcu.com/realms/orbitant-realm/protocol/openid-connect/token'
     };
   }
 }
@@ -38,7 +45,13 @@ router.get('/', (req, res) => {
     }
     const raw = fs.readFileSync(CONFIG_PATH, 'utf8');
     const parsed = JSON.parse(raw);
-    res.json(parsed.environments || []);
+    const envs = (parsed.environments || []).map(e => ({
+      name: e.name,
+      url: e.url,
+      apiUrl: e.apiUrl,
+      authUrl: e.authUrl
+    }));
+    res.json(envs);
   } catch (err) {
     console.error('Failed to load environments:', err);
     res.status(500).json({ error: 'Failed to load environments configuration' });
@@ -47,7 +60,7 @@ router.get('/', (req, res) => {
 
 router.post('/', (req, res) => {
   try {
-    const { name, url, username, password } = req.body;
+    const { name, url } = req.body;
     if (!name || !url) {
       return res.status(400).json({ error: 'Environment name and URL are required' });
     }
@@ -66,14 +79,12 @@ router.post('/', (req, res) => {
     }
 
     const existingIndex = parsed.environments.findIndex(e => e.name === name);
-    const existingEnv = existingIndex > -1 ? parsed.environments[existingIndex] : null;
+
     const newEnv = {
       name,
       url,
       apiUrl: derived.apiUrl,
-      authUrl: derived.authUrl,
-      username: username !== undefined ? username : (existingEnv ? existingEnv.username : ''),
-      password: (password && password.trim()) ? password : (existingEnv ? existingEnv.password : '')
+      authUrl: derived.authUrl
     };
 
     if (existingIndex > -1) {

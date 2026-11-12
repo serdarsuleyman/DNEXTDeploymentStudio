@@ -129,6 +129,17 @@ db.serialize(() => {
     )
   `);
 
+  db.run(`
+    CREATE TABLE IF NOT EXISTS dnext_catalog_cache (
+      cache_key     TEXT PRIMARY KEY,
+      env_name      TEXT NOT NULL,
+      endpoint_path TEXT NOT NULL,
+      payload       TEXT NOT NULL,
+      total_count   INTEGER NOT NULL DEFAULT 0,
+      updated_at    TEXT NOT NULL
+    )
+  `);
+
   // Default packages & backfilling file_path
   const now = new Date().toISOString();
   db.run(`INSERT OR IGNORE INTO dnext_deployment_package (id, name, type, description, file_path, created_at, updated_at)
@@ -492,11 +503,63 @@ function getAvailableFolders() {
   return folders;
 }
 
+/**
+ * Retrieve cached catalog payload by cache key
+ */
+async function getCatalogCache(cacheKey) {
+  try {
+    const row = await queryOne('SELECT * FROM dnext_catalog_cache WHERE cache_key = ?', [cacheKey]);
+    return row || null;
+  } catch (err) {
+    console.warn('[DB] getCatalogCache error:', err.message);
+    return null;
+  }
+}
+
+/**
+ * Store catalog payload into SQLite cache
+ */
+async function setCatalogCache(cacheKey, envName, endpointPath, payload, totalCount) {
+  try {
+    const now = new Date().toISOString();
+    const payloadStr = typeof payload === 'string' ? payload : JSON.stringify(payload);
+    await runSql(
+      `INSERT OR REPLACE INTO dnext_catalog_cache (cache_key, env_name, endpoint_path, payload, total_count, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [cacheKey, envName || 'default', endpointPath, payloadStr, totalCount || 0, now]
+    );
+    return { cacheKey, updatedAt: now };
+  } catch (err) {
+    console.warn('[DB] setCatalogCache error:', err.message);
+    return null;
+  }
+}
+
+/**
+ * Clear cached catalog entries (optionally filtered by environment)
+ */
+async function clearCatalogCache(envName = null) {
+  try {
+    if (envName) {
+      await runSql('DELETE FROM dnext_catalog_cache WHERE env_name = ?', [envName]);
+    } else {
+      await runSql('DELETE FROM dnext_catalog_cache');
+    }
+    return true;
+  } catch (err) {
+    console.warn('[DB] clearCatalogCache error:', err.message);
+    return false;
+  }
+}
+
 module.exports = {
   db,
   queryAll,
   queryOne,
   runSql,
+  getCatalogCache,
+  setCatalogCache,
+  clearCatalogCache,
   collectRegistryRows,
   collectRowsForPackage,
   scanAndSyncPackage,

@@ -22,7 +22,7 @@ router.get('/', (req, res) => {
   if (status)       { sql += ' AND sync_status = ?';             params.push(status); }
   if (package_id)   { sql += ' AND deployment_package_id = ?';   params.push(package_id); }
 
-  sql += ' ORDER BY dnext_entity_type, vf_de_offer_type, dnext_entity_id';
+  sql += ' ORDER BY CASE WHEN dnext_entity_type = \'ProductOffering\' THEN 0 ELSE 1 END, dnext_entity_type, vf_de_offer_type, dnext_entity_id';
 
   db.all(sql, params, (err, rows) => {
     if (err) {

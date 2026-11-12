@@ -13,7 +13,7 @@ router.all('*', async (req, res) => {
   }
 
   const targetPath = req.url;
-  const targetUrl = `https://dpc-api.pi.dev-gcu.com/api/productCatalogManagement/v4/productOffering${targetPath}`;
+  const targetUrl = `/api/productCatalogManagement/v4/productOffering${targetPath}`;
   
   try {
     const options = {

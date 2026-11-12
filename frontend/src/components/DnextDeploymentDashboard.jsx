@@ -1,26 +1,28 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import Icon from './ui/Icon';
+import { useAuth } from '../context/EnvironmentContext';
 
 // ─── Design tokens (match the app's existing palette) ─────────────────────────
 const C = {
-  bg:          '#0b0c10',
-  panel:       'rgba(22,24,30,0.85)',
-  border:      'rgba(255,255,255,0.08)',
-  text:        '#f3f4f6',
-  muted:       '#9ca3af',
-  accent:      '#a78bfa',
-  red:         '#E60000',
-  success:     '#10b981',
+  bg:          '#ffffff',
+  panel:       '#ffffff',
+  border:      'var(--ds-border)',
+  text:        'var(--ds-text)',
+  muted:       'var(--ds-text-2)',
+  accent:      'var(--ds-brand)',
+  red:         'var(--ds-brand)',
+  success:     'var(--ds-ok)',
   warning:     '#f59e0b',
-  danger:      '#ef4444',
-  indigo:      '#4f46e5',
+  danger:      'var(--ds-danger)',
+  indigo:      'var(--ds-brand)',
 };
 
 // ─── Entity type badge colours & labels ───────────────────────────────────────
 const ENTITY_COLORS = {
-  ProductOffering:             { bg: 'rgba(79,70,229,0.18)',  border: '#4f46e5', text: '#818cf8' },
-  ProductOfferingPrice:        { bg: 'rgba(16,185,129,0.15)', border: '#10b981', text: '#34d399' },
-  BundledProductOfferingPrice: { bg: 'rgba(168,85,247,0.18)', border: '#a855f7', text: '#c084fc' },
-  ProductSpecification:        { bg: 'rgba(245,158,11,0.15)', border: '#f59e0b', text: '#fbbf24' },
+  ProductOffering:             { bg: 'rgba(230,0,0,0.08)',  border: 'var(--ds-brand)', text: 'var(--ds-brand-dark)' },
+  ProductOfferingPrice:        { bg: 'rgba(16,185,129,0.12)', border: 'var(--ds-ok)', text: 'var(--ds-ok)' },
+  BundledProductOfferingPrice: { bg: 'rgba(168,85,247,0.12)', border: '#a855f7', text: 'var(--ds-spec)' },
+  ProductSpecification:        { bg: 'rgba(245,158,11,0.12)', border: '#f59e0b', text: 'var(--ds-warn)' },
 };
 
 const ENTITY_TYPE_LABELS = {
@@ -38,24 +40,24 @@ const TYPE_TO_PATH = {
 };
 
 const OFFER_TYPE_COLORS = {
-  BundlePOP:           'rgba(168,85,247,0.25)',
-  PriceComponent:      'rgba(52,211,153,0.25)',
-  TV:                  'rgba(167,139,250,0.2)',
-  Hardware:            'rgba(251,146,60,0.2)',
-  CallOption:          'rgba(52,211,153,0.2)',
-  SalesPackage:        'rgba(56,189,248,0.2)',
-  FiberConnectivity:   'rgba(16,185,129,0.2)',
-  RegioSurcharge:      'rgba(245,158,11,0.2)',
-  VoiceAnschluss:      'rgba(99,102,241,0.2)',
-  Specification:       'rgba(148,163,184,0.2)',
-  Promotion:           'rgba(236,72,153,0.2)',
-  InstallationPackage: 'rgba(20,184,166,0.2)',
-  InstallationPackages:'rgba(20,184,166,0.2)',
-  Insurance:           'rgba(14,165,233,0.2)',
+  BundlePOP:           'rgba(168,85,247,0.15)',
+  PriceComponent:      'rgba(52,211,153,0.15)',
+  TV:                  'rgba(167,139,250,0.15)',
+  Hardware:            'rgba(251,146,60,0.15)',
+  CallOption:          'rgba(52,211,153,0.15)',
+  SalesPackage:        'rgba(230,0,0,0.08)',
+  FiberConnectivity:   'rgba(16,185,129,0.15)',
+  RegioSurcharge:      'rgba(245,158,11,0.15)',
+  VoiceAnschluss:      'rgba(99,102,241,0.15)',
+  Specification:       'rgba(148,163,184,0.15)',
+  Promotion:           'rgba(236,72,153,0.15)',
+  InstallationPackage: 'rgba(20,184,166,0.15)',
+  InstallationPackages:'rgba(20,184,166,0.15)',
+  Insurance:           'rgba(14,165,233,0.15)',
 };
 
 const STATUS_CONFIG = {
-  pending: { color: C.warning,  label: 'Pending',  icon: '⏳' },
+  pending: { color: C.warning,  label: 'Pending',  icon: 'clock' },
   synced:  { color: C.success,  label: 'Synced',   icon: '✓'  },
   error:   { color: C.danger,   label: 'Error',    icon: '✕'  },
 };
@@ -64,8 +66,8 @@ const STATUS_CONFIG = {
 const btn = (override = {}) => ({
   padding: '6px 14px',
   borderRadius: '6px',
-  border: '1px solid rgba(255,255,255,0.12)',
-  background: 'rgba(255,255,255,0.06)',
+  border: '1px solid var(--ds-border-strong)',
+  background: '#ffffff',
   color: C.text,
   cursor: 'pointer',
   fontSize: '12px',
@@ -74,21 +76,16 @@ const btn = (override = {}) => ({
   ...override,
 });
 
-export default function DnextDeploymentDashboard() {
+export default function DnextDeploymentDashboard({ selectedEnv, environments: propEnvironments, onSelectEnv }) {
   // Auth -----------------------------------------------------------------------
-  const [token,       setToken]       = useState(() => localStorage.getItem('dnext_token') || '');
-  const [loginStatus, setLoginStatus] = useState(token ? 'connected' : 'disconnected');
+  // Shared auth state (EnvironmentContext) — one token for every view and the header
+  const { token, setToken, loginStatus, setLoginStatus, authUser, connect, disconnect, openLoginModal } = useAuth();
   const [username,    setUsername]    = useState(() => localStorage.getItem('dnext_username') || '');
   const [password,    setPassword]    = useState('');
 
   // Environments ----------------------------------------------------------------
   const [environments, setEnvironments] = useState([]);
-  const [selectedEnvName, setSelectedEnvName] = useState(() => localStorage.getItem('dnext_env_name') || 'Default (dev-gcu)');
-  const [showAddEnv, setShowAddEnv] = useState(false);
-  const [newEnvName, setNewEnvName] = useState('');
-  const [newEnvUrl, setNewEnvUrl] = useState('');
-  const [newEnvUsername, setNewEnvUsername] = useState('');
-  const [newEnvPassword, setNewEnvPassword] = useState('');
+  const [selectedEnvName, setSelectedEnvName] = useState(() => localStorage.getItem('dnext_env_name') || 'test');
 
   // Registry data --------------------------------------------------------------
   const [items,         setItems]         = useState([]);
@@ -183,6 +180,20 @@ export default function DnextDeploymentDashboard() {
   useEffect(() => {
     fetchEnvironments();
   }, [fetchEnvironments]);
+
+  useEffect(() => {
+    if (selectedEnv && selectedEnv.name && selectedEnv.name !== selectedEnvName) {
+      setSelectedEnvName(selectedEnv.name);
+      setUsername(selectedEnv.username || '');
+      setPassword(selectedEnv.password || '');
+    }
+  }, [selectedEnv, selectedEnvName]);
+
+  useEffect(() => {
+    if (Array.isArray(propEnvironments) && propEnvironments.length > 0) {
+      setEnvironments(propEnvironments);
+    }
+  }, [propEnvironments]);
 
   // ─── Load folder suggestions ───────────────────────────────────────────────
   const fetchAvailableFolders = useCallback(async () => {
@@ -337,84 +348,30 @@ export default function DnextDeploymentDashboard() {
     }
   }, [token, getDnextHeaders]);
 
-  // Check existence for all visible items whenever token or items change
+  // Check existence for visible items whenever token or items change (prioritizes ProductOffering first)
   useEffect(() => {
     if (!token || items.length === 0) return;
-    items.forEach(item => {
+    const prioritized = [...items].sort((a, b) => {
+      const aIsOffer = a.dnext_entity_type === 'ProductOffering' ? 0 : 1;
+      const bIsOffer = b.dnext_entity_type === 'ProductOffering' ? 0 : 1;
+      return aIsOffer - bIsOffer;
+    });
+    prioritized.forEach(item => {
       if (existsMap[item.dnext_entity_id] === undefined) {
         checkExistence(item);
       }
     });
   }, [token, items, checkExistence]);
 
-  const handleAddEnv = (e) => {
-    e.preventDefault();
-    if (!newEnvName || !newEnvUrl) {
-      alert('Name and URL are required.');
-      return;
-    }
-    fetch('/api/dnext/environments', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: newEnvName,
-        url: newEnvUrl,
-        username: newEnvUsername,
-        password: newEnvPassword
-      })
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.success) {
-        setEnvironments(data.environments);
-        setSelectedEnvName(newEnvName);
-        setUsername(newEnvUsername);
-        setPassword(newEnvPassword);
-        setShowAddEnv(false);
-        setNewEnvName('');
-        setNewEnvUrl('');
-        setNewEnvUsername('');
-        setNewEnvPassword('');
-      } else {
-        alert('Failed to add environment: ' + data.error);
-      }
-    })
-    .catch(err => alert('Error saving environment: ' + err.message));
-  };
-
   // ─── Auth ──────────────────────────────────────────────────────────────────
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setLoginStatus('connecting');
-    try {
-      const res  = await fetch('/api/dnext/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password, envName: selectedEnvName }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error_description || data.error || 'Auth failed');
-      setToken(data.access_token);
-      localStorage.setItem('dnext_token', data.access_token);
-      localStorage.setItem('dnext_username', data.username);
-      localStorage.setItem('dnext_api_url', data.apiUrl);
-      localStorage.setItem('dnext_auth_url', data.authUrl);
-      localStorage.setItem('dnext_env_name', data.envName);
-      setLoginStatus('connected');
-      setExistsMap({});
-    } catch (e) {
-      setLoginStatus('error');
-      setErrorMsg(`Authentication failed: ${e.message}`);
-    }
+  const handleLogin = (e = null) => {
+    if (e && e.preventDefault) e.preventDefault();
+    openLoginModal();
   };
 
   const handleLogout = () => {
-    setToken('');
-    localStorage.removeItem('dnext_token');
-    localStorage.removeItem('dnext_api_url');
-    localStorage.removeItem('dnext_auth_url');
-    localStorage.removeItem('dnext_env_name');
-    setLoginStatus('disconnected');
+    // Environment selection is owned globally (EnvironmentContext) — only the token is cleared here
+    disconnect();
     setExistsMap({});
   };
 
@@ -771,8 +728,8 @@ export default function DnextDeploymentDashboard() {
       </span>
     );
     return (
-      <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#6b7280', fontSize: '11px' }}>
-        <span style={{ width: '7px', height: '7px', background: '#374151', borderRadius: '50%', border: '1px solid #4b5563' }} />
+      <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--ds-text-2)', fontSize: '11px' }}>
+        <span style={{ width: '7px', height: '7px', background: 'var(--ds-text-2)', borderRadius: '50%', border: '1px solid var(--ds-text-2)' }} />
         Not in DNEXT
       </span>
     );
@@ -786,20 +743,17 @@ export default function DnextDeploymentDashboard() {
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes fadeIn { from { opacity:0; transform: translateY(-8px); } to { opacity:1; transform: translateY(0); } }
-        .dep-row:hover { background: rgba(255,255,255,0.03) !important; }
+        .dep-row:hover { background: var(--ds-surface-subtle) !important; }
         .dep-row:hover .dep-actions { opacity: 1 !important; }
         .dep-actions { opacity: 0; transition: opacity 0.15s; }
-        .dep-btn:hover { filter: brightness(1.2); transform: translateY(-1px); }
+        .dep-btn:hover { filter: brightness(0.95); transform: translateY(-1px); }
       `}</style>
 
       {/* ── Header bar ─────────────────────────────────────────────────── */}
-      <div style={{ padding: '18px 28px 14px', borderBottom: `1px solid ${C.border}`, flexShrink: 0, background: 'rgba(10,10,16,0.7)' }}>
+      <div style={{ padding: '12px 28px', borderBottom: `1px solid ${C.border}`, flexShrink: 0, background: '#ffffff' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
-            <h2 style={{ fontSize: '20px', fontWeight: 700, background: 'linear-gradient(135deg, #a78bfa, #6366f1)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: '3px' }}>
-              DNEXT Deployment
-            </h2>
-            <p style={{ fontSize: '12px', color: C.muted }}>
+            <p style={{ fontSize: '13px', color: C.muted }}>
               Manage and deploy catalog entities to DNEXT Product Catalog
             </p>
           </div>
@@ -810,73 +764,25 @@ export default function DnextDeploymentDashboard() {
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: C.success }}>
                   <span style={{ width: '8px', height: '8px', background: C.success, borderRadius: '50%', boxShadow: `0 0 8px ${C.success}` }} />
-                  {username || 'Connected'} ({selectedEnvName})
+                  {authUser || username || 'Connected'} ({selectedEnvName})
                 </span>
-                <button style={btn({ borderColor: '#374151' })} onClick={handleLogout}>Disconnect</button>
+                <button style={btn({ borderColor: 'var(--ds-border-strong)' })} onClick={handleLogout}>Disconnect</button>
               </div>
             ) : (
               <form onSubmit={handleLogin} style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-                {/* Select Environment Dropdown */}
-                <select
-                  value={selectedEnvName}
-                  onChange={(e) => {
-                    const name = e.target.value;
-                    setSelectedEnvName(name);
-                    const env = environments.find(env => env.name === name);
-                    if (env) {
-                      setUsername(env.username || '');
-                      setPassword(env.password || '');
-                    }
-                  }}
-                  style={{ padding: '6px 10px', borderRadius: '6px', border: `1px solid ${C.border}`, background: 'rgba(10,10,16,0.9)', color: C.text, fontSize: '12px' }}
-                >
-                  {environments.map((env) => (
-                    <option key={env.name} value={env.name}>
-                      {env.name}
-                    </option>
-                  ))}
-                </select>
-
-                {/* Add Environment Button */}
-                <button
-                  type="button"
-                  onClick={() => setShowAddEnv(!showAddEnv)}
-                  style={btn({ padding: '6px 10px', fontSize: '11px', borderColor: 'rgba(255,255,255,0.15)' })}
-                  title="Add New Environment URL"
-                >
-                  ⚙️
-                </button>
+                {/* Target environment is selected globally in the header (EnvironmentContext) */}
+                <span title="Change the target environment in the header" style={{ padding: '6px 10px', borderRadius: '6px', border: `1px solid ${C.border}`, background: 'var(--ds-surface-subtle)', color: C.muted, fontSize: '12px', fontFamily: 'var(--ds-font-mono)' }}>
+                  {selectedEnvName}
+                </span>
 
                 <input value={username} onChange={e => setUsername(e.target.value)} placeholder="Username"
-                  style={{ padding: '6px 10px', borderRadius: '6px', border: `1px solid ${C.border}`, background: 'rgba(255,255,255,0.05)', color: C.text, fontSize: '12px', width: '100px' }} />
+                  style={{ padding: '6px 10px', borderRadius: '6px', border: `1px solid ${C.border}`, background: '#ffffff', color: C.text, fontSize: '12px', width: '100px' }} />
                 <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Password"
-                  style={{ padding: '6px 10px', borderRadius: '6px', border: `1px solid ${C.border}`, background: 'rgba(255,255,255,0.05)', color: C.text, fontSize: '12px', width: '90px' }} />
-                <button type="submit" style={btn({ background: 'rgba(79,70,229,0.25)', borderColor: C.indigo, color: '#a5b4fc' })} disabled={loginStatus === 'connecting'}>
+                  style={{ padding: '6px 10px', borderRadius: '6px', border: `1px solid ${C.border}`, background: '#ffffff', color: C.text, fontSize: '12px', width: '90px' }} />
+                <button type="submit" style={btn({ background: 'var(--ds-brand)', borderColor: 'var(--ds-brand-dark)', color: '#ffffff' })} disabled={loginStatus === 'connecting'}>
                   {loginStatus === 'connecting' ? 'Connecting…' : loginStatus === 'error' ? 'Retry' : 'Connect'}
                 </button>
 
-                {/* Add Environment Popover */}
-                {showAddEnv && (
-                  <div style={{
-                    position: 'absolute', top: '40px', right: '0', background: '#11131e', border: `1px solid ${C.border}`,
-                    padding: '16px', borderRadius: '8px', zIndex: 100, display: 'flex', flexDirection: 'column', gap: '10px',
-                    boxShadow: '0 4px 20px rgba(0,0,0,0.5)', width: '280px', animation: 'fadeIn 0.2s ease-out'
-                  }}>
-                    <h4 style={{ margin: '0 0 4px', fontSize: '13px', color: '#fff', fontWeight: 600 }}>Add Environment</h4>
-                    <input value={newEnvName} onChange={e => setNewEnvName(e.target.value)} placeholder="Environment Name (e.g. test-g)"
-                      style={{ padding: '6px 10px', borderRadius: '6px', border: `1px solid ${C.border}`, background: 'rgba(255,255,255,0.05)', color: C.text, fontSize: '12px' }} />
-                    <input value={newEnvUrl} onChange={e => setNewEnvUrl(e.target.value)} placeholder="UI URL (https://...)"
-                      style={{ padding: '6px 10px', borderRadius: '6px', border: `1px solid ${C.border}`, background: 'rgba(255,255,255,0.05)', color: C.text, fontSize: '12px' }} />
-                    <input value={newEnvUsername} onChange={e => setNewEnvUsername(e.target.value)} placeholder="Username"
-                      style={{ padding: '6px 10px', borderRadius: '6px', border: `1px solid ${C.border}`, background: 'rgba(255,255,255,0.05)', color: C.text, fontSize: '12px' }} />
-                    <input type="password" value={newEnvPassword} onChange={e => setNewEnvPassword(e.target.value)} placeholder="Password"
-                      style={{ padding: '6px 10px', borderRadius: '6px', border: `1px solid ${C.border}`, background: 'rgba(255,255,255,0.05)', color: C.text, fontSize: '12px' }} />
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '6px', marginTop: '4px' }}>
-                      <button type="button" onClick={() => setShowAddEnv(false)} style={btn({ borderColor: 'rgba(255,255,255,0.1)' })}>Cancel</button>
-                      <button type="button" onClick={handleAddEnv} style={btn({ background: 'rgba(79,70,229,0.3)', borderColor: C.indigo, color: '#fff' })}>Save</button>
-                    </div>
-                  </div>
-                )}
               </form>
             )}
           </div>
@@ -884,7 +790,7 @@ export default function DnextDeploymentDashboard() {
       </div>
 
       {/* ── Deployment Package Pulldown Selector ─────────────────────────────────── */}
-      <div style={{ padding: '12px 28px', borderBottom: `1px solid ${C.border}`, flexShrink: 0, background: 'rgba(15,12,28,0.75)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
+      <div style={{ padding: '12px 28px', borderBottom: `1px solid ${C.border}`, flexShrink: 0, background: 'var(--ds-surface-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
         <datalist id="folder-suggestions">
           {availableFolders.map(f => (
             <option key={f} value={f} />
@@ -892,8 +798,8 @@ export default function DnextDeploymentDashboard() {
         </datalist>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-          <label style={{ fontSize: '12px', fontWeight: 700, color: '#e5e7eb', display: 'flex', alignItems: 'center', gap: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            <span>📦</span> Deployment Package:
+          <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--ds-text)', display: 'flex', alignItems: 'center', gap: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            <span></span> Deployment Package:
           </label>
 
           {packagesLoading ? (
@@ -906,23 +812,23 @@ export default function DnextDeploymentDashboard() {
                 style={{
                   padding: '7px 14px',
                   borderRadius: '8px',
-                  border: '1px solid rgba(99,102,241,0.4)',
-                  background: '#161822',
-                  color: '#f3f4f6',
+                  border: '1px solid var(--ds-border-strong)',
+                  background: '#ffffff',
+                  color: 'var(--ds-text)',
                   fontSize: '13px',
                   fontWeight: '600',
                   cursor: 'pointer',
                   minWidth: '280px',
                   outline: 'none',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.06)'
                 }}
               >
                 <option value="all">
-                  🌐 All Packages ({packages.reduce((sum, p) => sum + (p.item_count || 0), 0)} items)
+                  All Packages ({packages.reduce((sum, p) => sum + (p.item_count || 0), 0)} items)
                 </option>
                 {packages.map(pkg => (
                   <option key={pkg.id} value={pkg.id}>
-                    📦 {pkg.name} [{pkg.type}] — {pkg.item_count} items
+                    {pkg.name} [{pkg.type}] — {pkg.item_count} items
                   </option>
                 ))}
               </select>
@@ -934,7 +840,7 @@ export default function DnextDeploymentDashboard() {
                 const isScanning = scanningPkgId === currentPkg.id;
                 return (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.3)', padding: '4px 10px', borderRadius: '6px', fontSize: '11px', color: '#a5b4fc' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(230,0,0,0.06)', border: '1px solid rgba(230,0,0,0.2)', padding: '4px 10px', borderRadius: '6px', fontSize: '11px', color: 'var(--ds-brand)' }}>
                       <span style={{ fontWeight: '700' }}>{currentPkg.type}</span>
                       <span style={{ opacity: 0.5 }}>•</span>
                       <span>{currentPkg.item_count} items</span>
@@ -947,16 +853,16 @@ export default function DnextDeploymentDashboard() {
                         display: 'flex',
                         alignItems: 'center',
                         gap: '5px',
-                        background: 'rgba(16,185,129,0.12)',
-                        border: '1px solid rgba(16,185,129,0.3)',
+                        background: 'rgba(16,185,129,0.1)',
+                        border: '1px solid rgba(16,185,129,0.25)',
                         padding: '4px 10px',
                         borderRadius: '6px',
                         fontSize: '11px',
-                        color: '#6ee7b7',
+                        color: 'var(--ds-ok)',
                         fontFamily: "'JetBrains Mono', monospace"
                       }}
                     >
-                      <span>📁</span>
+                      <span><Icon name="folder" size={14} /></span>
                       <span style={{ fontWeight: 600 }}>{currentPkg.file_path || 'No path'}</span>
                     </div>
 
@@ -967,9 +873,9 @@ export default function DnextDeploymentDashboard() {
                       style={btn({
                         padding: '5px 10px',
                         fontSize: '11px',
-                        color: '#a7f3d0',
-                        background: 'rgba(16,185,129,0.15)',
-                        border: '1px solid rgba(16,185,129,0.4)',
+                        color: 'var(--ds-ok)',
+                        background: 'rgba(16,185,129,0.1)',
+                        border: '1px solid rgba(16,185,129,0.3)',
                         display: 'inline-flex',
                         alignItems: 'center',
                         gap: '4px'
@@ -978,21 +884,21 @@ export default function DnextDeploymentDashboard() {
                     >
                       {isScanning ? (
                         <>
-                          <span style={{ display: 'inline-block', width: '10px', height: '10px', border: '2px solid rgba(167,243,208,0.3)', borderTopColor: '#a7f3d0', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+                          <span style={{ display: 'inline-block', width: '10px', height: '10px', border: '2px solid rgba(4,120,87,0.3)', borderTopColor: 'var(--ds-ok)', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
                           Scanning…
                         </>
                       ) : (
-                        <>⚡ Rescan Directory</>
+                        <><Icon name="zap" size={14} /> Rescan Directory</>
                       )}
                     </button>
 
                     {/* Edit Package button */}
                     <button
                       onClick={() => openEditPackageModal(currentPkg)}
-                      style={btn({ padding: '5px 10px', fontSize: '11px', color: '#fde68a', background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.3)' })}
+                      style={btn({ padding: '5px 10px', fontSize: '11px', color: 'var(--ds-warn)', background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.3)' })}
                       title="Edit package details and source file path"
                     >
-                      ✏️ Edit Package
+                      <Icon name="edit" size={14} /> Edit Package
                     </button>
                   </div>
                 );
@@ -1001,7 +907,7 @@ export default function DnextDeploymentDashboard() {
               {/* New package toggle */}
               <button
                 onClick={() => setShowNewPkgForm(f => !f)}
-                style={btn({ padding: '6px 12px', fontSize: '12px', color: '#a5b4fc', border: '1px dashed rgba(99,102,241,0.4)', background: showNewPkgForm ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.04)' })}
+                style={btn({ padding: '6px 12px', fontSize: '12px', color: 'var(--ds-brand)', border: '1px dashed var(--ds-brand)', background: showNewPkgForm ? 'rgba(230,0,0,0.08)' : '#ffffff' })}
                 title="Create a new deployment package with custom file path"
               >
                 {showNewPkgForm ? '✕ Cancel' : '+ New Package'}
@@ -1043,25 +949,25 @@ export default function DnextDeploymentDashboard() {
                 showToast(`Failed: ${data.error}`, 'error');
               }
             }}
-            style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '10px', width: '100%', padding: '12px 16px', background: 'rgba(0,0,0,0.4)', borderRadius: '8px', border: '1px solid rgba(99,102,241,0.3)', flexWrap: 'wrap' }}
+            style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '10px', width: '100%', padding: '12px 16px', background: '#ffffff', borderRadius: '8px', border: '1px solid var(--ds-border-strong)', flexWrap: 'wrap' }}
           >
             <input
               value={newPkgId} onChange={e => setNewPkgId(e.target.value)} placeholder="Package ID (e.g. vf-fiber-stage2)" required
-              style={{ padding: '6px 10px', borderRadius: '6px', border: `1px solid ${C.border}`, background: 'rgba(255,255,255,0.05)', color: C.text, fontSize: '12px', width: '160px' }}
+              style={{ padding: '6px 10px', borderRadius: '6px', border: `1px solid ${C.border}`, background: '#ffffff', color: C.text, fontSize: '12px', width: '160px' }}
             />
             <input
               value={newPkgName} onChange={e => setNewPkgName(e.target.value)} placeholder="Display Name (e.g. Fiber Stage 2)" required
-              style={{ padding: '6px 10px', borderRadius: '6px', border: `1px solid ${C.border}`, background: 'rgba(255,255,255,0.05)', color: C.text, fontSize: '12px', width: '180px' }}
+              style={{ padding: '6px 10px', borderRadius: '6px', border: `1px solid ${C.border}`, background: '#ffffff', color: C.text, fontSize: '12px', width: '180px' }}
             />
             <select
               value={newPkgType} onChange={e => setNewPkgType(e.target.value)}
-              style={{ padding: '6px 10px', borderRadius: '6px', border: `1px solid ${C.border}`, background: '#161822', color: C.text, fontSize: '12px' }}
+              style={{ padding: '6px 10px', borderRadius: '6px', border: `1px solid ${C.border}`, background: '#ffffff', color: C.text, fontSize: '12px' }}
             >
               {['POC', 'Staging', 'Production', 'Release', 'Custom'].map(t => <option key={t} value={t}>{t}</option>)}
             </select>
             <input
               value={newPkgFilePath} onChange={e => setNewPkgFilePath(e.target.value)} placeholder="Source Directory / File Path (e.g. tmf_packages/TMFVersion2)" list="folder-suggestions"
-              style={{ padding: '6px 10px', borderRadius: '6px', border: `1px solid ${C.border}`, background: 'rgba(255,255,255,0.05)', color: '#6ee7b7', fontSize: '12px', width: '220px', fontFamily: "'JetBrains Mono', monospace" }}
+              style={{ padding: '6px 10px', borderRadius: '6px', border: `1px solid ${C.border}`, background: '#ffffff', color: 'var(--ds-ok)', fontSize: '12px', width: '220px', fontFamily: "'JetBrains Mono', monospace" }}
             />
             <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11px', color: C.muted, cursor: 'pointer' }}>
               <input
@@ -1070,38 +976,38 @@ export default function DnextDeploymentDashboard() {
               />
               Auto-import JSON files
             </label>
-            <button type="submit" style={btn({ background: 'rgba(79,70,229,0.3)', borderColor: C.indigo, color: '#fff', fontSize: '12px', padding: '6px 14px' })}>Create & Register</button>
+            <button type="submit" style={btn({ background: 'var(--ds-brand)', borderColor: 'var(--ds-brand-dark)', color: '#fff', fontSize: '12px', padding: '6px 14px' })}>Create & Register</button>
             <button type="button" onClick={() => setShowNewPkgForm(false)} style={btn({ color: C.muted, fontSize: '12px', padding: '6px 10px' })}>Cancel</button>
           </form>
         )}
       </div>
 
       {/* ── Toolbar ────────────────────────────────────────────────────── */}
-      <div style={{ padding: '12px 28px', borderBottom: `1px solid ${C.border}`, display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap', flexShrink: 0, background: 'rgba(10,10,16,0.4)' }}>
+      <div style={{ padding: '12px 28px', borderBottom: `1px solid ${C.border}`, display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap', flexShrink: 0, background: '#ffffff' }}>
 
         {/* Search */}
         <input
-          value={searchQ} onChange={e => setSearchQ(e.target.value)} placeholder="🔍 Search by ID, type…"
-          style={{ padding: '7px 12px', borderRadius: '6px', border: `1px solid ${C.border}`, background: 'rgba(255,255,255,0.05)', color: C.text, fontSize: '12px', width: '220px' }}
+          value={searchQ} onChange={e => setSearchQ(e.target.value)} placeholder="Search by ID, type…"
+          style={{ padding: '7px 12px', borderRadius: '6px', border: `1px solid ${C.border}`, background: '#ffffff', color: C.text, fontSize: '12px', width: '220px' }}
         />
 
         {/* Entity type filter */}
         <select value={filterType} onChange={e => { setFilterType(e.target.value); setSelected(new Set()); }}
-          style={{ padding: '7px 10px', borderRadius: '6px', border: `1px solid ${C.border}`, background: '#111', color: C.text, fontSize: '12px' }}>
+          style={{ padding: '7px 10px', borderRadius: '6px', border: `1px solid ${C.border}`, background: '#ffffff', color: C.text, fontSize: '12px' }}>
           <option value="all">All Types</option>
           {uniqueTypes.map(t => <option key={t} value={t}>{ENTITY_TYPE_LABELS[t] || t}</option>)}
         </select>
 
         {/* Offer type filter */}
         <select value={filterOffer} onChange={e => { setFilterOffer(e.target.value); setSelected(new Set()); }}
-          style={{ padding: '7px 10px', borderRadius: '6px', border: `1px solid ${C.border}`, background: '#111', color: C.text, fontSize: '12px' }}>
+          style={{ padding: '7px 10px', borderRadius: '6px', border: `1px solid ${C.border}`, background: '#ffffff', color: C.text, fontSize: '12px' }}>
           <option value="all">All Offer Types</option>
           {uniqueOffers.map(t => <option key={t} value={t}>{t}</option>)}
         </select>
 
         {/* Status filter */}
         <select value={filterStatus} onChange={e => { setFilterStatus(e.target.value); setSelected(new Set()); }}
-          style={{ padding: '7px 10px', borderRadius: '6px', border: `1px solid ${C.border}`, background: '#111', color: C.text, fontSize: '12px' }}>
+          style={{ padding: '7px 10px', borderRadius: '6px', border: `1px solid ${C.border}`, background: '#ffffff', color: C.text, fontSize: '12px' }}>
           <option value="all">All Statuses</option>
           <option value="pending">Pending</option>
           <option value="synced">Synced</option>
@@ -1115,18 +1021,18 @@ export default function DnextDeploymentDashboard() {
           <div style={{ display: 'flex', gap: '8px' }}>
             <button
               onClick={handleBulkSync} disabled={bulkLoading || !token}
-              style={btn({ background: 'rgba(79,70,229,0.25)', borderColor: C.indigo, color: '#a5b4fc', opacity: bulkLoading ? 0.6 : 1 })}
+              style={btn({ background: 'var(--ds-brand)', borderColor: 'var(--ds-brand-dark)', color: '#fff', opacity: bulkLoading ? 0.6 : 1 })}
               className="dep-btn"
             >
-              {bulkLoading ? 'Syncing…' : `⚡ Sync Selected (${selected.size})`}
+              {bulkLoading ? 'Syncing…' : `Sync Selected (${selected.size})`}
             </button>
             <button
               onClick={handleBulkDelete} disabled={bulkLoading}
-              style={btn({ background: 'rgba(239,68,68,0.25)', borderColor: 'rgba(239,68,68,0.5)', color: '#fca5a5', opacity: bulkLoading ? 0.6 : 1 })}
+              style={btn({ background: 'rgba(239,68,68,0.1)', borderColor: 'rgba(239,68,68,0.3)', color: 'var(--ds-danger)', opacity: bulkLoading ? 0.6 : 1 })}
               className="dep-btn"
               title="Delete selected items from remote DNEXT and reset local sync status to pending"
             >
-              {bulkLoading ? 'Deleting…' : `🗑 Delete Selected (${selected.size})`}
+              {bulkLoading ? 'Deleting…' : `Delete Selected (${selected.size})`}
             </button>
           </div>
         )}
@@ -1151,7 +1057,7 @@ export default function DnextDeploymentDashboard() {
         >
           {syncStatusLoading
             ? <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span style={{ display: 'inline-block', width: '10px', height: '10px', border: '2px solid rgba(16,185,129,0.3)', borderTopColor: '#10b981', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+                <span style={{ display: 'inline-block', width: '10px', height: '10px', border: '2px solid rgba(16,185,129,0.3)', borderTopColor: 'var(--ds-ok)', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
                 Checking…
               </span>
             : '⟳ Sync Status'}
@@ -1164,7 +1070,7 @@ export default function DnextDeploymentDashboard() {
 
         {/* Reset registry */}
         <button onClick={handleReset} disabled={resetLoading}
-          style={btn({ background: 'rgba(239,68,68,0.12)', borderColor: 'rgba(239,68,68,0.4)', color: '#fca5a5' })}
+          style={btn({ background: 'rgba(239,68,68,0.12)', borderColor: 'rgba(239,68,68,0.4)', color: 'var(--ds-danger)' })}
           className="dep-btn"
           title="Truncate and re-seed the registry from scratch files"
         >
@@ -1192,8 +1098,8 @@ export default function DnextDeploymentDashboard() {
 
       {/* ── Error banner ───────────────────────────────────────────────── */}
       {errorMsg && (
-        <div style={{ margin: '10px 28px 0', padding: '10px 14px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '8px', fontSize: '12px', color: '#fca5a5', flexShrink: 0 }}>
-          ⚠ {errorMsg}
+        <div style={{ margin: '10px 28px 0', padding: '10px 14px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '8px', fontSize: '12px', color: 'var(--ds-danger)', flexShrink: 0 }}>
+          <Icon name="alert" size={14} /> {errorMsg}
         </div>
       )}
 
@@ -1241,21 +1147,21 @@ export default function DnextDeploymentDashboard() {
 
               return (
                 <tr key={id} className="dep-row"
-                  style={{ borderBottom: `1px solid rgba(255,255,255,0.04)`, background: selected.has(id) ? 'rgba(79,70,229,0.07)' : 'transparent', transition: 'background 0.1s' }}>
+                  style={{ borderBottom: `1px solid ${C.border}`, background: selected.has(id) ? 'rgba(230,0,0,0.06)' : 'transparent', transition: 'background 0.1s' }}>
 
                   {/* Checkbox */}
                   <td style={{ padding: '10px 10px 10px 0' }}>
                     <input type="checkbox" checked={selected.has(id)} onChange={() => toggleSelect(id)}
-                      style={{ accentColor: C.indigo, width: '14px', height: '14px', cursor: 'pointer' }} />
+                      style={{ accentColor: 'var(--ds-brand)', width: '14px', height: '14px', cursor: 'pointer' }} />
                   </td>
 
                   {/* DNEXT Entity ID */}
                   <td style={{ padding: '10px 12px' }}>
-                    <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: '#c4b5fd' }}>{id}</span>
+                    <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: 'var(--ds-brand-dark)', fontWeight: 600 }}>{id}</span>
                   </td>
 
                   {/* Entity Name */}
-                  <td style={{ padding: '10px 12px', color: C.text }}>
+                  <td style={{ padding: '10px 12px', color: C.text, fontWeight: 500 }}>
                     {item.entity_name || '—'}
                   </td>
 
@@ -1264,38 +1170,38 @@ export default function DnextDeploymentDashboard() {
                     <span style={{
                       padding: '3px 8px',
                       borderRadius: '4px',
-                      fontSize: '10px',
+                      fontSize: '11px',
                       fontWeight: 700,
-                      background: ec.bg || 'rgba(255,255,255,0.05)',
-                      border: `1px solid ${ec.border || 'rgba(255,255,255,0.1)'}`,
+                      background: ec.bg || 'var(--ds-surface-2)',
+                      border: `1px solid ${ec.border || 'var(--ds-border-strong)'}`,
                       color: ec.text || C.text,
                       whiteSpace: 'nowrap',
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: '4px',
                     }}>
-                      {item.dnext_entity_type === 'BundledProductOfferingPrice' && <span>📦</span>}
-                      {item.dnext_entity_type === 'ProductOfferingPrice' && <span>🏷️</span>}
-                      {item.dnext_entity_type === 'ProductOffering' && <span>📋</span>}
-                      {item.dnext_entity_type === 'ProductSpecification' && <span>⚙️</span>}
+                      {item.dnext_entity_type === 'BundledProductOfferingPrice' && <span><Icon name="package" size={14} /></span>}
+                      {item.dnext_entity_type === 'ProductOfferingPrice' && <span><Icon name="tag" size={14} /></span>}
+                      {item.dnext_entity_type === 'ProductOffering' && <span><Icon name="clipboard" size={14} /></span>}
+                      {item.dnext_entity_type === 'ProductSpecification' && <span><Icon name="settings" size={14} /></span>}
                       {ENTITY_TYPE_LABELS[item.dnext_entity_type] || item.dnext_entity_type?.replace('Product', '') || '—'}
                     </span>
                   </td>
 
                   {/* Offer Type */}
                   <td style={{ padding: '10px 12px' }}>
-                    <span style={{ padding: '2px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: 600, background: OFFER_TYPE_COLORS[item.vf_de_offer_type] || 'rgba(255,255,255,0.05)', color: C.text, border: `1px solid rgba(255,255,255,0.08)`, whiteSpace: 'nowrap' }}>
+                    <span style={{ padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 600, background: OFFER_TYPE_COLORS[item.vf_de_offer_type] || 'var(--ds-surface-subtle)', color: C.text, border: `1px solid var(--ds-border)`, whiteSpace: 'nowrap' }}>
                       {item.vf_de_offer_type || '—'}
                     </span>
                   </td>
 
                   {/* Version */}
-                  <td style={{ padding: '10px 12px', color: C.muted, fontFamily: 'monospace' }}>
+                  <td style={{ padding: '10px 12px', color: C.muted, fontFamily: 'var(--ds-font-mono)' }}>
                     {item.dnext_version !== null ? `v${item.dnext_version}` : '—'}
                   </td>
 
                   {/* VF-DE Offer ID */}
-                  <td style={{ padding: '10px 12px', color: C.muted, fontSize: '11px', fontFamily: 'monospace' }}>
+                  <td style={{ padding: '10px 12px', color: C.muted, fontSize: '11px', fontFamily: 'var(--ds-font-mono)' }}>
                     {item.vf_de_offer_id || '—'}
                   </td>
 
@@ -1307,13 +1213,13 @@ export default function DnextDeploymentDashboard() {
                   {/* Sync Status */}
                   <td style={{ padding: '10px 12px' }}>
                     <span style={{ display: 'flex', alignItems: 'center', gap: '5px', color: sc.color, fontSize: '11px', fontWeight: 700 }}>
-                      <span>{sc.icon}</span>
+                      <Icon name={sc.icon} size={14} />
                       {sc.label}
                     </span>
                   </td>
 
                   {/* Updated at */}
-                  <td style={{ padding: '10px 12px', color: C.muted, fontSize: '10px', whiteSpace: 'nowrap' }}>
+                  <td style={{ padding: '10px 12px', color: C.muted, fontSize: '11px', whiteSpace: 'nowrap' }}>
                     {item.updated_at ? new Date(item.updated_at).toLocaleString() : '—'}
                   </td>
 
@@ -1334,7 +1240,7 @@ export default function DnextDeploymentDashboard() {
                           fontSize: '11px',
                         })}
                       >
-                        {aState === 'syncing' ? '⟳ Syncing…' : aState === 'done' ? '✓ Synced' : '⚡ Sync'}
+                        {aState === 'syncing' ? '⟳ Syncing…' : aState === 'done' ? '✓ Synced' : 'Sync'}
                       </button>
 
                       {/* Sync - Debug */}
@@ -1350,7 +1256,7 @@ export default function DnextDeploymentDashboard() {
                           fontSize: '11px',
                         })}
                       >
-                        🔍 Debug
+                        <Icon name="search" size={14} /> Debug
                       </button>
 
                       {/* Delete */}
@@ -1361,7 +1267,7 @@ export default function DnextDeploymentDashboard() {
                         style={btn({
                           background: 'rgba(239,68,68,0.1)',
                           borderColor: 'rgba(239,68,68,0.35)',
-                          color: '#fca5a5',
+                          color: 'var(--ds-danger)',
                           opacity: isAct ? 0.5 : 1,
                           padding: '4px 10px',
                           fontSize: '11px',
@@ -1387,7 +1293,7 @@ export default function DnextDeploymentDashboard() {
           border: `1px solid ${toast.type === 'success' ? C.success : toast.type === 'error' ? C.danger : C.indigo}`,
           color: C.text, fontSize: '13px', fontWeight: 600,
           animation: 'fadeIn 0.25s ease',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+          boxShadow: 'var(--ds-shadow-lg)',
           maxWidth: '380px',
         }}>
           {toast.msg}
@@ -1406,32 +1312,32 @@ export default function DnextDeploymentDashboard() {
           {/* Drawer panel */}
           <div style={{
             position: 'fixed', top: 0, right: 0, bottom: 0, width: '700px', maxWidth: '95vw',
-            background: '#0f1117', borderLeft: `1px solid ${C.border}`,
+            background: '#ffffff', borderLeft: `1px solid var(--ds-border-strong)`,
             zIndex: 8001, display: 'flex', flexDirection: 'column',
             animation: 'slideIn 0.25s ease',
-            boxShadow: '-12px 0 48px rgba(0,0,0,0.6)',
+            boxShadow: '-12px 0 48px rgba(0,0,0,0.15)',
           }}>
             <style>{`
               @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
             `}</style>
 
             {/* Drawer header */}
-            <div style={{ padding: '16px 20px', borderBottom: `1px solid ${C.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexShrink: 0 }}>
+            <div style={{ padding: '16px 20px', borderBottom: `1px solid ${C.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexShrink: 0, background: 'var(--ds-surface-subtle)' }}>
               <div>
-                <div style={{ fontSize: '13px', fontWeight: 700, color: '#fcd34d', marginBottom: '3px' }}>🔍 Sync Debug</div>
-                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: '#c4b5fd' }}>{debugItem.dnext_entity_id}</div>
+                <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--ds-brand)', marginBottom: '3px' }}><Icon name="search" size={14} /> Sync Debug</div>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: 'var(--ds-text)', fontWeight: 600 }}>{debugItem.dnext_entity_id}</div>
                 <div style={{ fontSize: '11px', color: C.muted, marginTop: '2px' }}>{debugItem.dnext_entity_type} · {debugItem.vf_de_offer_type} · {debugItem.file_path}</div>
               </div>
               <button onClick={() => setDebugItem(null)} style={{ background: 'none', border: 'none', color: C.muted, fontSize: '20px', cursor: 'pointer', lineHeight: 1, padding: '0 4px' }}>✕</button>
             </div>
 
             {/* Tabs */}
-            <div style={{ display: 'flex', borderBottom: `1px solid ${C.border}`, flexShrink: 0 }}>
-              {[['preview', '📋 Payload Preview'], ['response', '📡 DNEXT Response']].map(([tab, label]) => (
+            <div style={{ display: 'flex', borderBottom: `1px solid ${C.border}`, flexShrink: 0, background: '#ffffff' }}>
+              {[['preview', 'Payload Preview'], ['response', 'DNEXT Response']].map(([tab, label]) => (
                 <button key={tab} onClick={() => setDebugTab(tab)} style={{
                   padding: '10px 20px', background: 'none', border: 'none',
-                  borderBottom: debugTab === tab ? `2px solid #fcd34d` : '2px solid transparent',
-                  color: debugTab === tab ? '#fcd34d' : C.muted,
+                  borderBottom: debugTab === tab ? `2px solid var(--ds-brand)` : '2px solid transparent',
+                  color: debugTab === tab ? 'var(--ds-brand)' : C.muted,
                   fontWeight: debugTab === tab ? 700 : 400, fontSize: '12px', cursor: 'pointer',
                 }}>{label}</button>
               ))}
@@ -1442,26 +1348,26 @@ export default function DnextDeploymentDashboard() {
                 disabled={debugSending || debugLoading || !token || !debugV1}
                 style={btn({
                   margin: '6px 16px 6px 0',
-                  background: debugSending ? 'rgba(79,70,229,0.3)' : 'rgba(79,70,229,0.2)',
-                  borderColor: C.indigo, color: '#a5b4fc',
+                  background: 'var(--ds-brand)',
+                  borderColor: 'var(--ds-brand-dark)', color: '#ffffff',
                   opacity: (debugSending || debugLoading || !token) ? 0.5 : 1,
                   fontSize: '12px',
                 })}
               >
                 {debugSending
                   ? <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <span style={{ width: '10px', height: '10px', border: '2px solid rgba(99,102,241,0.3)', borderTopColor: C.indigo, borderRadius: '50%', display: 'inline-block', animation: 'spin 0.7s linear infinite' }} />
+                      <span style={{ width: '10px', height: '10px', border: '2px solid rgba(255,255,255,0.4)', borderTopColor: '#ffffff', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.7s linear infinite' }} />
                       Sending…
                     </span>
-                  : '⚡ Send to DNEXT'}
+                  : 'Send to DNEXT'}
               </button>
             </div>
 
             {/* Content */}
-            <div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px' }}>
+            <div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px', background: '#ffffff' }}>
               {debugLoading && (
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', padding: '48px', color: C.muted }}>
-                  <div style={{ width: '28px', height: '28px', border: `3px solid rgba(252,211,77,0.2)`, borderTopColor: '#fcd34d', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+                  <div style={{ width: '28px', height: '28px', border: `3px solid rgba(230,0,0,0.2)`, borderTopColor: 'var(--ds-brand)', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
                   Loading source file…
                 </div>
               )}
@@ -1472,11 +1378,11 @@ export default function DnextDeploymentDashboard() {
 
                   {/* Raw source file */}
                   <div>
-                    <div style={{ fontSize: '11px', fontWeight: 700, color: C.muted, marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>📄 Source File (raw)</div>
+                    <div style={{ fontSize: '11px', fontWeight: 700, color: C.muted, marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.06em' }}><Icon name="file" size={12} /> Source File (raw)</div>
                     <pre style={{
-                      background: 'rgba(255,255,255,0.03)', border: `1px solid ${C.border}`,
+                      background: 'var(--ds-surface-subtle)', border: `1px solid ${C.border}`,
                       borderRadius: '8px', padding: '12px', fontSize: '11px',
-                      fontFamily: "'JetBrains Mono', monospace", color: '#d1d5db',
+                      fontFamily: "'JetBrains Mono', monospace", color: 'var(--ds-text)',
                       overflowX: 'auto', maxHeight: '200px', overflowY: 'auto',
                       whiteSpace: 'pre',
                     }}>{debugPayload ? JSON.stringify(debugPayload, null, 2) : '—'}</pre>
@@ -1484,11 +1390,11 @@ export default function DnextDeploymentDashboard() {
 
                   {/* v0 payload */}
                   <div>
-                    <div style={{ fontSize: '11px', fontWeight: 700, color: C.warning, marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>⬆ POST #1 — version "0" · In study</div>
+                    <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--ds-warn)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>⬆ POST #1 — version "0" · In study</div>
                     <pre style={{
-                      background: 'rgba(245,158,11,0.05)', border: '1px solid rgba(245,158,11,0.2)',
+                      background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.25)',
                       borderRadius: '8px', padding: '12px', fontSize: '11px',
-                      fontFamily: "'JetBrains Mono', monospace", color: '#fde68a',
+                      fontFamily: "'JetBrains Mono', monospace", color: 'var(--ds-warn)',
                       overflowX: 'auto', maxHeight: '260px', overflowY: 'auto',
                       whiteSpace: 'pre',
                     }}>{debugV0 ? JSON.stringify(debugV0, null, 2) : '—'}</pre>
@@ -1496,17 +1402,17 @@ export default function DnextDeploymentDashboard() {
 
                   {/* v1 payload */}
                   <div>
-                    <div style={{ fontSize: '11px', fontWeight: 700, color: C.success, marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>⬆ POST #2 — version "1" · Launched</div>
+                    <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--ds-ok)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>⬆ POST #2 — version "1" · Launched</div>
                     <pre style={{
-                      background: 'rgba(16,185,129,0.05)', border: '1px solid rgba(16,185,129,0.2)',
+                      background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.25)',
                       borderRadius: '8px', padding: '12px', fontSize: '11px',
-                      fontFamily: "'JetBrains Mono', monospace", color: '#6ee7b7',
+                      fontFamily: "'JetBrains Mono', monospace", color: 'var(--ds-ok)',
                       overflowX: 'auto', maxHeight: '260px', overflowY: 'auto',
                       whiteSpace: 'pre',
                     }}>{debugV1 ? JSON.stringify(debugV1, null, 2) : '—'}</pre>
                   </div>
 
-                  <div style={{ padding: '10px 14px', background: 'rgba(79,70,229,0.08)', border: '1px solid rgba(79,70,229,0.2)', borderRadius: '8px', fontSize: '11px', color: '#a5b4fc' }}>
+                  <div style={{ padding: '10px 14px', background: 'rgba(230,0,0,0.06)', border: '1px solid rgba(230,0,0,0.2)', borderRadius: '8px', fontSize: '11px', color: 'var(--ds-brand-dark)' }}>
                     ℹ Click <strong>Send to DNEXT</strong> to execute both POSTs and see the response.
                   </div>
                 </div>
@@ -1517,14 +1423,14 @@ export default function DnextDeploymentDashboard() {
                 <div>
                   {debugSending && (
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', padding: '48px', color: C.muted }}>
-                      <div style={{ width: '28px', height: '28px', border: `3px solid rgba(99,102,241,0.2)`, borderTopColor: C.indigo, borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+                      <div style={{ width: '28px', height: '28px', border: `3px solid rgba(230,0,0,0.2)`, borderTopColor: 'var(--ds-brand)', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
                       Sending to DNEXT…
                     </div>
                   )}
 
                   {!debugSending && !debugResponse && (
                     <div style={{ padding: '48px', textAlign: 'center', color: C.muted, fontSize: '12px' }}>
-                      No response yet. Click <strong style={{ color: '#a5b4fc' }}>Send to DNEXT</strong> above.
+                      No response yet. Click <strong style={{ color: 'var(--ds-brand)' }}>Send to DNEXT</strong> above.
                     </div>
                   )}
 
@@ -1541,18 +1447,18 @@ export default function DnextDeploymentDashboard() {
                           HTTP {debugResponse.status} {debugResponse.ok ? '✓ OK' : '✕ Error'}
                         </span>
                         {debugResponse.ok && debugResponse.body?.id && (
-                          <span style={{ fontFamily: 'monospace', fontSize: '11px', color: '#c4b5fd' }}>id: {debugResponse.body.id}</span>
+                          <span style={{ fontFamily: 'var(--ds-font-mono)', fontSize: '11px', color: 'var(--ds-text)', fontWeight: 600 }}>id: {debugResponse.body.id}</span>
                         )}
                       </div>
 
                       {/* Full response body */}
                       <div style={{ fontSize: '11px', fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Response body</div>
                       <pre style={{
-                        background: debugResponse.ok ? 'rgba(16,185,129,0.05)' : 'rgba(239,68,68,0.05)',
-                        border: `1px solid ${debugResponse.ok ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)'}`,
+                        background: debugResponse.ok ? 'rgba(16,185,129,0.06)' : 'rgba(239,68,68,0.06)',
+                        border: `1px solid ${debugResponse.ok ? 'rgba(16,185,129,0.25)' : 'rgba(239,68,68,0.25)'}`,
                         borderRadius: '8px', padding: '14px', fontSize: '11px',
                         fontFamily: "'JetBrains Mono', monospace",
-                        color: debugResponse.ok ? '#6ee7b7' : '#fca5a5',
+                        color: debugResponse.ok ? 'var(--ds-ok)' : 'var(--ds-danger)',
                         overflowX: 'auto', overflowY: 'auto', maxHeight: '600px',
                         whiteSpace: 'pre',
                       }}>{JSON.stringify(debugResponse.body, null, 2)}</pre>
@@ -1568,18 +1474,18 @@ export default function DnextDeploymentDashboard() {
       {editPkgModalOpen && editingPkg && (
         <div style={{
           position: 'fixed', inset: 0, zIndex: 9998,
-          background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)',
+          background: 'var(--ds-overlay)', backdropFilter: 'blur(2px)',
           display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px'
         }}>
           <div style={{
-            background: '#13141f', border: '1px solid rgba(99,102,241,0.3)',
+            background: '#ffffff', border: '1px solid var(--ds-border-strong)',
             borderRadius: '12px', padding: '24px', width: '100%', maxWidth: '540px',
-            boxShadow: '0 10px 40px rgba(0,0,0,0.6)', display: 'flex', flexDirection: 'column', gap: '16px'
+            boxShadow: '0 10px 40px rgba(0,0,0,0.15)', display: 'flex', flexDirection: 'column', gap: '16px'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: `1px solid ${C.border}`, paddingBottom: '12px' }}>
               <div>
-                <h3 style={{ margin: 0, fontSize: '15px', color: '#fff', fontWeight: 700 }}>
-                  ✏️ Edit Deployment Package: <span style={{ color: '#a5b4fc', fontFamily: "'JetBrains Mono', monospace" }}>{editingPkg.id}</span>
+                <h3 style={{ margin: 0, fontSize: '15px', color: 'var(--ds-text)', fontWeight: 700 }}>
+                  <Icon name="edit" size={14} /> Edit Deployment Package: <span style={{ color: 'var(--ds-brand)', fontFamily: "'JetBrains Mono', monospace" }}>{editingPkg.id}</span>
                 </h3>
                 <div style={{ fontSize: '11px', color: C.muted, marginTop: '2px' }}>
                   Update package name, environment type, and linked source directory path.
@@ -1598,7 +1504,7 @@ export default function DnextDeploymentDashboard() {
                 </label>
                 <input
                   value={editPkgName} onChange={e => setEditPkgName(e.target.value)} required
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: `1px solid ${C.border}`, background: 'rgba(255,255,255,0.05)', color: C.text, fontSize: '13px' }}
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: `1px solid ${C.border}`, background: '#ffffff', color: C.text, fontSize: '13px' }}
                 />
               </div>
 
@@ -1609,7 +1515,7 @@ export default function DnextDeploymentDashboard() {
                   </label>
                   <select
                     value={editPkgType} onChange={e => setEditPkgType(e.target.value)}
-                    style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: `1px solid ${C.border}`, background: '#181a27', color: C.text, fontSize: '13px' }}
+                    style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: `1px solid ${C.border}`, background: '#ffffff', color: C.text, fontSize: '13px' }}
                   >
                     {['POC', 'Staging', 'Production', 'Release', 'Custom'].map(t => <option key={t} value={t}>{t}</option>)}
                   </select>
@@ -1621,7 +1527,7 @@ export default function DnextDeploymentDashboard() {
                   </label>
                   <input
                     value={editPkgFilePath} onChange={e => setEditPkgFilePath(e.target.value)} list="folder-suggestions" placeholder="e.g. tmf_packages/TMFVersion2"
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: `1px solid ${C.border}`, background: 'rgba(255,255,255,0.05)', color: '#6ee7b7', fontSize: '13px', fontFamily: "'JetBrains Mono', monospace" }}
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: `1px solid ${C.border}`, background: '#ffffff', color: 'var(--ds-ok)', fontSize: '13px', fontFamily: "'JetBrains Mono', monospace" }}
                   />
                 </div>
               </div>
@@ -1632,12 +1538,12 @@ export default function DnextDeploymentDashboard() {
                 </label>
                 <textarea
                   value={editPkgDesc} onChange={e => setEditPkgDesc(e.target.value)} rows={2} placeholder="Package details or release notes…"
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: `1px solid ${C.border}`, background: 'rgba(255,255,255,0.05)', color: C.text, fontSize: '12px', resize: 'vertical' }}
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: `1px solid ${C.border}`, background: '#ffffff', color: C.text, fontSize: '12px', resize: 'vertical' }}
                 />
               </div>
 
-              <div style={{ padding: '8px 12px', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: '6px', fontSize: '11px', color: '#6ee7b7' }}>
-                💡 Saving will update the package's linked directory and automatically trigger a directory scan to register any new or modified TMF 620 items.
+              <div style={{ padding: '8px 12px', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: '6px', fontSize: '11px', color: 'var(--ds-ok)' }}>
+                <Icon name="info" size={14} /> Saving will update the package's linked directory and automatically trigger a directory scan to register any new or modified TMF 620 items.
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '6px' }}>
@@ -1649,7 +1555,7 @@ export default function DnextDeploymentDashboard() {
                 </button>
                 <button
                   type="submit" disabled={pkgSaving}
-                  style={btn({ background: 'rgba(79,70,229,0.3)', borderColor: C.indigo, color: '#fff', padding: '8px 20px', fontSize: '12px' })}
+                  style={btn({ background: 'var(--ds-brand)', borderColor: 'var(--ds-brand-dark)', color: '#fff', padding: '8px 20px', fontSize: '12px' })}
                 >
                   {pkgSaving ? 'Saving…' : 'Save Package & Resync'}
                 </button>

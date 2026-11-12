@@ -2,10 +2,19 @@ const express = require('express');
 const router = express.Router();
 const path = require('path');
 const fs = require('fs');
-const { dnextFetch } = require('../services/dnextClient');
+const { dnextFetch, fetchPaginatedDnextCollection, getAutoToken } = require('../services/dnextClient');
+const { clearCatalogCache } = require('../services/db');
 
 const LOCAL_CATEGORIES_PATH = path.join(__dirname, '..', 'data', 'local_categories.json');
-const LOCAL_HARDWARE_PATH = path.join(__dirname, '..', 'data', 'local_fiber_hardware.json');
+
+async function getEffectiveAuthHeader(req) {
+  let authHeader = req.headers.authorization;
+  if (!authHeader || authHeader === 'Bearer' || authHeader === 'Bearer null' || authHeader === 'Bearer undefined') {
+    const token = await getAutoToken(req.headers['x-dnext-env-name'], req.headers['x-dnext-api-url'], req.headers['x-dnext-auth-url']);
+    if (token) return `Bearer ${token}`;
+  }
+  return authHeader;
+}
 
 /**
  * GET /api/dnext/categories (Remote DNEXT Categories)
@@ -13,31 +22,21 @@ const LOCAL_HARDWARE_PATH = path.join(__dirname, '..', 'data', 'local_fiber_hard
 router.get('/categories', async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
-    if (!authHeader) {
-      return res.status(401).json({ error: 'Authorization header is required' });
-    }
 
-    const url = new URL('https://dpc-api.pi.dev-gcu.com/api/productCatalogManagement/v4/category');
-    Object.keys(req.query).forEach(key => {
-      url.searchParams.append(key, req.query[key]);
-    });
+    const { items, totalCount, refreshedToken, fromCache, cachedAt } = await fetchPaginatedDnextCollection(
+      '/api/productCatalogManagement/v4/category',
+      req.query,
+      authHeader
+    );
 
-    const apiResponse = await dnextFetch(url.toString(), {
-      method: 'GET',
-      headers: {
-        'Authorization': authHeader,
-        'Accept': 'application/json'
-      }
-    });
-
-    const data = await apiResponse.json();
-    if (!apiResponse.ok) {
-      return res.status(apiResponse.status).json(data);
-    }
-    res.json(data);
+    if (refreshedToken) res.setHeader('x-refreshed-token', refreshedToken);
+    if (fromCache) res.setHeader('x-from-cache', 'true');
+    if (cachedAt) res.setHeader('x-cache-updated-at', cachedAt);
+    res.setHeader('x-total-count', totalCount);
+    res.json(items);
   } catch (error) {
     console.error('[Sync] GET remote categories error:', error);
-    res.status(500).json({ error: error.message });
+    res.status(error.status || 500).json(error.data || { error: error.message });
   }
 });
 
@@ -160,18 +159,16 @@ router.get('/local-categories', (req, res) => {
 });
 
 /**
- * GET /api/dnext/local-fiber-hardware
- * Returns local hardware reference dataset
+ * POST /api/dnext/cache/clear
+ * Clears the persistent SQLite catalog cache
  */
-router.get('/local-fiber-hardware', (req, res) => {
+router.post('/cache/clear', async (req, res) => {
   try {
-    if (fs.existsSync(LOCAL_HARDWARE_PATH)) {
-      const data = JSON.parse(fs.readFileSync(LOCAL_HARDWARE_PATH, 'utf8'));
-      return res.json(data);
-    }
-    res.json([]);
+    const env = req.query.env || req.headers['x-dnext-env-name'] || null;
+    await clearCatalogCache(env);
+    res.json({ success: true, cleared: true, env: env || 'all' });
   } catch (error) {
-    console.error('[Sync] Fetch local fiber hardware error:', error);
+    console.error('[Sync] Clear cache error:', error);
     res.status(500).json({ error: error.message });
   }
 });

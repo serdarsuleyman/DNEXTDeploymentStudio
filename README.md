@@ -12,10 +12,9 @@ A standalone, fully decoupled management and publishing suite for **Vodafone Ger
    - One-click bulk deployment to DNEXT Cloud with automated Version 0 (`In study`) ➔ Version 1 (`Launched`) sequence.
    - Comprehensive entity purging with cross-version lifecycle patch to `Obsolete` before deletion.
 
-2. **📂 Category & Hardware Cloud Sync**:
+2. **📂 Category Cloud Sync**:
    - Bi-directional diffing between local fixed-net catalog reference specifications and remote Keycloak/DPC endpoints.
    - Hierarchical category push with parent UUID resolution.
-   - Hardware specifications and accessories sync.
 
 3. **⚙️ Target Environment Switcher**:
    - Multi-tenant cloud environment support (DEV, TEST, STAGE).
@@ -40,7 +39,6 @@ dnext-deployment-studio/
 │   ├── data/
 │   │   ├── dnext_deployment.db    # Dedicated SQLite Database
 │   │   ├── local_categories.json  # Category reference data
-│   │   └── local_fiber_hardware.json # Hardware reference data
 │   ├── routes/                    # Modular API endpoints
 │   ├── services/                  # Database, Proxy client & Generator engine
 │   └── logs/                      # Error and debug logs

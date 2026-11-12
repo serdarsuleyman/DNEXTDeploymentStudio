@@ -42,7 +42,7 @@ is_pid_running() {
 
 find_port_pids() {
   local port="$1"
-  lsof -ti tcp:"$port" 2>/dev/null || true
+  lsof -ti tcp:"$port" -sTCP:LISTEN 2>/dev/null || true
 }
 
 is_backend_running() {

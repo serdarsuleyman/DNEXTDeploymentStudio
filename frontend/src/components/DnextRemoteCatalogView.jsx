@@ -1,52 +1,59 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import Icon from './ui/Icon';
+import { useAuth } from '../context/EnvironmentContext';
+import DnextEntityDrawer from './DnextEntityDrawer';
+import ConfigurableListView from './list-views/ConfigurableListView';
+import { resolveListViewTemplateId, getAvailableListViewTemplates, isSalesPackageSpec, isOptionSpec } from './list-views/listViewRegistry';
+import ConfigurableLeftMenu from './navigation/ConfigurableLeftMenu';
 
 // ─── Design Tokens ─────────────────────────────────────────────────────────────
 const C = {
-  bg:          '#0b0c10',
-  panel:       'rgba(22,24,30,0.85)',
-  border:      'rgba(255,255,255,0.08)',
-  text:        '#f3f4f6',
-  muted:       '#9ca3af',
-  accent:      '#a78bfa',
-  indigo:      '#4f46e5',
-  success:     '#10b981',
-  warning:     '#f59e0b',
-  danger:      '#ef4444',
+  bg:          '#ffffff',
+  panel:       '#ffffff',
+  border:      'var(--ds-border)',
+  text:        'var(--ds-text)',
+  muted:       'var(--ds-text-2)',
+  accent:      'var(--ds-brand)',
+  indigo:      'var(--ds-brand)',
+  vodafoneRed: 'var(--ds-brand)',
+  success:     'var(--ds-ok)',
+  warning:     'var(--ds-warn)',
+  danger:      'var(--ds-brand)',
 };
 
 const ENTITY_CONFIG = {
   Category: {
     label: 'Category',
     endpoint: '/api/dnext/categories',
-    color: { bg: 'rgba(245,158,11,0.15)', border: '#f59e0b', text: '#fbbf24' },
-    icon: '📂'
+    color: { bg: 'var(--ds-warn-soft)', border: 'var(--ds-warn-border)', text: 'var(--ds-warn)' },
+    icon: 'folder'
   },
   ProductOffering: {
     label: 'Product Offering',
     endpoint: '/api/dnext/product-offerings',
-    color: { bg: 'rgba(79,70,229,0.18)', border: '#4f46e5', text: '#818cf8' },
-    icon: '📦'
+    color: { bg: 'rgba(230,0,0,0.06)', border: 'var(--ds-danger-border)', text: 'var(--ds-brand)' },
+    icon: 'package'
   },
   ProductOfferingPrice: {
     label: 'Product Offering Price',
     endpoint: '/api/dnext/product-offering-prices',
-    color: { bg: 'rgba(16,185,129,0.15)', border: '#10b981', text: '#34d399' },
-    icon: '🏷️'
+    color: { bg: 'var(--ds-ok-soft)', border: 'var(--ds-ok-border)', text: 'var(--ds-ok)' },
+    icon: 'tag'
   },
   ProductSpecification: {
     label: 'Product Specification',
     endpoint: '/api/dnext/product-specifications',
-    color: { bg: 'rgba(168,85,247,0.18)', border: '#a855f7', text: '#c084fc' },
-    icon: '📋'
+    color: { bg: 'var(--ds-spec-soft)', border: 'var(--ds-spec-border)', text: 'var(--ds-spec)' },
+    icon: 'clipboard'
   }
 };
 
 const btn = (override = {}) => ({
   padding: '6px 14px',
   borderRadius: '6px',
-  border: '1px solid rgba(255,255,255,0.12)',
-  background: 'rgba(255,255,255,0.06)',
-  color: C.text,
+  border: '1px solid var(--ds-border-strong)',
+  background: '#ffffff',
+  color: '#1f2937',
   cursor: 'pointer',
   fontSize: '12px',
   fontWeight: '600',
@@ -57,9 +64,111 @@ const btn = (override = {}) => ({
   ...override,
 });
 
-export default function DnextRemoteCatalogView() {
-  // Auth state
-  const [token, setToken] = useState(() => localStorage.getItem('dnext_token') || '');
+function parseVersion(v) {
+  if (v === undefined || v === null || v === '-') return [0];
+  const str = String(v).trim();
+  const parts = str.split('.').map(p => {
+    const num = parseInt(p, 10);
+    return isNaN(num) ? p : num;
+  });
+  return parts;
+}
+
+function compareVersionsDesc(a, b) {
+  const vA = parseVersion(a.version);
+  const vB = parseVersion(b.version);
+  const maxLen = Math.max(vA.length, vB.length);
+  for (let i = 0; i < maxLen; i++) {
+    const partA = vA[i] !== undefined ? vA[i] : 0;
+    const partB = vB[i] !== undefined ? vB[i] : 0;
+    if (typeof partA === 'number' && typeof partB === 'number') {
+      if (partA !== partB) return partB - partA; // Descending: latest first
+    } else {
+      const cmp = String(partB).localeCompare(String(partA));
+      if (cmp !== 0) return cmp;
+    }
+  }
+  const statusScore = s => (s || '').toLowerCase() === 'launched' ? 2 : (s || '').toLowerCase() === 'in study' ? 1 : 0;
+  return statusScore(b.lifecycleStatus) - statusScore(a.lifecycleStatus);
+}
+
+const DEFAULT_ENVIRONMENTS = [
+  {
+    name: 'test',
+    url: 'https://dpc-ui.test-gcu.com/ui/productCatalogManagement/',
+    apiUrl: 'https://dpc-api.test-gcu.com',
+    authUrl: 'https://diam.test-gcu.com/realms/orbitant-realm/protocol/openid-connect/token'
+  },
+  {
+    name: 'Default (dev-gcu)',
+    url: 'https://dpc-api.pi.dev-gcu.com/ui/productCatalogManagement/',
+    apiUrl: 'https://dpc-api.pi.dev-gcu.com',
+    authUrl: 'https://diam.pi.dev-gcu.com/realms/orbitant-realm/protocol/openid-connect/token'
+  },
+  {
+    name: 'dpc_ui.test-g',
+    url: 'https://dpc-ui.test-gcu.com/ui/productCatalogManagement/',
+    apiUrl: 'https://dpc-api.test-gcu.com',
+    authUrl: 'https://diam.test-gcu.com/realms/orbitant-realm/protocol/openid-connect/token'
+  }
+];
+
+export default function DnextRemoteCatalogView({ selectedEnv: propSelectedEnv, environments: propEnvironments = [], onSelectEnv }) {
+  // Environments state
+  const [environments, setEnvironments] = useState(() => {
+    if (Array.isArray(propEnvironments) && propEnvironments.length > 0) return propEnvironments;
+    return DEFAULT_ENVIRONMENTS;
+  });
+  
+  const [selectedEnvName, setSelectedEnvName] = useState(() => {
+    return propSelectedEnv?.name || localStorage.getItem('dnext_env_name') || 'test';
+  });
+
+  useEffect(() => {
+    if (Array.isArray(propEnvironments) && propEnvironments.length > 0) {
+      setEnvironments(propEnvironments);
+    } else {
+      fetch('/api/dnext/environments')
+        .then(r => r.json())
+        .then(d => {
+          if (Array.isArray(d) && d.length > 0) {
+            setEnvironments(d);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [propEnvironments]);
+
+  // Sync with prop if it changes externally
+  useEffect(() => {
+    if (propSelectedEnv?.name && propSelectedEnv.name !== selectedEnvName) {
+      setSelectedEnvName(propSelectedEnv.name);
+    }
+  }, [propSelectedEnv?.name]);
+
+  const activeEnv = useMemo(() => {
+    const name = selectedEnvName || 'test';
+    const envList = environments.length > 0 ? environments : DEFAULT_ENVIRONMENTS;
+    const match = envList.find(e => e.name && e.name.toLowerCase() === name.toLowerCase())
+      || envList.find(e => e.name && (e.name.toLowerCase().includes(name.toLowerCase()) || name.toLowerCase().includes(e.name.toLowerCase())))
+      || (propSelectedEnv && propSelectedEnv.name.toLowerCase() === name.toLowerCase() ? propSelectedEnv : null)
+      || envList.find(e => e.name.toLowerCase().includes('test'))
+      || envList[0]
+      || DEFAULT_ENVIRONMENTS[0];
+
+    const isTest = (match.name || '').toLowerCase().includes('test');
+    return {
+      ...match,
+      apiUrl: match.apiUrl || (isTest ? 'https://dpc-api.test-gcu.com' : 'https://dpc-api.pi.dev-gcu.com'),
+      authUrl: match.authUrl || (isTest ? 'https://diam.test-gcu.com/realms/orbitant-realm/protocol/openid-connect/token' : 'https://diam.pi.dev-gcu.com/realms/orbitant-realm/protocol/openid-connect/token'),
+    };
+  }, [selectedEnvName, environments, propSelectedEnv]);
+
+  // Shared auth state (EnvironmentContext) — one token for every view and the header
+  const { token, setToken, loginStatus, setLoginStatus, connect, disconnect, openLoginModal, authUser } = useAuth();
+  // Token the catalog was last loaded with (prevents double loads when this view logs in itself)
+  const fetchedForTokenRef = useRef(null);
+  const username = authUser || localStorage.getItem('dnext_username') || '';
   const [authLoading, setAuthLoading] = useState(false);
 
   // Live remote entities
@@ -67,17 +176,35 @@ export default function DnextRemoteCatalogView() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [fetchStats, setFetchStats] = useState({ categories: 0, offerings: 0, prices: 0, specs: 0 });
+  const [cacheStatus, setCacheStatus] = useState({ isCached: false, cachedAt: null });
 
-  // Filtering & Search
+  // Filtering & Search (All Objects active by default for existing view)
   const [typeFilter, setTypeFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [specFilter, setSpecFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [specSearchQuery, setSpecSearchQuery] = useState('');
+
+  // Configurable List View Template state (null = auto-resolve based on entityType & field values)
+  const [userListTemplateId, setUserListTemplateId] = useState(null);
+
+  // Re-enable auto-resolution when navigating to a different entity type
+  useEffect(() => {
+    setUserListTemplateId(null);
+  }, [typeFilter]);
+
+  // Left Drawer Menu state
+  const [isLeftDrawerOpen, setIsLeftDrawerOpen] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [subFilter, setSubFilter] = useState(null);
+  const [expandedMenuSections, setExpandedMenuSections] = useState(new Set(['product_offerings', 'offering_prices']));
 
   // Selection
   const [selectedIds, setSelectedIds] = useState(new Set());
 
-  // Inspect Modal
+  // Inspect Modal & Offer Details Drawer
   const [inspectItem, setInspectItem] = useState(null);
+  const [drawerItem, setDrawerItem] = useState(null);
 
   // Deletion / Purge state
   const [isPurging, setIsPurging] = useState(false);
@@ -95,109 +222,138 @@ export default function DnextRemoteCatalogView() {
     toastTimer.current = setTimeout(() => setToast(null), 3500);
   }, []);
 
-  // Quick Keycloak login helper
-  const handleConnectKeycloak = async () => {
-    setAuthLoading(true);
-    try {
-      const storedEnvName = localStorage.getItem('dnext_env_name') || 'Default (dev-gcu)';
-      const envsRes = await fetch('/api/dnext/environments');
-      const envs = await envsRes.json();
-      const currentEnv = envs.find(e => e.name === storedEnvName) || envs[0] || {};
+  // Primary Login / Connect handler — opens the LoginModal dialog
+  const handleLogin = (e = null, customEnv = null) => {
+    if (e && e.preventDefault) e.preventDefault();
+    openLoginModal(customEnv || activeEnv);
+  };
 
-      const res = await fetch('/api/dnext/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          envName: currentEnv.name || storedEnvName,
-          authUrl: currentEnv.authUrl || 'https://diam.pi.dev-gcu.com/realms/orbitant-realm/protocol/openid-connect/token',
-          apiUrl: currentEnv.apiUrl || 'https://dpc-api.pi.dev-gcu.com',
-          username: currentEnv.username || 'nora',
-          password: currentEnv.password || '1234'
-        })
-      });
-      const data = await res.json();
-      if (res.ok && data.access_token) {
-        localStorage.setItem('dnext_token', data.access_token);
-        if (data.apiUrl) localStorage.setItem('dnext_api_url', data.apiUrl);
-        if (data.authUrl) localStorage.setItem('dnext_auth_url', data.authUrl);
-        if (data.envName) localStorage.setItem('dnext_env_name', data.envName);
-        setToken(data.access_token);
-        showToast('✓ Successfully authenticated with Keycloak', 'success');
-        return data.access_token;
-      } else {
-        throw new Error(data.error_description || data.error || 'Authentication failed');
-      }
-    } catch (err) {
-      showToast(`Auth Failed: ${err.message}`, 'error');
-      return null;
-    } finally {
-      setAuthLoading(false);
-    }
+  const handleLogout = () => {
+    disconnect();
+    setEntities([]);
+    showToast('Disconnected from DNEXT', 'info');
+  };
+
+  const handleEnvChange = async (name) => {
+    setSelectedEnvName(name);
+    localStorage.setItem('dnext_env_name', name);
+    const envList = environments.length > 0 ? environments : DEFAULT_ENVIRONMENTS;
+    const env = envList.find(e => e.name === name) || DEFAULT_ENVIRONMENTS[0];
+    if (onSelectEnv) onSelectEnv(env);
+  };
+
+  const handleConnectKeycloak = (targetEnv = null) => {
+    openLoginModal(targetEnv || activeEnv);
   };
 
   // Helper to construct dynamic environment headers
-  const getTargetEnvHeaders = useCallback(async (authToken) => {
-    const storedEnvName = localStorage.getItem('dnext_env_name') || 'Default (dev-gcu)';
-    let apiUrl = localStorage.getItem('dnext_api_url');
-    let authUrl = localStorage.getItem('dnext_auth_url');
-
-    if (!apiUrl || !authUrl) {
-      try {
-        const envsRes = await fetch('/api/dnext/environments');
-        const envs = await envsRes.json().catch(() => []);
-        const currentEnv = Array.isArray(envs) ? (envs.find(e => e.name === storedEnvName) || envs[0] || {}) : {};
-        if (currentEnv.apiUrl) apiUrl = currentEnv.apiUrl;
-        if (currentEnv.authUrl) authUrl = currentEnv.authUrl;
-      } catch (e) {}
-    }
+  const getTargetEnvHeaders = useCallback(async (authToken, targetEnv = null) => {
+    const env = targetEnv || activeEnv;
+    const isTest = (env?.name && env.name.toLowerCase().includes('test')) || (env?.apiUrl && env.apiUrl.toLowerCase().includes('test'));
+    const envName = env?.name || localStorage.getItem('dnext_env_name') || (isTest ? 'test' : 'Default (dev-gcu)');
+    const apiUrl = env?.apiUrl || localStorage.getItem('dnext_api_url') || (isTest ? 'https://dpc-api.test-gcu.com' : 'https://dpc-api.pi.dev-gcu.com');
+    const authUrl = env?.authUrl || localStorage.getItem('dnext_auth_url') || (isTest ? 'https://diam.test-gcu.com/realms/orbitant-realm/protocol/openid-connect/token' : 'https://diam.pi.dev-gcu.com/realms/orbitant-realm/protocol/openid-connect/token');
 
     return {
       'Authorization': authToken ? `Bearer ${authToken}` : '',
       'Accept': 'application/json',
       'Content-Type': 'application/json',
-      ...(apiUrl ? { 'x-dnext-api-url': apiUrl } : {}),
+      'x-dnext-api-url': apiUrl,
       ...(authUrl ? { 'x-dnext-auth-url': authUrl } : {}),
-      'x-dnext-env-name': storedEnvName
+      'x-dnext-env-name': envName
     };
-  }, []);
+  }, [activeEnv]);
 
-  // Fetch all remote entities across the 4 TMF endpoints
-  const fetchRemoteEntities = useCallback(async (tokenOverride = null) => {
+  // Environment Switcher handler
+  const handleSwitchEnvironment = async (targetEnv) => {
+    if (!targetEnv) return;
+    handleEnvChange(targetEnv.name);
+  };
+
+  // Fetch all remote entities across the 4 TMF endpoints (with SQLite cache support)
+  const fetchRemoteEntities = useCallback(async (tokenOverride = null, targetEnv = null, isRetry = false, forceRefresh = false) => {
+    const env = targetEnv || activeEnv;
     const activeToken = tokenOverride || token;
     if (!activeToken) {
-      const newToken = await handleConnectKeycloak();
+      const newToken = await handleConnectKeycloak(env);
       if (!newToken) {
-        setErrorMsg('Please connect to Keycloak to query remote catalog entities.');
+        setErrorMsg(`Please connect to Keycloak to query ${env?.name || 'remote'} catalog entities.`);
         return;
       }
-      return fetchRemoteEntities(newToken);
+      return;
     }
 
+    fetchedForTokenRef.current = activeToken;
     setLoading(true);
     setErrorMsg('');
     try {
-      const headers = await getTargetEnvHeaders(activeToken);
+      const headers = await getTargetEnvHeaders(activeToken, env);
+      const refreshQuery = forceRefresh ? '&refresh=true' : '';
 
-      const [catRes, offRes, popRes, specRes] = await Promise.allSettled([
-        fetch('/api/dnext/categories?limit=500', { headers }),
-        fetch('/api/dnext/product-offerings?limit=500', { headers }),
-        fetch('/api/dnext/product-offering-prices?limit=500', { headers }),
-        fetch('/api/dnext/product-specifications?limit=500', { headers })
-      ]);
+      // STEP 1: Query Product Offerings FIRST
+      let initialOffers = [];
+      let stats = { categories: 0, offerings: 0, prices: 0, specs: 0 };
 
-      // Check for 401 across responses
-      const any401 = [catRes, offRes, popRes, specRes].some(
-        r => r.status === 'fulfilled' && r.value.status === 401
-      );
-      if (any401 && !tokenOverride) {
-        const refreshedToken = await handleConnectKeycloak();
-        if (refreshedToken) {
-          return fetchRemoteEntities(refreshedToken);
+      try {
+        const offRes = await fetch(`/api/dnext/product-offerings?limit=1000${refreshQuery}`, { headers });
+
+        // Update token if backend auto-refreshed it
+        const refreshedTokenHeader = offRes.headers.get('x-refreshed-token');
+        if (refreshedTokenHeader && refreshedTokenHeader !== activeToken) {
+          fetchedForTokenRef.current = refreshedTokenHeader;
+          setToken(refreshedTokenHeader);
+          localStorage.setItem('dnext_token', refreshedTokenHeader);
         }
+
+        // Cache detection header
+        const fromCacheHeader = offRes.headers.get('x-from-cache');
+        const cacheUpdatedAtHeader = offRes.headers.get('x-cache-updated-at');
+        setCacheStatus({
+          isCached: fromCacheHeader === 'true',
+          cachedAt: cacheUpdatedAtHeader || (fromCacheHeader === 'true' ? null : new Date().toISOString())
+        });
+
+        if (offRes.status === 401 && !isRetry) {
+          console.warn('Session 401: auto-refreshing Keycloak session...');
+          const refreshedToken = await handleConnectKeycloak(env);
+          if (refreshedToken) {
+            return fetchRemoteEntities(refreshedToken, env, true, forceRefresh);
+          }
+        }
+        if (offRes.ok) {
+          const data = await offRes.json();
+          if (Array.isArray(data)) {
+            stats.offerings = data.length;
+            data.forEach(item => {
+              initialOffers.push({
+                id: item.id || item.name,
+                name: item.name || item.id,
+                entityType: 'ProductOffering',
+                version: item.version !== undefined ? String(item.version) : '0',
+                lifecycleStatus: item.lifecycleStatus || 'In study',
+                lastUpdate: item.lastUpdate || item.validFor?.startDateTime || '-',
+                productSpecification: item.productSpecification || null,
+                raw: item
+              });
+            });
+            // Display offers immediately on screen
+            setEntities([...initialOffers]);
+            setFetchStats({ ...stats });
+          }
+        }
+      } catch (err) {
+        console.warn('Failed to fetch initial offers:', err);
       }
 
-      let allItems = [];
-      let stats = { categories: 0, offerings: 0, prices: 0, specs: 0 };
+      // STEP 2: Query remaining entities (categories, prices, specifications)
+      const [catRes, popRes, specRes] = await Promise.allSettled([
+        fetch(`/api/dnext/categories?limit=1000${refreshQuery}`, { headers }),
+        fetch(`/api/dnext/product-offering-prices?limit=1000${refreshQuery}`, { headers }),
+        fetch(`/api/dnext/product-specifications?limit=1000${refreshQuery}`, { headers })
+      ]);
+
+      // ProductOfferings stay at the top of the combined list
+      let allItems = [...initialOffers];
 
       if (catRes.status === 'fulfilled' && catRes.value.ok) {
         const data = await catRes.value.json();
@@ -210,24 +366,6 @@ export default function DnextRemoteCatalogView() {
               entityType: 'Category',
               version: item.version !== undefined ? String(item.version) : '-',
               lifecycleStatus: item.lifecycleStatus || 'Active',
-              lastUpdate: item.lastUpdate || item.validFor?.startDateTime || '-',
-              raw: item
-            });
-          });
-        }
-      }
-
-      if (offRes.status === 'fulfilled' && offRes.value.ok) {
-        const data = await offRes.value.json();
-        if (Array.isArray(data)) {
-          stats.offerings = data.length;
-          data.forEach(item => {
-            allItems.push({
-              id: item.id || item.name,
-              name: item.name || item.id,
-              entityType: 'ProductOffering',
-              version: item.version !== undefined ? String(item.version) : '0',
-              lifecycleStatus: item.lifecycleStatus || 'In study',
               lastUpdate: item.lastUpdate || item.validFor?.startDateTime || '-',
               raw: item
             });
@@ -271,10 +409,21 @@ export default function DnextRemoteCatalogView() {
         }
       }
 
-      setEntities(allItems);
+      // Deduplicate items by entityType:id:version
+      const seen = new Set();
+      const uniqueItems = [];
+      for (const item of allItems) {
+        const k = `${item.entityType}:${item.id}:${item.version}`;
+        if (!seen.has(k)) {
+          seen.add(k);
+          uniqueItems.push(item);
+        }
+      }
+
+      setEntities(uniqueItems);
       setFetchStats(stats);
       setSelectedIds(new Set());
-      showToast(`✓ Loaded ${allItems.length} live entities from DNEXT Catalog`, 'success');
+      showToast(`✓ Loaded ${uniqueItems.length} live entities (${stats.offerings} offers queried first)`, 'success');
     } catch (err) {
       console.error('Failed to fetch remote entities:', err);
       setErrorMsg(err.message);
@@ -285,12 +434,29 @@ export default function DnextRemoteCatalogView() {
   }, [token, showToast]);
 
   useEffect(() => {
-    if (token) {
-      fetchRemoteEntities();
-    } else {
-      handleConnectKeycloak();
+    if (propSelectedEnv && propSelectedEnv.name && propSelectedEnv.name !== selectedEnvName) {
+      handleSwitchEnvironment(propSelectedEnv);
     }
-  }, [token, fetchRemoteEntities]);
+  }, [propSelectedEnv?.name]);
+
+  useEffect(() => {
+    if (token) {
+      fetchRemoteEntities(token, activeEnv);
+    } else {
+      handleConnectKeycloak(activeEnv);
+    }
+  }, []);
+
+  // Load the catalog when a token is obtained elsewhere (e.g. header Connect button),
+  // and clear it when the session ends elsewhere (header Disconnect / environment switch)
+  useEffect(() => {
+    if (token && token !== fetchedForTokenRef.current) {
+      fetchRemoteEntities(token, activeEnv);
+    } else if (!token && fetchedForTokenRef.current) {
+      fetchedForTokenRef.current = null;
+      setEntities([]);
+    }
+  }, [token]);
 
   // Purge a single entity
   const handlePurgeSingle = async (item) => {
@@ -302,7 +468,7 @@ export default function DnextRemoteCatalogView() {
     setIsPurging(true);
     setPurgeProgress({ current: 1, total: 1, currentId: item.id });
     try {
-      const headers = await getTargetEnvHeaders(token);
+      const headers = await getTargetEnvHeaders(token, activeEnv);
       const res = await fetch('/api/dnext/purge-entity', {
         method: 'POST',
         headers,
@@ -313,7 +479,7 @@ export default function DnextRemoteCatalogView() {
 
       setPurgeAudit(data.auditTrail || []);
       showToast(`✓ Purged ${item.entityType} "${item.id}"`, 'success');
-      await fetchRemoteEntities();
+      await fetchRemoteEntities(token, activeEnv);
     } catch (err) {
       showToast(`Purge error: ${err.message}`, 'error');
     } finally {
@@ -333,7 +499,7 @@ export default function DnextRemoteCatalogView() {
     let failCount = 0;
     const auditLogs = [];
 
-    const headers = await getTargetEnvHeaders(token);
+    const headers = await getTargetEnvHeaders(token, activeEnv);
 
     for (let i = 0; i < itemsToPurge.length; i++) {
       const item = itemsToPurge[i];
@@ -366,32 +532,348 @@ export default function DnextRemoteCatalogView() {
     await fetchRemoteEntities();
   };
 
-  // Filtered & Searched entities
-  const filteredEntities = useMemo(() => {
-    return entities.filter(item => {
-      if (typeFilter !== 'all' && item.entityType !== typeFilter) return false;
-      if (statusFilter !== 'all') {
-        const s = (item.lifecycleStatus || '').toLowerCase();
-        if (statusFilter.toLowerCase() !== s) return false;
+  // Tree expansion state for multi-version entity groups
+  const [expandedGroups, setExpandedGroups] = useState(new Set());
+
+  // Group entities by entityType and ID, consolidating multiple versions into a tree
+  const groupedEntities = useMemo(() => {
+    const groupsMap = new Map();
+
+    entities.forEach(item => {
+      // Normalize baseId by stripping TMF version suffix :(version=...) so v0 and v1 group into one tree
+      const rawId = String(item.id || item.name || '');
+      const baseId = rawId.replace(/:\(version=[^)]+\)$/i, '');
+      const gKey = `${item.entityType}:${baseId || rawId}`;
+      if (!groupsMap.has(gKey)) {
+        groupsMap.set(gKey, []);
       }
-      if (searchQuery.trim()) {
+      groupsMap.get(gKey).push({
+        ...item,
+        baseId: baseId || rawId
+      });
+    });
+
+    const groups = [];
+
+    groupsMap.forEach((items, gKey) => {
+      // Sort items descending by version so the highest/latest version is index 0
+      const sorted = [...items].sort(compareVersionsDesc);
+      const latest = sorted[0];
+      const previousVersions = sorted.slice(1);
+
+      groups.push({
+        groupKey: gKey,
+        id: latest.baseId || latest.id,
+        name: latest.name,
+        entityType: latest.entityType,
+        latestVersion: latest.version,
+        latestItem: latest,
+        previousVersions,
+        totalVersions: sorted.length,
+        allItems: sorted
+      });
+    });
+
+    // ProductOfferings first, then alphabetically by name or id
+    return groups.sort((a, b) => {
+      if (a.entityType === 'ProductOffering' && b.entityType !== 'ProductOffering') return -1;
+      if (b.entityType === 'ProductOffering' && a.entityType !== 'ProductOffering') return 1;
+      return (a.name || a.id).localeCompare(b.name || b.id);
+    });
+  }, [entities]);
+
+  // Compute live category & status counts for Left Drawer
+  const categoryCounts = useMemo(() => {
+    let bundles = 0;
+    let simple = 0;
+    let salesPackages = 0;
+    let options = 0;
+    let recurring = 0;
+    let oneTime = 0;
+    let launched = 0;
+    let inTestStudy = 0;
+    let obsolete = 0;
+
+    entities.forEach(e => {
+      const status = (e.lifecycleStatus || '').toLowerCase();
+      if (status === 'launched') launched++;
+      else if (status === 'in test' || status === 'in study') inTestStudy++;
+      else if (status === 'obsolete' || status === 'retired') obsolete++;
+
+      if (e.entityType === 'ProductOffering') {
+        if (e.raw?.isBundle) bundles++;
+        else simple++;
+        if (isSalesPackageSpec(e)) salesPackages++;
+        if (isOptionSpec(e)) options++;
+      } else if (e.entityType === 'ProductOfferingPrice') {
+        const pt = (e.raw?.priceType || '').toLowerCase();
+        if (pt.includes('recurring')) recurring++;
+        else if (pt.includes('one time') || pt.includes('onetime')) oneTime++;
+      }
+    });
+
+    return {
+      all: entities.length,
+      offerings: fetchStats.offerings,
+      bundles,
+      simple,
+      salesPackages,
+      options,
+      prices: fetchStats.prices,
+      recurring,
+      oneTime,
+      specs: fetchStats.specs,
+      categories: fetchStats.categories,
+      launched,
+      inTestStudy,
+      obsolete
+    };
+  }, [entities, fetchStats]);
+
+  const handleToggleMenuSection = (sec) => {
+    setExpandedMenuSections(prev => {
+      const next = new Set(prev);
+      if (next.has(sec)) next.delete(sec);
+      else next.add(sec);
+      return next;
+    });
+  };
+
+  const handleSelectMenuItem = (item) => {
+    if (!item) return;
+
+    // 1. Status-only toggle filter (e.g. Launched, In study, Obsolete)
+    if (item.filterContext?.statusFilter !== undefined && item.filterContext?.typeFilter === undefined) {
+      setStatusFilter(prev => prev === item.filterContext.statusFilter ? 'all' : item.filterContext.statusFilter);
+      return;
+    }
+
+    // 2. Navigation filter context
+    if (item.filterContext) {
+      if (item.filterContext.typeFilter !== undefined) {
+        setTypeFilter(item.filterContext.typeFilter);
+        setSelectedCategory(item.filterContext.typeFilter);
+      }
+      if (item.filterContext.subFilter !== undefined) {
+        setSubFilter(item.filterContext.subFilter);
+      } else {
+        setSubFilter(null);
+      }
+      if (item.filterContext.specFilter !== undefined) {
+        setSpecFilter(item.filterContext.specFilter);
+      } else {
+        setSpecFilter('all');
+      }
+      if (item.filterContext.statusFilter !== undefined) {
+        setStatusFilter(item.filterContext.statusFilter);
+      }
+    }
+
+    // 3. Set associated target list view template if configured
+    if (item.targetListViewTemplateId) {
+      setUserListTemplateId(item.targetListViewTemplateId);
+    } else {
+      setUserListTemplateId(null);
+    }
+
+    // If entering Sales Packages, Options, or Categories view, clear generic search/status/spec filters
+    if (
+      item.targetListViewTemplateId === 'sales_packages' ||
+      item.targetListViewTemplateId === 'options' ||
+      item.targetListViewTemplateId === 'categories' ||
+      item.filterContext?.subFilter === 'sales_packages' ||
+      item.filterContext?.subFilter === 'options'
+    ) {
+      setSearchQuery('');
+      setSpecSearchQuery('');
+      setStatusFilter('all');
+      setSpecFilter('all');
+    }
+  };
+
+  // Available specifications for ProductOfferings (used in spec filter dropdown)
+  const availableProductSpecs = useMemo(() => {
+    const specMap = new Map();
+    let noSpecCount = 0;
+    entities.forEach(e => {
+      if (e.entityType === 'ProductOffering') {
+        const spec = e.productSpecification || e.raw?.productSpecification;
+        const name = (spec?.name || spec?.id || '').trim();
+        if (name) {
+          specMap.set(name, (specMap.get(name) || 0) + 1);
+        } else {
+          noSpecCount++;
+        }
+      }
+    });
+    const list = Array.from(specMap.entries())
+      .map(([name, count]) => ({ name, label: name, count }))
+      .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+    if (noSpecCount > 0) {
+      list.push({ name: '__none__', label: 'Without Specification', count: noSpecCount });
+    }
+    return list;
+  }, [entities]);
+
+  // Available specifications filtered to the active context/subfilter for autocomplete
+  const filteredProductSpecs = useMemo(() => {
+    const specMap = new Map();
+    entities.forEach(e => {
+      if (e.entityType !== 'ProductOffering') return;
+      if (subFilter === 'sales_packages' && !isSalesPackageSpec(e)) return;
+      if (subFilter === 'options' && !isOptionSpec(e)) return;
+
+      const spec = e.productSpecification || e.raw?.productSpecification;
+      let name = (spec?.name || spec?.id || '').trim();
+      name = name.replace(/:\(version=[^)]+\)$/i, '').trim();
+      if (name) {
+        specMap.set(name, (specMap.get(name) || 0) + 1);
+      }
+    });
+
+    return Array.from(specMap.entries())
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+  }, [entities, subFilter]);
+
+  // Filtered groups based on type, subfilter, status, spec, and search query
+  const isSpecializedActive =
+    userListTemplateId === 'sales_packages' ||
+    userListTemplateId === 'options' ||
+    subFilter === 'sales_packages' ||
+    subFilter === 'options';
+
+  const filteredGroups = useMemo(() => {
+    return groupedEntities.filter(group => {
+      if (typeFilter !== 'all' && group.entityType !== typeFilter) return false;
+
+      // Specification filter (for ProductOfferings, bypassed in Sales Packages / Options view)
+      if (!isSpecializedActive && typeFilter === 'ProductOffering' && specFilter !== 'all') {
+        const getSpecName = (item) => {
+          const spec = item.productSpecification || item.raw?.productSpecification;
+          return (spec?.name || spec?.id || '').trim();
+        };
+
+        if (specFilter === '__none__') {
+          const matchLatest = !getSpecName(group.latestItem);
+          const matchPrev = (group.previousVersions || []).some(v => !getSpecName(v));
+          if (!matchLatest && !matchPrev) return false;
+        } else {
+          const target = specFilter.toLowerCase();
+          const matchLatest = getSpecName(group.latestItem).toLowerCase() === target;
+          const matchPrev = (group.previousVersions || []).some(v => getSpecName(v).toLowerCase() === target);
+          if (!matchLatest && !matchPrev) return false;
+        }
+      }
+
+      // Search with Product Specification
+      if (specSearchQuery.trim()) {
+        const q = specSearchQuery.trim().toLowerCase();
+        const getSpecName = (item) => {
+          const spec = item.productSpecification || item.raw?.productSpecification;
+          return (spec?.name || spec?.id || '').trim().toLowerCase();
+        };
+        const matchLatest = getSpecName(group.latestItem).includes(q);
+        const matchPrev = (group.previousVersions || []).some(v => getSpecName(v).includes(q));
+        if (!matchLatest && !matchPrev) return false;
+      }
+
+      // Subfilter checks (from Left Drawer sub-items)
+      if (subFilter === 'sales_packages') {
+        const matchLatest = isSalesPackageSpec(group.latestItem);
+        const matchPrev = (group.previousVersions || []).some(v => isSalesPackageSpec(v));
+        if (!matchLatest && !matchPrev) return false;
+      }
+      if (subFilter === 'options') {
+        const matchLatest = isOptionSpec(group.latestItem);
+        const matchPrev = (group.previousVersions || []).some(v => isOptionSpec(v));
+        if (!matchLatest && !matchPrev) return false;
+      }
+      if (subFilter === 'bundle') {
+        const isBundle = Boolean(group.latestItem.raw?.isBundle);
+        if (!isBundle) return false;
+      }
+      if (subFilter === 'simple') {
+        const isBundle = Boolean(group.latestItem.raw?.isBundle);
+        if (isBundle) return false;
+      }
+      if (subFilter === 'recurring') {
+        const pt = (group.latestItem.raw?.priceType || '').toLowerCase();
+        if (!pt.includes('recurring')) return false;
+      }
+      if (subFilter === 'onetime') {
+        const pt = (group.latestItem.raw?.priceType || '').toLowerCase();
+        if (!pt.includes('one time') && !pt.includes('onetime')) return false;
+      }
+
+      // Status filter (bypassed in Sales Packages / Options view)
+      if (!isSpecializedActive && statusFilter !== 'all') {
+        const matchesLatest = (group.latestItem.lifecycleStatus || '').toLowerCase() === statusFilter.toLowerCase();
+        const matchesPrev = group.previousVersions.some(
+          v => (v.lifecycleStatus || '').toLowerCase() === statusFilter.toLowerCase()
+        );
+        if (!matchesLatest && !matchesPrev) return false;
+      }
+
+      // Search query (bypassed in Sales Packages / Options view)
+      if (!isSpecializedActive && searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
-        const matchId = (item.id || '').toLowerCase().includes(q);
-        const matchName = (item.name || '').toLowerCase().includes(q);
-        const matchType = (item.entityType || '').toLowerCase().includes(q);
-        const matchStatus = (item.lifecycleStatus || '').toLowerCase().includes(q);
-        if (!matchId && !matchName && !matchType && !matchStatus) return false;
+        const matchId = (group.id || '').toLowerCase().includes(q);
+        const matchName = (group.name || '').toLowerCase().includes(q);
+        // Do not search/filter based on entity type when in Product Offerings view
+        const matchType = (typeFilter === 'all')
+          ? (group.entityType || '').toLowerCase().includes(q)
+          : false;
+        const matchStatus = (group.latestItem.lifecycleStatus || '').toLowerCase() === statusFilter.toLowerCase() || (group.latestItem.lifecycleStatus || '').toLowerCase().includes(q);
+        const specObj = group.latestItem.productSpecification || group.latestItem.raw?.productSpecification || {};
+        const matchSpec = (specObj.name || '').toLowerCase().includes(q) || (specObj.id || '').toLowerCase().includes(q);
+        const matchPrev = group.previousVersions.some(
+          v => (v.name || '').toLowerCase().includes(q) ||
+               (v.version || '').toLowerCase().includes(q) ||
+               (v.lifecycleStatus || '').toLowerCase().includes(q) ||
+               (v.productSpecification?.name || v.raw?.productSpecification?.name || '').toLowerCase().includes(q)
+        );
+        if (!matchId && !matchName && !matchType && !matchStatus && !matchSpec && !matchPrev) return false;
       }
       return true;
     });
-  }, [entities, typeFilter, statusFilter, searchQuery]);
+  }, [groupedEntities, typeFilter, subFilter, statusFilter, specFilter, searchQuery, isSpecializedActive, specSearchQuery]);
 
-  // Toggle selection
+  const handleToggleExpand = (groupKey) => {
+    setExpandedGroups(prev => {
+      const next = new Set(prev);
+      if (next.has(groupKey)) next.delete(groupKey);
+      else next.add(groupKey);
+      return next;
+    });
+  };
+
+  const handleExpandAll = () => {
+    const allMultiKeys = filteredGroups
+      .filter(g => g.previousVersions.length > 0)
+      .map(g => g.groupKey);
+    setExpandedGroups(new Set(allMultiKeys));
+  };
+
+  const handleCollapseAll = () => {
+    setExpandedGroups(new Set());
+  };
+
+  const isAnyGroupExpanded = expandedGroups.size > 0;
+  const handleToggleAllGroups = () => {
+    if (isAnyGroupExpanded) {
+      handleCollapseAll();
+    } else {
+      handleExpandAll();
+    }
+  };
+
+  // Toggle selection across groups
   const handleToggleSelectAll = () => {
-    if (selectedIds.size === filteredEntities.length && filteredEntities.length > 0) {
+    if (selectedIds.size === filteredGroups.length && filteredGroups.length > 0) {
       setSelectedIds(new Set());
     } else {
-      setSelectedIds(new Set(filteredEntities.map(e => e.id)));
+      setSelectedIds(new Set(filteredGroups.map(g => g.id)));
     }
   };
 
@@ -404,6 +886,51 @@ export default function DnextRemoteCatalogView() {
     });
   };
 
+  const handleOpenNewSalesPackage = () => {
+    setDrawerItem({
+      id: 'NEW_SALES_PACKAGE',
+      name: 'New Sales Package',
+      entityType: 'ProductOffering',
+      isNew: true,
+      templateId: 'sales_package_new',
+      raw: {
+        isBundle: false,
+        productSpecification: {
+          id: 'VF_DE_SPEC_SALES_PACKAGE',
+          name: 'VF_DE_Sales_Package_Specification',
+          version: '1'
+        }
+      }
+    });
+  };
+
+  // ── Configurable List View Resolution Engine ──
+  const listContext = useMemo(() => ({
+    typeFilter,
+    subFilter,
+    specFilter,
+    cacheStatus
+  }), [typeFilter, subFilter, specFilter, cacheStatus]);
+
+  const sampleListItem = filteredGroups.length > 0 ? filteredGroups[0]?.latestItem : null;
+  const autoListTemplateId = useMemo(
+    () => resolveListViewTemplateId(listContext, sampleListItem),
+    [listContext, sampleListItem]
+  );
+  const activeListTemplateId = userListTemplateId || autoListTemplateId;
+  const isSpecializedOfferingView =
+    activeListTemplateId === 'sales_packages' ||
+    activeListTemplateId === 'options' ||
+    subFilter === 'sales_packages' ||
+    subFilter === 'options';
+  const isSpecializedCustomView =
+    isSpecializedOfferingView ||
+    activeListTemplateId === 'categories';
+  const availableListTemplates = useMemo(
+    () => getAvailableListViewTemplates(listContext),
+    [listContext]
+  );
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', width: '100%', overflow: 'hidden', background: C.bg, color: C.text }}>
 
@@ -411,17 +938,17 @@ export default function DnextRemoteCatalogView() {
       {toast && (
         <div style={{
           position: 'fixed',
-          top: '20px',
+          top: 'calc(var(--ds-header-h) + 16px)',
           right: '24px',
           zIndex: 99999,
           padding: '10px 18px',
           borderRadius: '8px',
-          background: toast.type === 'success' ? '#064e3b' : toast.type === 'error' ? '#7f1d1d' : '#1e1b4b',
+          background: toast.type === 'success' ? 'var(--ds-ok)' : toast.type === 'error' ? 'var(--ds-danger)' : 'var(--ds-text)',
           border: `1px solid ${toast.type === 'success' ? C.success : toast.type === 'error' ? C.danger : C.accent}`,
           color: '#fff',
           fontSize: '13px',
           fontWeight: '600',
-          boxShadow: '0 10px 25px rgba(0,0,0,0.5)',
+          boxShadow: 'var(--ds-shadow-lg)',
           display: 'flex',
           alignItems: 'center',
           gap: '8px',
@@ -432,74 +959,19 @@ export default function DnextRemoteCatalogView() {
         </div>
       )}
 
-      {/* Header / Stats Bar */}
-      <div style={{ padding: '16px 28px', borderBottom: `1px solid ${C.border}`, background: 'rgba(17,19,26,0.85)', flexShrink: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <h2 style={{ fontSize: '18px', fontWeight: '700', color: '#fff', margin: 0 }}>
-              🌐 Live DNEXT Catalog Explorer
-            </h2>
-            <span style={{ fontSize: '11px', background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.3)', padding: '2px 8px', borderRadius: '4px', color: '#a5b4fc', fontWeight: '600' }}>
-              Direct Cloud Gateway
-            </span>
-          </div>
-          <p style={{ fontSize: '12px', color: C.muted, margin: '4px 0 0 0' }}>
-            Query, inspect, and purge live catalog entities directly from the active DNEXT environment.
-          </p>
-        </div>
-
-        {/* Live Counters */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(255,255,255,0.04)', padding: '6px 12px', borderRadius: '8px', border: `1px solid ${C.border}`, fontSize: '12px' }}>
-            <span style={{ color: C.muted }}>Total:</span>
-            <span style={{ fontWeight: '700', color: '#fff' }}>{entities.length}</span>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: ENTITY_CONFIG.Category.color.bg, padding: '6px 12px', borderRadius: '8px', border: `1px solid ${ENTITY_CONFIG.Category.color.border}`, fontSize: '12px', color: ENTITY_CONFIG.Category.color.text }}>
-            <span>📂 Categories:</span>
-            <span style={{ fontWeight: '700' }}>{fetchStats.categories}</span>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: ENTITY_CONFIG.ProductOffering.color.bg, padding: '6px 12px', borderRadius: '8px', border: `1px solid ${ENTITY_CONFIG.ProductOffering.color.border}`, fontSize: '12px', color: ENTITY_CONFIG.ProductOffering.color.text }}>
-            <span>📦 Offerings:</span>
-            <span style={{ fontWeight: '700' }}>{fetchStats.offerings}</span>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: ENTITY_CONFIG.ProductOfferingPrice.color.bg, padding: '6px 12px', borderRadius: '8px', border: `1px solid ${ENTITY_CONFIG.ProductOfferingPrice.color.border}`, fontSize: '12px', color: ENTITY_CONFIG.ProductOfferingPrice.color.text }}>
-            <span>🏷️ Prices:</span>
-            <span style={{ fontWeight: '700' }}>{fetchStats.prices}</span>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: ENTITY_CONFIG.ProductSpecification.color.bg, padding: '6px 12px', borderRadius: '8px', border: `1px solid ${ENTITY_CONFIG.ProductSpecification.color.border}`, fontSize: '12px', color: ENTITY_CONFIG.ProductSpecification.color.text }}>
-            <span>📋 Specs:</span>
-            <span style={{ fontWeight: '700' }}>{fetchStats.specs}</span>
-          </div>
-
-          {/* Refresh Button */}
-          <button
-            onClick={fetchRemoteEntities}
-            disabled={loading || !token}
-            style={btn({ background: 'rgba(99,102,241,0.2)', borderColor: C.indigo, color: '#a5b4fc', padding: '6px 14px' })}
-            title="Fetch latest remote entities"
-          >
-            {loading ? '⏳ Loading…' : '⟳ Refresh Catalog'}
-          </button>
-        </div>
-      </div>
-
       {/* Auth Banner if not authenticated */}
-      {!token && (
-        <div style={{ padding: '12px 28px', background: 'rgba(239,68,68,0.12)', borderBottom: '1px solid rgba(239,68,68,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', color: '#fca5a5' }}>
-            <span>⚠️</span>
-            <span>Keycloak token is missing or expired. Connect to query and manage remote DNEXT entities.</span>
+      {(!token || loginStatus !== 'connected') && (
+        <div style={{ padding: '12px 28px', background: 'rgba(239,68,68,0.12)', borderBottom: '1px solid rgba(239,68,68,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', color: 'var(--ds-danger)' }}>
+            <span><Icon name="alert" size={14} /></span>
+            <span>Disconnected from <strong>{selectedEnvName}</strong> ({activeEnv?.apiUrl}). Please connect to authenticate with Keycloak IAM.</span>
           </div>
           <button
-            onClick={handleConnectKeycloak}
-            disabled={authLoading}
-            style={btn({ background: '#ef4444', borderColor: '#ef4444', color: '#fff' })}
+            onClick={() => handleLogin()}
+            style={btn({ background: 'var(--ds-brand)', borderColor: 'var(--ds-brand)', color: '#fff', padding: '6px 16px', display: 'inline-flex', alignItems: 'center', gap: '6px' })}
           >
-            {authLoading ? 'Connecting…' : '🔐 Connect Keycloak'}
+            <Icon name="login" size={14} />
+            Connect to {selectedEnvName}
           </button>
         </div>
       )}
@@ -507,98 +979,280 @@ export default function DnextRemoteCatalogView() {
       {/* Purge Progress Bar Banner */}
       {isPurging && purgeProgress && (
         <div style={{ padding: '10px 28px', background: 'rgba(245,158,11,0.15)', borderBottom: '1px solid rgba(245,158,11,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '13px', color: '#fde68a' }}>
-            <span style={{ animation: 'spin 1s infinite linear' }}>⏳</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '13px', color: 'var(--ds-warn)' }}>
+            <span style={{ animation: 'spin 1s infinite linear' }}><Icon name="clock" size={14} /></span>
             <span>Purging entity <strong>{purgeProgress.currentId}</strong> ({purgeProgress.current} of {purgeProgress.total})…</span>
           </div>
-          <div style={{ width: '200px', height: '8px', background: 'rgba(0,0,0,0.4)', borderRadius: '4px', overflow: 'hidden' }}>
+          <div style={{ width: '200px', height: '8px', background: 'var(--ds-surface-3)', borderRadius: '4px', overflow: 'hidden' }}>
             <div style={{ width: `${(purgeProgress.current / purgeProgress.total) * 100}%`, height: '100%', background: C.warning, transition: 'width 0.2s' }}></div>
           </div>
         </div>
       )}
 
-      {/* ── Control Bar: Search & Filters ── */}
-      <div style={{ padding: '12px 28px', borderBottom: `1px solid ${C.border}`, background: 'rgba(10,12,18,0.6)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', flexShrink: 0 }}>
-        
-        {/* Left Filter Group */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-          {/* Search */}
-          <input
-            type="text"
-            placeholder="🔍 Search ID, name, status…"
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            style={{
-              padding: '7px 12px',
-              borderRadius: '6px',
-              border: `1px solid ${C.border}`,
-              background: 'rgba(255,255,255,0.05)',
-              color: C.text,
-              fontSize: '12px',
-              width: '240px',
-              outline: 'none'
-            }}
-          />
+      {/* ── 2-Column Layout: Left Collapsible Drawer Menu + Right Catalog Table ── */}
+      <div style={{ flex: 1, display: 'flex', overflow: 'hidden', position: 'relative' }}>
 
-          {/* Type Filter Pulldown */}
-          <select
-            value={typeFilter}
-            onChange={e => setTypeFilter(e.target.value)}
+        {/* Floating Mini Tab when Left Drawer is closed */}
+        {!isLeftDrawerOpen && (
+          <button
+            type="button"
+            onClick={() => setIsLeftDrawerOpen(true)}
             style={{
-              padding: '7px 12px',
-              borderRadius: '6px',
-              border: `1px solid ${C.border}`,
-              background: '#161822',
-              color: C.text,
-              fontSize: '12px',
+              position: 'absolute',
+              left: 0,
+              top: '16px',
+              zIndex: 30,
+              background: '#ffffff',
+              border: `1px solid var(--ds-border)`,
+              borderLeft: 'none',
+              borderTopRightRadius: '8px',
+              borderBottomRightRadius: '8px',
+              color: 'var(--ds-brand)',
+              padding: '10px 7px',
+              fontSize: '11px',
+              fontWeight: '700',
               cursor: 'pointer',
-              outline: 'none'
+              boxShadow: '2px 4px 12px rgba(0,0,0,0.08)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '6px',
+              transition: 'all 0.15s ease'
             }}
+            title="Expand Left Navigation Menu"
+            onMouseEnter={e => { e.currentTarget.style.background = '#fff1f0'; e.currentTarget.style.color = 'var(--ds-brand-dark)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = '#ffffff'; e.currentTarget.style.color = 'var(--ds-brand)'; }}
           >
-            <option value="all">🌐 All Entity Types ({entities.length})</option>
-            <option value="Category">📂 Categories ({fetchStats.categories})</option>
-            <option value="ProductOffering">📦 Product Offerings ({fetchStats.offerings})</option>
-            <option value="ProductOfferingPrice">🏷️ Product Offering Prices ({fetchStats.prices})</option>
-            <option value="ProductSpecification">📋 Product Specifications ({fetchStats.specs})</option>
-          </select>
+            <span style={{ fontSize: '12px' }}>▶</span>
+            <span style={{ writingMode: 'vertical-rl', textOrientation: 'mixed', letterSpacing: '2px', fontSize: '11px', textTransform: 'uppercase' }}>Menu</span>
+          </button>
+        )}
 
-          {/* Status Filter */}
-          <select
-            value={statusFilter}
-            onChange={e => setStatusFilter(e.target.value)}
-            style={{
-              padding: '7px 12px',
-              borderRadius: '6px',
-              border: `1px solid ${C.border}`,
-              background: '#161822',
-              color: C.text,
-              fontSize: '12px',
-              cursor: 'pointer',
-              outline: 'none'
-            }}
-          >
-            <option value="all">⚡ All Statuses</option>
-            <option value="In study">⏳ In study</option>
-            <option value="Launched">🚀 Launched</option>
-            <option value="Active">✓ Active</option>
-            <option value="Obsolete">✕ Obsolete</option>
-          </select>
-        </div>
+        {/* ── Configurable Left Navigation Menu ── */}
+        <ConfigurableLeftMenu
+          isOpen={isLeftDrawerOpen}
+          onClose={() => setIsLeftDrawerOpen(false)}
+          currentContext={{
+            typeFilter,
+            subFilter,
+            specFilter,
+            statusFilter
+          }}
+          onSelectMenuItem={handleSelectMenuItem}
+          categoryCounts={categoryCounts}
+          expandedSections={expandedMenuSections}
+          onToggleSection={handleToggleMenuSection}
+        />
+
+        {/* ── Main Content Area: Control Bar + Table ── */}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, overflow: 'hidden' }}>
+
+          {/* ── Control Bar: Search & Filters ── */}
+          <div style={{ padding: '12px 28px', borderBottom: `1px solid ${C.border}`, background: '#ffffff', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', flexShrink: 0 }}>
+            
+            {/* Left Filter Group */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+              {/* Search (Hidden in Sales Packages, Options, and Categories Views) */}
+              {!isSpecializedCustomView && (
+                <input
+                  type="text"
+                  placeholder="Search ID, name, status, spec…"
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  style={{
+                    padding: '7px 12px',
+                    borderRadius: '6px',
+                    border: `1px solid var(--ds-border-strong)`,
+                    background: '#ffffff',
+                    color: C.text,
+                    fontSize: '12px',
+                    width: '230px',
+                    outline: 'none'
+                  }}
+                />
+              )}
+
+              {/* Type Filter Pulldown - Only shown in All Objects view, hidden in Product Offerings */}
+              {typeFilter === 'all' && activeListTemplateId === 'all_objects' && (
+                <select
+                  value={typeFilter}
+                  onChange={e => {
+                    const val = e.target.value;
+                    setTypeFilter(val);
+                    setSelectedCategory(val);
+                    setSubFilter(null);
+                    if (val !== 'ProductOffering') setSpecFilter('all');
+                  }}
+                  style={{
+                    padding: '7px 12px',
+                    borderRadius: '6px',
+                    border: `1px solid var(--ds-border-strong)`,
+                    background: '#ffffff',
+                    color: C.text,
+                    fontSize: '12px',
+                    cursor: 'pointer',
+                    outline: 'none'
+                  }}
+                >
+                  <option value="all">All Entity Types ({entities.length})</option>
+                  <option value="Category">Categories ({fetchStats.categories})</option>
+                  <option value="ProductOffering">Product Offerings ({fetchStats.offerings})</option>
+                  <option value="ProductOfferingPrice">Product Offering Prices ({fetchStats.prices})</option>
+                  <option value="ProductSpecification">Product Specifications ({fetchStats.specs})</option>
+                </select>
+              )}
+
+              {/* Status Filter (Hidden in Sales Packages, Options, and Categories Views) */}
+              {!isSpecializedCustomView && (
+                <select
+                  value={statusFilter}
+                  onChange={e => setStatusFilter(e.target.value)}
+                  style={{
+                    padding: '7px 12px',
+                    borderRadius: '6px',
+                    border: `1px solid var(--ds-border-strong)`,
+                    background: '#ffffff',
+                    color: C.text,
+                    fontSize: '12px',
+                    cursor: 'pointer',
+                    outline: 'none'
+                  }}
+                >
+                  <option value="all">All Statuses</option>
+                  <option value="In study">In study</option>
+                  <option value="Launched">Launched</option>
+                  <option value="Active">✓ Active</option>
+                  <option value="Obsolete">✕ Obsolete</option>
+                </select>
+              )}
+
+              {subFilter && (
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'rgba(230,0,0,0.06)', border: '1px solid var(--ds-brand)', padding: '3px 8px', borderRadius: '4px', fontSize: '11px', color: 'var(--ds-brand)', fontWeight: '600' }}>
+                  <span>Filter: <strong>{subFilter === 'sales_packages' ? 'Sales Packages' : subFilter === 'options' ? 'Options' : subFilter}</strong></span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSubFilter(null);
+                      setSpecSearchQuery('');
+                    }}
+                    style={{ background: 'none', border: 'none', color: 'var(--ds-brand)', cursor: 'pointer', padding: '0 2px', fontSize: '12px', fontWeight: 'bold' }}
+                    title="Remove sub-filter"
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
+
+              {/* Search with Product Specification - positioned next to the filter */}
+              {(typeFilter === 'ProductOffering' || isSpecializedOfferingView) && (
+                <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
+                  <input
+                    type="text"
+                    list="product-spec-suggestions"
+                    placeholder="Search Product Specification…"
+                    value={specSearchQuery}
+                    onChange={e => setSpecSearchQuery(e.target.value)}
+                    style={{
+                      padding: '7px 28px 7px 12px',
+                      borderRadius: '6px',
+                      border: `1px solid ${specSearchQuery ? 'var(--ds-brand)' : 'var(--ds-border-strong)'}`,
+                      background: specSearchQuery ? 'rgba(230,0,0,0.04)' : '#ffffff',
+                      color: C.text,
+                      fontSize: '12px',
+                      width: '260px',
+                      outline: 'none',
+                      transition: 'all 0.15s ease'
+                    }}
+                    title="Type to search offerings by Product Specification name"
+                  />
+                  {specSearchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setSpecSearchQuery('')}
+                      style={{
+                        position: 'absolute',
+                        right: '8px',
+                        background: 'transparent',
+                        border: 'none',
+                        color: 'var(--ds-brand)',
+                        cursor: 'pointer',
+                        fontSize: '12px',
+                        padding: '2px',
+                        lineHeight: 1
+                      }}
+                      title="Clear specification search"
+                    >
+                      ✕
+                    </button>
+                  )}
+                  <datalist id="product-spec-suggestions">
+                    {filteredProductSpecs.map(s => (
+                      <option key={s.name} value={s.name} />
+                    ))}
+                  </datalist>
+                </div>
+              )}
+
+              {/* ── Configurable List View Template Selector ── */}
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'var(--ds-surface-subtle)', border: `1px solid var(--ds-border-strong)`, borderRadius: '6px', padding: '2px 8px' }}>
+                <span style={{ fontSize: '11px', color: C.muted, fontWeight: '600' }}>View:</span>
+                <select
+                  value={activeListTemplateId}
+                  onChange={e => setUserListTemplateId(e.target.value)}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: userListTemplateId ? 'var(--ds-brand)' : C.text,
+                    fontSize: '12px',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    outline: 'none',
+                    padding: '5px 4px'
+                  }}
+                  title="Configured list view template (Auto-resolved from entity type and field values)"
+                >
+                  {availableListTemplates.map(tpl => (
+                    <option key={tpl.id} value={tpl.id} style={{ background: '#ffffff', color: 'var(--ds-text)' }}>
+                      {tpl.name} {(!userListTemplateId && tpl.id === autoListTemplateId) ? '(Auto)' : ''}
+                    </option>
+                  ))}
+                </select>
+                {userListTemplateId && (
+                  <button
+                    type="button"
+                    onClick={() => setUserListTemplateId(null)}
+                    style={{
+                      background: 'rgba(230,0,0,0.08)',
+                      border: '1px solid rgba(230,0,0,0.2)',
+                      color: 'var(--ds-brand)',
+                      fontSize: '11px',
+                      cursor: 'pointer',
+                      padding: '2px 6px',
+                      borderRadius: '4px',
+                      fontWeight: '700'
+                    }}
+                    title="Reset to Auto-resolved template"
+                  >
+                    ↺ Auto
+                  </button>
+                )}
+              </div>
+            </div>
 
         {/* Right Bulk Actions Bar */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           {selectedIds.size > 0 && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', padding: '4px 12px', borderRadius: '6px' }}>
-              <span style={{ fontSize: '12px', fontWeight: '700', color: '#fca5a5' }}>
+              <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--ds-danger)' }}>
                 {selectedIds.size} selected
               </span>
               <button
                 onClick={() => setShowConfirmBulkModal(true)}
                 disabled={isPurging}
-                style={btn({ background: '#ef4444', borderColor: '#ef4444', color: '#fff', padding: '4px 10px', fontSize: '11px' })}
+                style={btn({ background: 'var(--ds-danger)', borderColor: 'var(--ds-danger)', color: '#fff', padding: '4px 10px', fontSize: '11px' })}
                 title="Purge selected entities from DNEXT"
               >
-                🗑️ Bulk Purge ({selectedIds.size})
+                <Icon name="trash" size={14} /> Bulk Purge ({selectedIds.size})
               </button>
               <button
                 onClick={() => setSelectedIds(new Set())}
@@ -609,9 +1263,83 @@ export default function DnextRemoteCatalogView() {
             </div>
           )}
 
-          <span style={{ fontSize: '12px', color: C.muted }}>
-            Showing <strong>{filteredEntities.length}</strong> of {entities.length}
-          </span>
+          {/* Refresh Catalog Button (always visible on this row alongside View Selection popup) */}
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+            {cacheStatus && (
+              <span
+                style={{
+                  fontSize: '11px',
+                  color: cacheStatus.isCached ? 'var(--ds-ok)' : 'var(--ds-text-2)',
+                  background: cacheStatus.isCached ? 'rgba(16,185,129,0.08)' : 'rgba(0,0,0,0.04)',
+                  border: `1px solid ${cacheStatus.isCached ? 'rgba(16,185,129,0.25)' : 'var(--ds-border)'}`,
+                  padding: '3px 8px',
+                  borderRadius: '4px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px'
+                }}
+                title={cacheStatus.cachedAt ? `Loaded from SQLite backend cache (${new Date(cacheStatus.cachedAt).toLocaleString()})` : 'Live catalog data'}
+              >
+                <span>{cacheStatus.isCached ? 'Cached' : 'Live'}</span>
+                {cacheStatus.cachedAt && (
+                  <span style={{ fontSize: '11px', color: 'var(--ds-text-2)' }}>
+                    ({new Date(cacheStatus.cachedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })})
+                  </span>
+                )}
+              </span>
+            )}
+
+            <button
+              type="button"
+              onClick={() => fetchRemoteEntities(token, activeEnv, false, true)}
+              disabled={loading || !token}
+              style={{
+                background: '#ffffff',
+                border: '1px solid var(--ds-border-strong)',
+                color: C.text,
+                padding: '5px 12px',
+                borderRadius: '6px',
+                fontSize: '12px',
+                fontWeight: '600',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                transition: 'all 0.15s ease'
+              }}
+              title="Fetch latest remote entities from active DNEXT environment (bypasses cache)"
+            >
+              <span style={{ display: 'inline-block', animation: loading ? 'spin 1s infinite linear' : 'none' }}>
+                {loading ? '' : '⟳'}
+              </span>
+              <span>{loading ? 'Refreshing…' : 'Refresh Catalog'}</span>
+            </button>
+          </div>
+
+          {/* New Sales Package Button */}
+          <button
+            type="button"
+            onClick={handleOpenNewSalesPackage}
+            style={{
+              background: 'var(--ds-brand)',
+              border: '1px solid var(--ds-brand-dark)',
+              color: '#ffffff',
+              padding: '5px 14px',
+              borderRadius: '6px',
+              fontSize: '12px',
+              fontWeight: '700',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              boxShadow: '0 1px 3px rgba(230,0,0,0.25)',
+              transition: 'all 0.15s ease'
+            }}
+            title="Create a new commercial Sales Package broadband offer"
+          >
+            <span style={{ fontSize: '14px', lineHeight: 1 }}>+</span>
+            <span>New Sales Package</span>
+          </button>
         </div>
       </div>
 
@@ -619,152 +1347,39 @@ export default function DnextRemoteCatalogView() {
       <div style={{ flex: 1, overflowY: 'auto', overflowX: 'auto', padding: '0 28px 24px 28px' }}>
         {loading ? (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '300px', gap: '12px', color: C.muted }}>
-            <div style={{ fontSize: '24px' }}>⏳</div>
+            <div style={{ fontSize: '24px' }}><Icon name="clock" size={24} /></div>
             <div>Querying remote DNEXT endpoints…</div>
           </div>
-        ) : filteredEntities.length === 0 ? (
+        ) : filteredGroups.length === 0 ? (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '300px', gap: '8px', color: C.muted }}>
-            <div style={{ fontSize: '28px' }}>📭</div>
+            <div style={{ fontSize: '28px' }}><Icon name="inbox" size={28} /></div>
             <div style={{ fontSize: '14px', fontWeight: '600' }}>No live entities found matching the current filters.</div>
             <div style={{ fontSize: '12px' }}>Try adjusting your search terms or click "Refresh Catalog".</div>
           </div>
         ) : (
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', marginTop: '12px', textAlign: 'left' }}>
-            <thead>
-              <tr style={{ borderBottom: `1px solid ${C.border}`, color: C.muted, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                <th style={{ padding: '10px 8px', width: '38px', textAlign: 'center' }}>
-                  <input
-                    type="checkbox"
-                    checked={filteredEntities.length > 0 && selectedIds.size === filteredEntities.length}
-                    onChange={handleToggleSelectAll}
-                    style={{ cursor: 'pointer', accentColor: C.indigo }}
-                  />
-                </th>
-                <th style={{ padding: '10px 12px', width: '160px' }}>Type</th>
-                <th style={{ padding: '10px 12px' }}>ID / Identifier</th>
-                <th style={{ padding: '10px 12px' }}>Name / Title</th>
-                <th style={{ padding: '10px 12px', width: '90px' }}>Version</th>
-                <th style={{ padding: '10px 12px', width: '120px' }}>Lifecycle</th>
-                <th style={{ padding: '10px 12px', width: '140px', textAlign: 'right' }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredEntities.map((item) => {
-                const isSelected = selectedIds.has(item.id);
-                const typeCfg = ENTITY_CONFIG[item.entityType] || { label: item.entityType, color: { bg: 'rgba(255,255,255,0.1)', border: 'transparent', text: '#fff' }, icon: '📄' };
-                const isLaunched = (item.lifecycleStatus || '').toLowerCase() === 'launched';
-                const isInStudy = (item.lifecycleStatus || '').toLowerCase() === 'in study';
-
-                return (
-                  <tr
-                    key={`${item.entityType}-${item.id}`}
-                    style={{
-                      borderBottom: '1px solid rgba(255,255,255,0.04)',
-                      background: isSelected ? 'rgba(99,102,241,0.08)' : 'transparent',
-                      transition: 'background 0.15s'
-                    }}
-                  >
-                    {/* Checkbox */}
-                    <td style={{ padding: '10px 8px', textAlign: 'center' }}>
-                      <input
-                        type="checkbox"
-                        checked={isSelected}
-                        onChange={() => handleToggleSelectItem(item.id)}
-                        style={{ cursor: 'pointer', accentColor: C.indigo }}
-                      />
-                    </td>
-
-                    {/* Type Badge */}
-                    <td style={{ padding: '10px 12px' }}>
-                      <span style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '5px',
-                        background: typeCfg.color.bg,
-                        border: `1px solid ${typeCfg.color.border}`,
-                        color: typeCfg.color.text,
-                        padding: '3px 8px',
-                        borderRadius: '4px',
-                        fontSize: '11px',
-                        fontWeight: '600'
-                      }}>
-                        <span>{typeCfg.icon}</span>
-                        <span>{typeCfg.label}</span>
-                      </span>
-                    </td>
-
-                    {/* ID */}
-                    <td style={{ padding: '10px 12px' }}>
-                      <div style={{ fontFamily: 'monospace', fontSize: '12px', color: '#e5e7eb', fontWeight: '600' }}>
-                        {item.id}
-                      </div>
-                    </td>
-
-                    {/* Name */}
-                    <td style={{ padding: '10px 12px' }}>
-                      <div style={{ color: '#d1d5db', fontSize: '13px' }}>
-                        {item.name || '-'}
-                      </div>
-                    </td>
-
-                    {/* Version */}
-                    <td style={{ padding: '10px 12px' }}>
-                      <span style={{ fontSize: '11px', color: C.muted, background: 'rgba(255,255,255,0.06)', padding: '2px 6px', borderRadius: '4px' }}>
-                        v{item.version}
-                      </span>
-                    </td>
-
-                    {/* Lifecycle Status */}
-                    <td style={{ padding: '10px 12px' }}>
-                      <span style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '5px',
-                        fontSize: '11px',
-                        fontWeight: '600',
-                        color: isLaunched ? C.success : isInStudy ? C.warning : '#9ca3af',
-                        background: isLaunched ? 'rgba(16,185,129,0.12)' : isInStudy ? 'rgba(245,158,11,0.12)' : 'rgba(255,255,255,0.04)',
-                        border: `1px solid ${isLaunched ? 'rgba(16,185,129,0.3)' : isInStudy ? 'rgba(245,158,11,0.3)' : 'rgba(255,255,255,0.08)'}`,
-                        padding: '2px 8px',
-                        borderRadius: '4px'
-                      }}>
-                        <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: isLaunched ? C.success : isInStudy ? C.warning : '#9ca3af' }}></span>
-                        <span>{item.lifecycleStatus}</span>
-                      </span>
-                    </td>
-
-                    {/* Row Actions */}
-                    <td style={{ padding: '10px 12px', textAlign: 'right' }}>
-                      <div style={{ display: 'inline-flex', gap: '6px' }}>
-                        {/* Inspect JSON */}
-                        <button
-                          onClick={() => setInspectItem(item)}
-                          style={btn({ padding: '4px 8px', fontSize: '11px', background: 'rgba(255,255,255,0.05)', color: '#d1d5db' })}
-                          title="Inspect raw JSON entity"
-                        >
-                          👁️ JSON
-                        </button>
-
-                        {/* Purge / Delete */}
-                        <button
-                          onClick={() => handlePurgeSingle(item)}
-                          disabled={isPurging}
-                          style={btn({ padding: '4px 8px', fontSize: '11px', background: 'rgba(239,68,68,0.15)', borderColor: 'rgba(239,68,68,0.3)', color: '#fca5a5' })}
-                          title="Purge entity across all versions"
-                        >
-                          🗑️ Purge
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+          <ConfigurableListView
+            templateId={userListTemplateId}
+            context={listContext}
+            cacheStatus={cacheStatus}
+            groups={filteredGroups}
+            selectedIds={selectedIds}
+            expandedGroups={expandedGroups}
+            onToggleSelectAll={handleToggleSelectAll}
+            onToggleSelectItem={handleToggleSelectItem}
+            onToggleExpand={handleToggleExpand}
+            onExpandAll={handleExpandAll}
+            onCollapseAll={handleCollapseAll}
+            onRefreshCatalog={() => fetchRemoteEntities(token, activeEnv, false, true)}
+            isRefreshing={loading}
+            onOpenDetail={setDrawerItem}
+            onSpecFilter={(specName) => setSpecSearchQuery(specName)}
+          />
         )}
       </div>
+    </div>
+  </div>
 
-      {/* ── JSON Inspect Modal ── */}
+  {/* ── JSON Inspect Modal ── */}
       {inspectItem && (
         <div style={{
           position: 'fixed',
@@ -789,7 +1404,7 @@ export default function DnextRemoteCatalogView() {
           }}>
             <div style={{ padding: '16px 20px', borderBottom: `1px solid ${C.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ fontSize: '16px' }}>👁️</span>
+                <span style={{ fontSize: '16px' }}><Icon name="eye" size={16} /></span>
                 <span style={{ fontWeight: '700', fontSize: '15px', color: '#fff' }}>
                   {inspectItem.entityType}: {inspectItem.id}
                 </span>
@@ -803,11 +1418,11 @@ export default function DnextRemoteCatalogView() {
                   }}
                   style={btn({ padding: '4px 10px', fontSize: '11px' })}
                 >
-                  📋 Copy JSON
+                  <Icon name="clipboard" size={14} /> Copy JSON
                 </button>
                 <button
                   onClick={() => setInspectItem(null)}
-                  style={{ background: 'none', border: 'none', color: '#9ca3af', fontSize: '18px', cursor: 'pointer' }}
+                  style={{ background: 'none', border: 'none', color: 'var(--ds-text-3)', fontSize: '18px', cursor: 'pointer' }}
                 >
                   ✕
                 </button>
@@ -815,13 +1430,27 @@ export default function DnextRemoteCatalogView() {
             </div>
 
             <div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px', background: 'rgba(0,0,0,0.3)' }}>
-              <pre style={{ margin: 0, fontFamily: 'monospace', fontSize: '12px', color: '#a5b4fc', lineHeight: '1.5', whiteSpace: 'pre-wrap' }}>
+              <pre style={{ margin: 0, fontFamily: 'var(--ds-font-mono)', fontSize: '12px', color: '#a5b4fc', lineHeight: '1.5', whiteSpace: 'pre-wrap' }}>
                 {JSON.stringify(inspectItem.raw, null, 2)}
               </pre>
             </div>
           </div>
         </div>
       )}
+
+      {/* ── Slide-over Entity / Offer Details Drawer with Fullscreen Option ── */}
+      <DnextEntityDrawer
+        item={drawerItem}
+        isOpen={Boolean(drawerItem)}
+        onClose={() => setDrawerItem(null)}
+        allEntities={entities}
+        activeEnv={activeEnv}
+        token={token}
+        onSuccessRefresh={() => fetchRemoteEntities(token, activeEnv, false, true)}
+        onPurge={(itemToPurge) => {
+          handlePurgeSingle(itemToPurge);
+        }}
+      />
 
       {/* ── Bulk Purge Confirmation Modal ── */}
       {showConfirmBulkModal && (
@@ -845,17 +1474,15 @@ export default function DnextRemoteCatalogView() {
             boxShadow: '0 25px 50px rgba(0,0,0,0.8)'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-              <div style={{ width: '40px', height: '40px', borderRadius: '8px', background: 'rgba(239,68,68,0.2)', border: '1px solid #ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', color: '#ef4444' }}>
-                ⚠️
-              </div>
+              <div style={{ width: '40px', height: '40px', borderRadius: '8px', background: 'rgba(239,68,68,0.2)', border: '1px solid var(--ds-danger)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', color: 'var(--ds-danger)' }}><Icon name="alert" size={20} /></div>
               <div>
                 <h3 style={{ margin: 0, fontSize: '16px', color: '#fff' }}>Confirm Bulk Entity Purge</h3>
                 <span style={{ fontSize: '12px', color: C.muted }}>This action will permanently delete items from remote DNEXT</span>
               </div>
             </div>
 
-            <p style={{ fontSize: '13px', color: '#d1d5db', lineHeight: '1.5', marginBottom: '20px' }}>
-              You have selected <strong style={{ color: '#ef4444' }}>{selectedIds.size} entities</strong> for deletion.
+            <p style={{ fontSize: '13px', color: 'var(--ds-border-strong)', lineHeight: '1.5', marginBottom: '20px' }}>
+              You have selected <strong style={{ color: 'var(--ds-danger)' }}>{selectedIds.size} entities</strong> for deletion.
               Each entity will be patched to <code>Obsolete</code> (if currently Launched) and deleted across all version trees.
             </p>
 
@@ -868,7 +1495,7 @@ export default function DnextRemoteCatalogView() {
               </button>
               <button
                 onClick={handleBulkPurge}
-                style={btn({ background: '#ef4444', borderColor: '#ef4444', color: '#fff', padding: '8px 18px', fontSize: '12px' })}
+                style={btn({ background: 'var(--ds-danger)', borderColor: 'var(--ds-danger)', color: '#fff', padding: '8px 18px', fontSize: '12px' })}
               >
                 Yes, Purge {selectedIds.size} Entities
               </button>

@@ -1,0 +1,164 @@
+{
+  "version": "1.0.0",
+  "description": "Configurable Left Navigation Menu Schema for Vodafone DNEXT Catalog Explorer",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "OVERVIEW",
+      "active": true,
+      "items": [
+        {
+          "id": "all_objects",
+          "label": "All Objects",
+          "icon": "grid",
+          "active": true,
+          "filterContext": {
+            "typeFilter": "all",
+            "subFilter": null,
+            "specFilter": "all"
+          },
+          "targetListViewTemplateId": "all_objects",
+          "countKey": "all"
+        }
+      ]
+    },
+    {
+      "id": "catalog_entities",
+      "title": "CATALOG ENTITIES",
+      "active": true,
+      "items": [
+        {
+          "id": "product_offerings",
+          "label": "Product Offerings",
+          "icon": "package",
+          "active": true,
+          "filterContext": {
+            "typeFilter": "ProductOffering",
+            "subFilter": null
+          },
+          "targetListViewTemplateId": "product_offerings",
+          "countKey": "offerings",
+          "defaultExpanded": true,
+          "children": [
+            {
+              "id": "sales_packages",
+              "label": "Sales Packages",
+              "icon": "bag",
+              "active": true,
+              "filterContext": {
+                "typeFilter": "ProductOffering",
+                "subFilter": "sales_packages"
+              },
+              "targetListViewTemplateId": "sales_packages",
+              "countKey": "salesPackages"
+            },
+            {
+              "id": "options",
+              "label": "Options",
+              "icon": "puzzle",
+              "active": true,
+              "filterContext": {
+                "typeFilter": "ProductOffering",
+                "subFilter": "options"
+              },
+              "targetListViewTemplateId": "options",
+              "countKey": "options"
+            },
+            {
+              "id": "bundles",
+              "label": "Bundles",
+              "icon": "layers",
+              "active": false,
+              "filterContext": {
+                "typeFilter": "ProductOffering",
+                "subFilter": "bundle"
+              },
+              "targetListViewTemplateId": "product_offerings",
+              "countKey": "bundles"
+            },
+            {
+              "id": "simple_offers",
+              "label": "Simple Offers",
+              "icon": "file",
+              "active": false,
+              "filterContext": {
+                "typeFilter": "ProductOffering",
+                "subFilter": "simple"
+              },
+              "targetListViewTemplateId": "product_offerings",
+              "countKey": "simple"
+            }
+          ]
+        },
+        {
+          "id": "offering_prices",
+          "label": "Offering Prices",
+          "icon": "tag",
+          "active": true,
+          "filterContext": {
+            "typeFilter": "ProductOfferingPrice",
+            "subFilter": null,
+            "specFilter": "all"
+          },
+          "targetListViewTemplateId": "price_model",
+          "countKey": "prices",
+          "defaultExpanded": false,
+          "children": [
+            {
+              "id": "recurring_prices",
+              "label": "Recurring (Monthly)",
+              "icon": "repeat",
+              "active": false,
+              "filterContext": {
+                "typeFilter": "ProductOfferingPrice",
+                "subFilter": "recurring",
+                "specFilter": "all"
+              },
+              "targetListViewTemplateId": "price_model",
+              "countKey": "recurring"
+            },
+            {
+              "id": "onetime_prices",
+              "label": "One-Time",
+              "icon": "zap",
+              "active": false,
+              "filterContext": {
+                "typeFilter": "ProductOfferingPrice",
+                "subFilter": "onetime",
+                "specFilter": "all"
+              },
+              "targetListViewTemplateId": "price_model",
+              "countKey": "oneTime"
+            }
+          ]
+        },
+        {
+          "id": "specifications",
+          "label": "Product Specs",
+          "icon": "clipboard",
+          "active": true,
+          "filterContext": {
+            "typeFilter": "ProductSpecification",
+            "subFilter": null,
+            "specFilter": "all"
+          },
+          "targetListViewTemplateId": "all_objects",
+          "countKey": "specs"
+        },
+        {
+          "id": "categories",
+          "label": "Categories",
+          "icon": "folder",
+          "active": true,
+          "filterContext": {
+            "typeFilter": "Category",
+            "subFilter": null,
+            "specFilter": "all"
+          },
+          "targetListViewTemplateId": "categories",
+          "countKey": "categories"
+        }
+      ]
+    }
+  ]
+}

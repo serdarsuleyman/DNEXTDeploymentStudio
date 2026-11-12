@@ -18,6 +18,14 @@ backend/logs/*.log
 .env.*
 !.env.example
 
+# SQLite & local databases
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+backend/*.db
+backend/data/vfde_catalog_reference.db
+
 # OS & Temp files
 .DS_Store
 *.tmp

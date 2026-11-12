@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import Icon from './ui/Icon';
+import { getStoredEnvironment } from '../context/EnvironmentContext';
 
 export default function DnextSyncDashboard({ onNavigateToDetails }) {
+  // Active target environment (shared with the app header / EnvironmentContext)
+  const activeEnv = getStoredEnvironment();
   const [activeTab, setActiveTab] = useState('browse'); // 'browse' | 'diff' | 'push'
   
   // Connection states
-  const [username, setUsername] = useState('nora');
-  const [password, setPassword] = useState('1234');
+  const [username, setUsername] = useState(() => localStorage.getItem('dnext_username') || '');
+  const [password, setPassword] = useState('');
   const [token, setToken] = useState(() => localStorage.getItem('dnext_token') || '');
   const [loginStatus, setLoginStatus] = useState(token ? 'connected' : 'disconnected');
   const [errorMsg, setErrorMsg] = useState('');
@@ -67,7 +71,7 @@ export default function DnextSyncDashboard({ onNavigateToDetails }) {
       const response = await fetch('/api/dnext/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
+        body: JSON.stringify({ username, password, envName: activeEnv.name || undefined, apiUrl: activeEnv.apiUrl || undefined, authUrl: activeEnv.authUrl || undefined })
       });
       const data = await response.json();
 
@@ -688,13 +692,13 @@ export default function DnextSyncDashboard({ onNavigateToDetails }) {
       
       {/* Top Credentials Panel */}
       <div className="detail-card" style={{ marginBottom: '24px' }}>
-        <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '0 0 16px 0', borderBottom: '1px solid #333', paddingBottom: '12px' }}>
+        <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '0 0 16px 0', borderBottom: '1px solid var(--ds-border)', paddingBottom: '12px' }}>
           <span style={{
             display: 'inline-block',
             width: '10px',
             height: '10px',
             borderRadius: '50%',
-            backgroundColor: loginStatus === 'connected' ? '#00e676' : loginStatus === 'connecting' ? '#ffeb3b' : '#ff1744'
+            backgroundColor: loginStatus === 'connected' ? 'var(--ds-ok)' : loginStatus === 'connecting' ? 'var(--ds-warn)' : 'var(--ds-danger)'
           }} />
           DNEXT Product Catalog API Authentication
         </h3>
@@ -702,47 +706,47 @@ export default function DnextSyncDashboard({ onNavigateToDetails }) {
         {loginStatus !== 'connected' ? (
           <form onSubmit={handleLogin} style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              <label style={{ fontSize: '11px', color: '#aaa' }}>API Gateway URL</label>
+              <label style={{ fontSize: '11px', color: 'var(--ds-text-2)' }}>API Gateway URL</label>
               <input 
                 type="text" 
-                value="https://dpc-api.pi.dev-gcu.com" 
+                value={activeEnv.apiUrl || '(default environment)'} 
                 disabled 
-                style={{ padding: '8px', background: '#222', border: '1px solid #444', borderRadius: '4px', color: '#888', width: '220px' }} 
+                style={{ padding: '8px', background: 'var(--ds-surface)', border: '1px solid var(--ds-border)', borderRadius: '4px', color: 'var(--ds-text-3)', width: '220px' }} 
               />
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              <label style={{ fontSize: '11px', color: '#aaa' }}>Keycloak Realm</label>
+              <label style={{ fontSize: '11px', color: 'var(--ds-text-2)' }}>Keycloak Realm</label>
               <input 
                 type="text" 
                 value="orbitant-realm" 
                 disabled 
-                style={{ padding: '8px', background: '#222', border: '1px solid #444', borderRadius: '4px', color: '#888', width: '150px' }} 
+                style={{ padding: '8px', background: 'var(--ds-surface)', border: '1px solid var(--ds-border)', borderRadius: '4px', color: 'var(--ds-text-3)', width: '150px' }} 
               />
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              <label style={{ fontSize: '11px', color: '#aaa' }}>Username</label>
+              <label style={{ fontSize: '11px', color: 'var(--ds-text-2)' }}>Username</label>
               <input 
                 type="text" 
                 value={username} 
                 onChange={(e) => setUsername(e.target.value)} 
                 required 
-                style={{ padding: '8px', background: '#111', border: '1px solid #444', borderRadius: '4px', color: '#fff', width: '120px' }} 
+                style={{ padding: '8px', background: 'var(--ds-surface-subtle)', border: '1px solid var(--ds-border)', borderRadius: '4px', color: 'var(--ds-text)', width: '120px' }} 
               />
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              <label style={{ fontSize: '11px', color: '#aaa' }}>Password</label>
+              <label style={{ fontSize: '11px', color: 'var(--ds-text-2)' }}>Password</label>
               <input 
                 type="password" 
                 value={password} 
                 onChange={(e) => setPassword(e.target.value)} 
                 required 
-                style={{ padding: '8px', background: '#111', border: '1px solid #444', borderRadius: '4px', color: '#fff', width: '120px' }} 
+                style={{ padding: '8px', background: 'var(--ds-surface-subtle)', border: '1px solid var(--ds-border)', borderRadius: '4px', color: 'var(--ds-text)', width: '120px' }} 
               />
             </div>
             <button 
               type="submit" 
               className="action-btn" 
-              style={{ height: '34px', background: '#E60000', color: '#fff', border: 'none', borderRadius: '4px', padding: '0 20px', cursor: 'pointer', fontWeight: '600' }}
+              style={{ height: '34px', background: 'var(--ds-brand)', color: '#fff', border: 'none', borderRadius: '4px', padding: '0 20px', cursor: 'pointer', fontWeight: '600' }}
               disabled={loginStatus === 'connecting'}
             >
               {loginStatus === 'connecting' ? 'Connecting...' : 'Connect to DNEXT'}
@@ -751,16 +755,16 @@ export default function DnextSyncDashboard({ onNavigateToDetails }) {
         ) : (
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <p style={{ margin: '0 0 4px 0', fontSize: '14px', color: '#fff' }}>
-                Connected as <strong style={{ color: '#E60000' }}>{username}</strong> to <code style={{ background: '#222', padding: '2px 6px', borderRadius: '3px' }}>orbitant-realm</code>
+              <p style={{ margin: '0 0 4px 0', fontSize: '14px', color: 'var(--ds-text)' }}>
+                Connected as <strong style={{ color: 'var(--ds-brand)' }}>{username}</strong> to <code style={{ background: 'var(--ds-surface)', padding: '2px 6px', borderRadius: '3px' }}>orbitant-realm</code>
               </p>
-              <span style={{ fontSize: '11px', color: '#888' }}>
+              <span style={{ fontSize: '11px', color: 'var(--ds-text-3)' }}>
                 Bearer Token Active (JWT): ...{token.slice(-30)}
               </span>
             </div>
             <button 
               onClick={handleLogout} 
-              style={{ background: '#333', color: '#fff', border: '1px solid #444', borderRadius: '4px', padding: '6px 16px', cursor: 'pointer', fontSize: '12px' }}
+              style={{ background: 'var(--ds-surface-2)', color: 'var(--ds-text)', border: '1px solid var(--ds-border)', borderRadius: '4px', padding: '6px 16px', cursor: 'pointer', fontSize: '12px' }}
             >
               Disconnect
             </button>
@@ -768,7 +772,7 @@ export default function DnextSyncDashboard({ onNavigateToDetails }) {
         )}
 
         {errorMsg && (
-          <div style={{ marginTop: '12px', padding: '8px 12px', background: 'rgba(255, 23, 68, 0.1)', border: '1px solid #ff1744', borderRadius: '4px', color: '#ff5252', fontSize: '13px' }}>
+          <div style={{ marginTop: '12px', padding: '8px 12px', background: 'var(--ds-danger-soft)', border: '1px solid var(--ds-danger)', borderRadius: '4px', color: 'var(--ds-danger)', fontSize: '13px' }}>
             <strong>Connection Error:</strong> {errorMsg}
           </div>
         )}
@@ -778,25 +782,25 @@ export default function DnextSyncDashboard({ onNavigateToDetails }) {
         <div style={{ display: 'flex', flex: 1, gap: '24px', minHeight: '400px' }}>
           
           {/* Main Dashboard Panel */}
-          <div style={{ flex: 2, display: 'flex', flexDirection: 'column', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px', overflow: 'hidden' }}>
+          <div style={{ flex: 2, display: 'flex', flexDirection: 'column', background: 'var(--ds-surface-subtle)', border: '1px solid var(--ds-border)', borderRadius: '8px', overflow: 'hidden' }}>
             
             {/* View Mode Tabs */}
-            <div style={{ display: 'flex', borderBottom: '1px solid #333', background: 'rgba(0,0,0,0.2)' }}>
+            <div style={{ display: 'flex', borderBottom: '1px solid var(--ds-border)', background: 'rgba(0,0,0,0.2)' }}>
               <button 
                 onClick={() => setActiveTab('browse')} 
-                style={{ flex: 1, padding: '12px', border: 'none', borderBottom: activeTab === 'browse' ? '2px solid #E60000' : 'none', background: 'none', color: activeTab === 'browse' ? '#fff' : '#aaa', cursor: 'pointer', fontWeight: '600' }}
+                style={{ flex: 1, padding: '12px', border: 'none', borderBottom: activeTab === 'browse' ? '2px solid var(--ds-brand)' : 'none', background: 'none', color: activeTab === 'browse' ? 'var(--ds-brand)' : 'var(--ds-text-2)', cursor: 'pointer', fontWeight: '600' }}
               >
                 Browse Remote DNEXT Catalog
               </button>
               <button 
                 onClick={() => setActiveTab('diff')} 
-                style={{ flex: 1, padding: '12px', border: 'none', borderBottom: activeTab === 'diff' ? '2px solid #E60000' : 'none', background: 'none', color: activeTab === 'diff' ? '#fff' : '#aaa', cursor: 'pointer', fontWeight: '600' }}
+                style={{ flex: 1, padding: '12px', border: 'none', borderBottom: activeTab === 'diff' ? '2px solid var(--ds-brand)' : 'none', background: 'none', color: activeTab === 'diff' ? 'var(--ds-brand)' : 'var(--ds-text-2)', cursor: 'pointer', fontWeight: '600' }}
               >
                 In-Memory Diff (SQLite vs DNEXT)
               </button>
               <button 
                 onClick={() => setActiveTab('push')} 
-                style={{ flex: 1, padding: '12px', border: 'none', borderBottom: activeTab === 'push' ? '2px solid #E60000' : 'none', background: 'none', color: activeTab === 'push' ? '#fff' : '#aaa', cursor: 'pointer', fontWeight: '600' }}
+                style={{ flex: 1, padding: '12px', border: 'none', borderBottom: activeTab === 'push' ? '2px solid var(--ds-brand)' : 'none', background: 'none', color: activeTab === 'push' ? 'var(--ds-brand)' : 'var(--ds-text-2)', cursor: 'pointer', fontWeight: '600' }}
                 disabled={!pushSelectedCategory}
               >
                 Export Category Payload
@@ -815,24 +819,24 @@ export default function DnextSyncDashboard({ onNavigateToDetails }) {
                       placeholder="Filter remote by name..." 
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      style={{ flex: 1, padding: '8px 12px', background: '#111', border: '1px solid #444', borderRadius: '4px', color: '#fff' }}
+                      style={{ flex: 1, padding: '8px 12px', background: 'var(--ds-surface-subtle)', border: '1px solid var(--ds-border)', borderRadius: '4px', color: 'var(--ds-text)' }}
                       onKeyDown={(e) => e.key === 'Enter' && fetchRemoteCategories()}
                     />
                     <button 
                       onClick={fetchRemoteCategories} 
-                      style={{ background: '#333', color: '#fff', border: '1px solid #444', borderRadius: '4px', padding: '0 20px', cursor: 'pointer' }}
+                      style={{ background: 'var(--ds-surface-2)', color: 'var(--ds-text)', border: '1px solid var(--ds-border)', borderRadius: '4px', padding: '0 20px', cursor: 'pointer' }}
                     >
                       Search
                     </button>
                   </div>
 
                   {isFetchingRemote ? (
-                    <div style={{ textAlign: 'center', padding: '40px 0', color: '#aaa' }}>Loading Categories from DNEXT...</div>
+                    <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--ds-text-2)' }}>Loading Categories from DNEXT...</div>
                   ) : (
                     <div>
                       <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
                         <thead>
-                          <tr style={{ borderBottom: '2px solid #444', color: '#aaa' }}>
+                          <tr style={{ borderBottom: '2px solid var(--ds-border)', color: 'var(--ds-text-2)' }}>
                             <th style={{ padding: '8px' }}>Category ID</th>
                             <th style={{ padding: '8px' }}>Name</th>
                             <th style={{ padding: '8px' }}>Parent ID</th>
@@ -843,44 +847,44 @@ export default function DnextSyncDashboard({ onNavigateToDetails }) {
                         </thead>
                         <tbody>
                           {remoteCategories.length > 0 ? remoteCategories.map((cat) => (
-                            <tr key={cat.id} style={{ borderBottom: '1px solid #333' }}>
-                              <td style={{ padding: '8px', fontFamily: 'monospace', color: '#888' }}>{cat.id}</td>
-                              <td style={{ padding: '8px', color: '#fff', fontWeight: '500' }}>{cat.name}</td>
-                              <td style={{ padding: '8px', fontFamily: 'monospace', color: '#888' }}>{cat.parentId || '-'}</td>
+                            <tr key={cat.id} style={{ borderBottom: '1px solid var(--ds-border)' }}>
+                              <td style={{ padding: '8px', fontFamily: 'var(--ds-font-mono)', color: 'var(--ds-text-3)' }}>{cat.id}</td>
+                              <td style={{ padding: '8px', color: 'var(--ds-text)', fontWeight: '500' }}>{cat.name}</td>
+                              <td style={{ padding: '8px', fontFamily: 'var(--ds-font-mono)', color: 'var(--ds-text-3)' }}>{cat.parentId || '-'}</td>
                               <td style={{ padding: '8px' }}>
-                                <span style={{ background: 'rgba(0,230,118,0.1)', color: '#00e676', padding: '2px 6px', borderRadius: '3px', fontSize: '11px' }}>
+                                <span style={{ background: 'var(--ds-ok-soft)', color: 'var(--ds-ok)', padding: '2px 6px', borderRadius: '3px', fontSize: '11px' }}>
                                   {cat.lifecycleStatus || 'Launched'}
                                 </span>
                               </td>
-                              <td style={{ padding: '8px', color: cat.isRoot ? '#00e676' : '#aaa' }}>
+                              <td style={{ padding: '8px', color: cat.isRoot ? 'var(--ds-ok)' : 'var(--ds-text-2)' }}>
                                 {cat.isRoot ? 'Yes' : 'No'}
                               </td>
                                <td style={{ padding: '8px', textAlign: 'right' }}>
                                   <button 
                                     onClick={() => handleDeleteCategory(cat)}
                                     title="Delete category from DNEXT catalog"
-                                    style={{ background: '#d32f2f', color: '#ffffff', border: 'none', borderRadius: '4px', padding: '5px 10px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '11px', fontWeight: '600', boxShadow: '0 1px 3px rgba(0,0,0,0.4)' }}
+                                    style={{ background: 'var(--ds-danger)', color: '#ffffff', border: 'none', borderRadius: '4px', padding: '5px 10px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '11px', fontWeight: '600', boxShadow: '0 1px 3px rgba(0,0,0,0.4)' }}
                                   >
-                                    <span style={{ fontSize: '12px' }}>🗑️</span> Remove from DNEXT
+                                    <span style={{ fontSize: '12px' }}><Icon name="trash" size={13} /></span> Remove from DNEXT
                                   </button>
                                 </td>
                             </tr>
                           )) : (
                             <tr>
-                              <td colSpan="6" style={{ textAlign: 'center', padding: '20px', color: '#888' }}>No categories found in DNEXT catalog.</td>
+                              <td colSpan="6" style={{ textAlign: 'center', padding: '20px', color: 'var(--ds-text-3)' }}>No categories found in DNEXT catalog.</td>
                             </tr>
                           )}
                         </tbody>
                       </table>
 
                       {/* Pagination Controls */}
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px', borderTop: '1px solid #333', paddingTop: '16px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px', borderTop: '1px solid var(--ds-border)', paddingTop: '16px' }}>
                         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                          <label style={{ fontSize: '12px', color: '#aaa' }}>Items per page:</label>
+                          <label style={{ fontSize: '12px', color: 'var(--ds-text-2)' }}>Items per page:</label>
                           <select 
                             value={limit} 
                             onChange={(e) => { setLimit(Number(e.target.value)); setOffset(0); }} 
-                            style={{ background: '#222', color: '#fff', border: '1px solid #444', padding: '4px', borderRadius: '4px' }}
+                            style={{ background: 'var(--ds-surface)', color: 'var(--ds-text)', border: '1px solid var(--ds-border)', padding: '4px', borderRadius: '4px' }}
                           >
                             <option value="10">10</option>
                             <option value="25">25</option>
@@ -891,14 +895,14 @@ export default function DnextSyncDashboard({ onNavigateToDetails }) {
                           <button 
                             disabled={offset === 0} 
                             onClick={() => setOffset(Math.max(0, offset - limit))}
-                            style={{ padding: '6px 12px', background: '#333', border: '1px solid #444', borderRadius: '4px', color: '#fff', cursor: 'pointer' }}
+                            style={{ padding: '6px 12px', background: 'var(--ds-surface-2)', border: '1px solid var(--ds-border)', borderRadius: '4px', color: 'var(--ds-text)', cursor: 'pointer' }}
                           >
                             Previous
                           </button>
                           <button 
                             disabled={remoteCategories.length < limit} 
                             onClick={() => setOffset(offset + limit)}
-                            style={{ padding: '6px 12px', background: '#333', border: '1px solid #444', borderRadius: '4px', color: '#fff', cursor: 'pointer' }}
+                            style={{ padding: '6px 12px', background: 'var(--ds-surface-2)', border: '1px solid var(--ds-border)', borderRadius: '4px', color: 'var(--ds-text)', cursor: 'pointer' }}
                           >
                             Next
                           </button>
@@ -913,13 +917,13 @@ export default function DnextSyncDashboard({ onNavigateToDetails }) {
               {activeTab === 'diff' && (
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                    <p style={{ margin: '0', fontSize: '13px', color: '#aaa' }}>
-                      <strong style={{ color: '#00e676' }}>1-Way German Catalog Sync Analysis:</strong> Evaluates all German Catalog categories (SQLite) against DNEXT. <strong style={{ color: '#fff' }}>Local SQLite data is untouched.</strong>
+                    <p style={{ margin: '0', fontSize: '13px', color: 'var(--ds-text-2)' }}>
+                      <strong style={{ color: 'var(--ds-ok)' }}>1-Way German Catalog Sync Analysis:</strong> Evaluates all German Catalog categories (SQLite) against DNEXT. <strong style={{ color: 'var(--ds-text)' }}>Local SQLite data is untouched.</strong>
                     </p>
                     <button 
                       onClick={handleRunDiff} 
                       disabled={isDiffing}
-                      style={{ background: '#E60000', color: '#fff', border: 'none', borderRadius: '4px', padding: '8px 16px', fontWeight: '600', cursor: 'pointer' }}
+                      style={{ background: 'var(--ds-brand)', color: '#fff', border: 'none', borderRadius: '4px', padding: '8px 16px', fontWeight: '600', cursor: 'pointer' }}
                     >
                       {isDiffing ? 'Comparing...' : 'Run 1-Way Comparison'}
                     </button>
@@ -927,31 +931,31 @@ export default function DnextSyncDashboard({ onNavigateToDetails }) {
 
                   {/* Bulk Operations Bar */}
                   {selectedCategoryIds.length > 0 && (
-                    <div style={{ background: '#1a1a1a', border: '1px solid #333', borderRadius: '4px', padding: '10px 16px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                      <span style={{ fontSize: '13px', color: '#ccc' }}>
+                    <div style={{ background: 'var(--ds-surface-subtle)', border: '1px solid var(--ds-border)', borderRadius: '4px', padding: '10px 16px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                      <span style={{ fontSize: '13px', color: 'var(--ds-text)' }}>
                         Selected <strong>{selectedCategoryIds.length}</strong> items:
                       </span>
                       <button 
                         onClick={handleBulkSyncSelected}
-                        style={{ padding: '6px 12px', background: '#00e676', border: 'none', color: '#000', fontWeight: 'bold', borderRadius: '3px', cursor: 'pointer', fontSize: '12px' }}
+                        style={{ padding: '6px 12px', background: 'var(--ds-ok)', border: 'none', color: '#fff', fontWeight: 'bold', borderRadius: '3px', cursor: 'pointer', fontSize: '12px' }}
                       >
-                        ⚡ Bulk Sync Selected
+                        <Icon name="zap" size={14} /> Bulk Sync Selected
                       </button>
                       <button 
                         onClick={handleBulkRemoveSelected}
-                        style={{ padding: '6px 12px', background: '#d32f2f', border: 'none', color: '#fff', fontWeight: 'bold', borderRadius: '3px', cursor: 'pointer', fontSize: '12px' }}
+                        style={{ padding: '6px 12px', background: 'var(--ds-danger)', border: 'none', color: '#fff', fontWeight: 'bold', borderRadius: '3px', cursor: 'pointer', fontSize: '12px' }}
                       >
-                        🗑️ Bulk Remove Selected
+                        <Icon name="trash" size={14} /> Bulk Remove Selected
                       </button>
                     </div>
                   )}
 
                   {isDiffing ? (
-                    <div style={{ textAlignment: 'center', padding: '40px 0', color: '#aaa' }}>Analyzing datasets...</div>
+                    <div style={{ textAlignment: 'center', padding: '40px 0', color: 'var(--ds-text-2)' }}>Analyzing datasets...</div>
                   ) : (
                     <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
                       <thead>
-                        <tr style={{ borderBottom: '2px solid #444', color: '#aaa' }}>
+                        <tr style={{ borderBottom: '2px solid var(--ds-border)', color: 'var(--ds-text-2)' }}>
                           <th style={{ padding: '8px', width: '40px' }}>
                             <input 
                               type="checkbox" 
@@ -969,7 +973,7 @@ export default function DnextSyncDashboard({ onNavigateToDetails }) {
                       </thead>
                       <tbody>
                         {diffResults.length > 0 ? diffResults.map((row) => (
-                          <tr key={row.id} style={{ borderBottom: '1px solid #333', transition: 'background 0.2s' }}>
+                          <tr key={row.id} style={{ borderBottom: '1px solid var(--ds-border)', transition: 'background 0.2s' }}>
                             <td style={{ padding: '8px', width: '40px' }}>
                               <input 
                                 type="checkbox" 
@@ -979,7 +983,7 @@ export default function DnextSyncDashboard({ onNavigateToDetails }) {
                               />
                             </td>
                             <td 
-                              style={{ padding: '8px', fontFamily: 'monospace', color: '#64b5f6', cursor: 'pointer', textDecoration: 'underline' }}
+                              style={{ padding: '8px', fontFamily: 'var(--ds-font-mono)', color: 'var(--ds-info)', cursor: 'pointer', textDecoration: 'underline' }}
                               onClick={() => {
                                 if (onNavigateToDetails) onNavigateToDetails(row.id);
                                 setSelectedDiffCategory(row);
@@ -989,16 +993,16 @@ export default function DnextSyncDashboard({ onNavigateToDetails }) {
                               {row.id}
                             </td>
                             <td 
-                              style={{ padding: '8px', color: '#fff', fontWeight: '500', cursor: 'pointer' }}
+                              style={{ padding: '8px', color: 'var(--ds-text)', fontWeight: '500', cursor: 'pointer' }}
                               onClick={() => {
                                 if (onNavigateToDetails) onNavigateToDetails(row.id);
                                 setSelectedDiffCategory(row);
                               }}
                               title="Click to open category detail view"
                             >
-                              <span style={{ color: '#64b5f6', textDecoration: 'underline' }}>{row.name}</span> 🔍
+                              <span style={{ color: 'var(--ds-info)', textDecoration: 'underline' }}>{row.name}</span> <Icon name="search" size={14} /> 
                             </td>
-                            <td style={{ padding: '8px', fontFamily: 'monospace', color: '#888' }}>{row.parentId || '-'}</td>
+                            <td style={{ padding: '8px', fontFamily: 'var(--ds-font-mono)', color: 'var(--ds-text-3)' }}>{row.parentId || '-'}</td>
                             <td style={{ padding: '8px' }}>
                               <span style={{ 
                                 padding: '2px 8px', 
@@ -1006,14 +1010,14 @@ export default function DnextSyncDashboard({ onNavigateToDetails }) {
                                 fontSize: '11px',
                                 fontWeight: '600',
                                 background: 
-                                  row.status === 'Synced' ? 'rgba(0, 230, 118, 0.1)' :
+                                  row.status === 'Synced' ? 'var(--ds-ok-soft)' :
                                   row.status === 'Mismatched' ? 'rgba(255, 152, 0, 0.1)' :
                                   row.status === 'Local Only' ? 'rgba(33, 150, 243, 0.1)' :
                                   'rgba(158, 158, 158, 0.15)',
                                 color:
-                                  row.status === 'Synced' ? '#00e676' :
-                                  row.status === 'Mismatched' ? '#ff9800' :
-                                  row.status === 'Local Only' ? '#2196f3' :
+                                  row.status === 'Synced' ? 'var(--ds-ok)' :
+                                  row.status === 'Mismatched' ? 'var(--ds-warn)' :
+                                  row.status === 'Local Only' ? 'var(--ds-info)' :
                                   '#9e9e9e'
                               }}>
                                 {row.status}
@@ -1025,14 +1029,14 @@ export default function DnextSyncDashboard({ onNavigateToDetails }) {
                                   <button 
                                     onClick={() => handleSilentSyncCategory(row.localData)}
                                     disabled={silentSyncingId === row.id}
-                                    style={{ padding: '4px 8px', fontSize: '11px', background: '#00e676', border: 'none', color: '#000', fontWeight: 'bold', borderRadius: '3px', cursor: silentSyncingId === row.id ? 'not-allowed' : 'pointer' }}
+                                    style={{ padding: '4px 8px', fontSize: '11px', background: 'var(--ds-ok)', border: 'none', color: '#fff', fontWeight: 'bold', borderRadius: '3px', cursor: silentSyncingId === row.id ? 'not-allowed' : 'pointer' }}
                                   >
                                     {silentSyncingId === row.id ? 'Syncing...' : 'Sync Category'}
                                   </button>
                                   <button 
                                     onClick={() => handleInitiatePush(row.localData)}
                                     className="action-btn"
-                                    style={{ padding: '4px 8px', fontSize: '11px', background: '#E60000', border: 'none', color: '#fff', borderRadius: '3px', cursor: 'pointer' }}
+                                    style={{ padding: '4px 8px', fontSize: '11px', background: 'var(--ds-brand)', border: 'none', color: '#fff', borderRadius: '3px', cursor: 'pointer' }}
                                   >
                                     Push (Debug)
                                   </button>
@@ -1043,14 +1047,14 @@ export default function DnextSyncDashboard({ onNavigateToDetails }) {
                                   <button 
                                     onClick={() => handleSilentSyncCategory(row.localData)}
                                     disabled={silentSyncingId === row.id}
-                                    style={{ padding: '4px 8px', fontSize: '11px', background: '#00e676', border: 'none', color: '#000', fontWeight: 'bold', borderRadius: '3px', cursor: silentSyncingId === row.id ? 'not-allowed' : 'pointer' }}
+                                    style={{ padding: '4px 8px', fontSize: '11px', background: 'var(--ds-ok)', border: 'none', color: '#fff', fontWeight: 'bold', borderRadius: '3px', cursor: silentSyncingId === row.id ? 'not-allowed' : 'pointer' }}
                                   >
                                     {silentSyncingId === row.id ? 'Syncing...' : 'Sync Category'}
                                   </button>
                                   <button 
                                     onClick={() => handleInitiatePush(row.localData)}
                                     className="action-btn"
-                                    style={{ padding: '4px 8px', fontSize: '11px', background: '#ff9800', border: 'none', color: '#fff', borderRadius: '3px', cursor: 'pointer' }}
+                                    style={{ padding: '4px 8px', fontSize: '11px', background: 'var(--ds-warn)', border: 'none', color: 'var(--ds-text)', borderRadius: '3px', cursor: 'pointer' }}
                                   >
                                     Resolve (Debug)
                                   </button>
@@ -1060,16 +1064,16 @@ export default function DnextSyncDashboard({ onNavigateToDetails }) {
                                   <button 
                                     onClick={() => handleDeleteCategory(row.remoteData)}
                                     title="Delete category from DNEXT catalog"
-                                    style={{ marginLeft: '6px', background: '#d32f2f', color: '#ffffff', border: 'none', borderRadius: '4px', padding: '5px 10px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '11px', fontWeight: '600', boxShadow: '0 1px 3px rgba(0,0,0,0.4)' }}
+                                    style={{ marginLeft: '6px', background: 'var(--ds-danger)', color: '#ffffff', border: 'none', borderRadius: '4px', padding: '5px 10px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '11px', fontWeight: '600', boxShadow: '0 1px 3px rgba(0,0,0,0.4)' }}
                                   >
-                                    <span style={{ fontSize: '12px' }}>🗑️</span> Remove
+                                    <span style={{ fontSize: '12px' }}><Icon name="trash" size={13} /></span> Remove
                                   </button>
                                 )}
                             </td>
                           </tr>
                         )) : (
                           <tr>
-                            <td colSpan="6" style={{ textAlign: 'center', padding: '20px', color: '#888' }}>No entries found. Refresh comparison to inspect datasets.</td>
+                            <td colSpan="6" style={{ textAlign: 'center', padding: '20px', color: 'var(--ds-text-3)' }}>No entries found. Refresh comparison to inspect datasets.</td>
                           </tr>
                         )}
                       </tbody>
@@ -1081,53 +1085,53 @@ export default function DnextSyncDashboard({ onNavigateToDetails }) {
               {/* TAB 3: Push payload preview & submit */}
               {activeTab === 'push' && pushSelectedCategory && (
                 <div>
-                  <h4 style={{ margin: '0 0 16px 0', color: '#fff' }}>Export Category to DNEXT (TMF 620 CategoryCreate)</h4>
+                  <h4 style={{ margin: '0 0 16px 0', color: 'var(--ds-text)' }}>Export Category to DNEXT (TMF 620 CategoryCreate)</h4>
                   
                   <div style={{ display: 'flex', gap: '24px' }}>
                     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '16px' }}>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                        <label style={{ fontSize: '12px', color: '#aaa' }}>Category ID (Local PK)</label>
+                        <label style={{ fontSize: '12px', color: 'var(--ds-text-2)' }}>Category ID (Local PK)</label>
                         <input 
                           type="text" 
                           value={pushSelectedCategory.id} 
                           disabled 
-                          style={{ padding: '8px', background: '#222', border: '1px solid #444', borderRadius: '4px', color: '#888' }} 
+                          style={{ padding: '8px', background: 'var(--ds-surface)', border: '1px solid var(--ds-border)', borderRadius: '4px', color: 'var(--ds-text-3)' }} 
                         />
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                        <label style={{ fontSize: '12px', color: '#aaa' }}>Category Name</label>
+                        <label style={{ fontSize: '12px', color: 'var(--ds-text-2)' }}>Category Name</label>
                         <input 
                           type="text" 
                           value={pushSelectedCategory.name} 
                           disabled 
-                          style={{ padding: '8px', background: '#222', border: '1px solid #444', borderRadius: '4px', color: '#888' }} 
+                          style={{ padding: '8px', background: 'var(--ds-surface)', border: '1px solid var(--ds-border)', borderRadius: '4px', color: 'var(--ds-text-3)' }} 
                         />
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                        <label style={{ fontSize: '12px', color: '#aaa' }}>Description</label>
+                        <label style={{ fontSize: '12px', color: 'var(--ds-text-2)' }}>Description</label>
                         <input 
                           type="text" 
                           value={customDescription} 
                           onChange={(e) => setCustomDescription(e.target.value)} 
-                          style={{ padding: '8px', background: '#111', border: '1px solid #444', borderRadius: '4px', color: '#fff' }} 
+                          style={{ padding: '8px', background: 'var(--ds-surface-subtle)', border: '1px solid var(--ds-border)', borderRadius: '4px', color: 'var(--ds-text)' }} 
                         />
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                        <label style={{ fontSize: '12px', color: '#aaa' }}>Version</label>
+                        <label style={{ fontSize: '12px', color: 'var(--ds-text-2)' }}>Version</label>
                         <input 
                           type="text" 
                           value={customVersion} 
                           onChange={(e) => setCustomVersion(e.target.value)} 
-                          style={{ padding: '8px', background: '#111', border: '1px solid #444', borderRadius: '4px', color: '#fff', width: '80px' }} 
+                          style={{ padding: '8px', background: 'var(--ds-surface-subtle)', border: '1px solid var(--ds-border)', borderRadius: '4px', color: 'var(--ds-text)', width: '80px' }} 
                         />
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                        <label style={{ fontSize: '12px', color: '#aaa' }}>Hierarchy Level</label>
-                        <span style={{ fontSize: '13px', color: '#fff' }}>
+                        <label style={{ fontSize: '12px', color: 'var(--ds-text-2)' }}>Hierarchy Level</label>
+                        <span style={{ fontSize: '13px', color: 'var(--ds-text)' }}>
                           {pushSelectedCategory.parentId ? (
                             <div>
                               Local Parent: <strong>{pushSelectedCategory.parentId}</strong>
-                              <div style={{ fontSize: '11px', marginTop: '4px', color: parentResolutionStatus === 'resolved' ? '#00e676' : parentResolutionStatus === 'resolving' ? '#ffeb3b' : '#ff5252' }}>
+                              <div style={{ fontSize: '11px', marginTop: '4px', color: parentResolutionStatus === 'resolved' ? 'var(--ds-ok)' : parentResolutionStatus === 'resolving' ? 'var(--ds-warn)' : 'var(--ds-danger)' }}>
                                 {parentResolutionStatus === 'resolving' && 'Resolving remote UUID parent...'}
                                 {parentResolutionStatus === 'resolved' && `Resolved remote parent UUID: ${resolvedParentUuid}`}
                                 {parentResolutionStatus === 'failed' && '✗ Remote parent not found. Please sync the parent category first.'}
@@ -1141,34 +1145,34 @@ export default function DnextSyncDashboard({ onNavigateToDetails }) {
                         <button 
                           onClick={handleExecutePush} 
                           disabled={pushStatus === 'pushing' || (pushSelectedCategory.parentId && !resolvedParentUuid)}
-                          style={{ background: '#E60000', color: '#fff', border: 'none', borderRadius: '4px', padding: '10px 24px', fontWeight: '600', cursor: 'pointer' }}
+                          style={{ background: 'var(--ds-brand)', color: '#fff', border: 'none', borderRadius: '4px', padding: '10px 24px', fontWeight: '600', cursor: 'pointer' }}
                         >
                           {pushStatus === 'pushing' ? 'Pushing Category...' : 'Confirm and Push Category'}
                         </button>
                         <button 
                           onClick={() => setActiveTab('diff')} 
-                          style={{ background: '#333', color: '#fff', border: '1px solid #444', borderRadius: '4px', padding: '10px 24px', cursor: 'pointer' }}
+                          style={{ background: 'var(--ds-surface-2)', color: 'var(--ds-text)', border: '1px solid var(--ds-border)', borderRadius: '4px', padding: '10px 24px', cursor: 'pointer' }}
                         >
                           Cancel
                         </button>
                       </div>
 
                       {pushStatus === 'success' && (
-                        <div style={{ padding: '12px', background: 'rgba(0, 230, 118, 0.1)', border: '1px solid #00e676', borderRadius: '4px', color: '#00e676', fontSize: '13px' }}>
+                        <div style={{ padding: '12px', background: 'var(--ds-ok-soft)', border: '1px solid var(--ds-ok)', borderRadius: '4px', color: 'var(--ds-ok)', fontSize: '13px' }}>
                           Category successfully pushed to remote catalog!
                         </div>
                       )}
 
                       {pushStatus === 'error' && (
-                        <div style={{ padding: '12px', background: 'rgba(255, 23, 68, 0.1)', border: '1px solid #ff1744', borderRadius: '4px', color: '#ff5252', fontSize: '13px' }}>
+                        <div style={{ padding: '12px', background: 'var(--ds-danger-soft)', border: '1px solid var(--ds-danger)', borderRadius: '4px', color: 'var(--ds-danger)', fontSize: '13px' }}>
                           <strong>Push Failed:</strong> {pushError}
                         </div>
                       )}
                     </div>
 
                     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                      <label style={{ fontSize: '12px', color: '#aaa' }}>TMF 620 POST JSON Payload Preview</label>
-                      <pre style={{ margin: '0', padding: '16px', background: '#111', border: '1px solid #444', borderRadius: '4px', color: '#00e676', fontSize: '12px', fontFamily: 'monospace', overflowX: 'auto', flex: 1 }}>
+                      <label style={{ fontSize: '12px', color: 'var(--ds-text-2)' }}>TMF 620 POST JSON Payload Preview</label>
+                      <pre style={{ margin: '0', padding: '16px', background: 'var(--ds-surface-subtle)', border: '1px solid var(--ds-border)', borderRadius: '4px', color: 'var(--ds-ok)', fontSize: '12px', fontFamily: 'var(--ds-font-mono)', overflowX: 'auto', flex: 1 }}>
 {JSON.stringify({
   id: pushSelectedCategory.id,
   name: pushSelectedCategory.name,
@@ -1191,32 +1195,32 @@ export default function DnextSyncDashboard({ onNavigateToDetails }) {
           </div>
 
           {/* Activity logs & Sync History on the right */}
-          <div style={{ flex: 1, flexBasis: '280px', display: 'flex', flexDirection: 'column', background: '#1a1a1a', border: '1px solid #333', borderRadius: '8px', padding: '16px', boxSizing: 'border-box' }}>
-            <h4 style={{ margin: '0 0 12px 0', borderBottom: '1px solid #333', paddingBottom: '8px', color: '#fff' }}>Sync Activity Log</h4>
-            <div style={{ flex: 1, overflowY: 'auto', fontFamily: 'monospace', fontSize: '11px', color: '#aaa', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div style={{ flex: 1, flexBasis: '280px', display: 'flex', flexDirection: 'column', background: 'var(--ds-surface-subtle)', border: '1px solid var(--ds-border)', borderRadius: '8px', padding: '16px', boxSizing: 'border-box' }}>
+            <h4 style={{ margin: '0 0 12px 0', borderBottom: '1px solid var(--ds-border)', paddingBottom: '8px', color: 'var(--ds-text)' }}>Sync Activity Log</h4>
+            <div style={{ flex: 1, overflowY: 'auto', fontFamily: 'var(--ds-font-mono)', fontSize: '11px', color: 'var(--ds-text-2)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {logs.length > 0 ? logs.map((log, index) => (
-                <div key={index} style={{ borderBottom: '1px dashed #2a2a2a', paddingBottom: '4px', lineBreak: 'anywhere' }}>
+                <div key={index} style={{ borderBottom: '1px dashed var(--ds-border)', paddingBottom: '4px', lineBreak: 'anywhere' }}>
                   {log}
                 </div>
               )) : (
-                <div style={{ color: '#555', textAlign: 'center', padding: '20px 0' }}>Log history is currently empty.</div>
+                <div style={{ color: 'var(--ds-text-3)', textAlign: 'center', padding: '20px 0' }}>Log history is currently empty.</div>
               )}
             </div>
             <button 
               onClick={() => setLogs([])} 
-              style={{ marginTop: '12px', background: '#222', border: '1px solid #333', color: '#aaa', borderRadius: '4px', padding: '4px 10px', cursor: 'pointer', fontSize: '11px' }}
+              style={{ marginTop: '12px', background: 'var(--ds-surface)', border: '1px solid var(--ds-border)', color: 'var(--ds-text-2)', borderRadius: '4px', padding: '4px 10px', cursor: 'pointer', fontSize: '11px' }}
             >
               Clear Logs
             </button>
           </div>
         </div>
       ) : (
-        <div className="display-placeholder" style={{ flex: 1, border: '1px dashed #333', borderRadius: '8px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: '16px' }}>
-          <svg style={{ width: '48px', height: '48px', color: '#444' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+        <div className="display-placeholder" style={{ flex: 1, border: '1px dashed var(--ds-border)', borderRadius: '8px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: '16px' }}>
+          <svg style={{ width: '48px', height: '48px', color: 'var(--ds-text-3)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
           </svg>
-          <h3 style={{ margin: '0', color: '#888' }}>Authentication Required</h3>
-          <p style={{ margin: '0', color: '#666', fontSize: '13px' }}>Please connect using Keycloak username and password credentials above.</p>
+          <h3 style={{ margin: '0', color: 'var(--ds-text-3)' }}>Authentication Required</h3>
+          <p style={{ margin: '0', color: 'var(--ds-text-3)', fontSize: '13px' }}>Please connect using Keycloak username and password credentials above.</p>
         </div>
       )}
     </div>
