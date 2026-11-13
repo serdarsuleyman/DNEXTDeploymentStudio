@@ -3,7 +3,7 @@ import Icon from './ui/Icon';
 import { useAuth } from '../context/EnvironmentContext';
 import DnextEntityDrawer from './DnextEntityDrawer';
 import ConfigurableListView from './list-views/ConfigurableListView';
-import { resolveListViewTemplateId, getAvailableListViewTemplates, isSalesPackageSpec, isOptionSpec } from './list-views/listViewRegistry';
+import { resolveListViewTemplateId, getAvailableListViewTemplates, isSalesPackageSpec, isOptionSpec, isHardwareSpec } from './list-views/listViewRegistry';
 import ConfigurableLeftMenu from './navigation/ConfigurableLeftMenu';
 
 // ─── Design Tokens ─────────────────────────────────────────────────────────────
@@ -184,6 +184,19 @@ export default function DnextRemoteCatalogView({ selectedEnv: propSelectedEnv, e
   const [specFilter, setSpecFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [specSearchQuery, setSpecSearchQuery] = useState('');
+  const [isSpecDropdownOpen, setIsSpecDropdownOpen] = useState(false);
+  const specDropdownRef = useRef(null);
+
+  // Close spec dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (specDropdownRef.current && !specDropdownRef.current.contains(event.target)) {
+        setIsSpecDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Configurable List View Template state (null = auto-resolve based on entityType & field values)
   const [userListTemplateId, setUserListTemplateId] = useState(null);
@@ -588,6 +601,7 @@ export default function DnextRemoteCatalogView({ selectedEnv: propSelectedEnv, e
     let simple = 0;
     let salesPackages = 0;
     let options = 0;
+    let hardware = 0;
     let recurring = 0;
     let oneTime = 0;
     let launched = 0;
@@ -605,6 +619,7 @@ export default function DnextRemoteCatalogView({ selectedEnv: propSelectedEnv, e
         else simple++;
         if (isSalesPackageSpec(e)) salesPackages++;
         if (isOptionSpec(e)) options++;
+        if (isHardwareSpec(e)) hardware++;
       } else if (e.entityType === 'ProductOfferingPrice') {
         const pt = (e.raw?.priceType || '').toLowerCase();
         if (pt.includes('recurring')) recurring++;
@@ -619,6 +634,7 @@ export default function DnextRemoteCatalogView({ selectedEnv: propSelectedEnv, e
       simple,
       salesPackages,
       options,
+      hardware,
       prices: fetchStats.prices,
       recurring,
       oneTime,
@@ -676,13 +692,15 @@ export default function DnextRemoteCatalogView({ selectedEnv: propSelectedEnv, e
       setUserListTemplateId(null);
     }
 
-    // If entering Sales Packages, Options, or Categories view, clear generic search/status/spec filters
+    // If entering Sales Packages, Options, Hardware, or Categories view, clear generic search/status/spec filters
     if (
       item.targetListViewTemplateId === 'sales_packages' ||
       item.targetListViewTemplateId === 'options' ||
+      item.targetListViewTemplateId === 'hardware' ||
       item.targetListViewTemplateId === 'categories' ||
       item.filterContext?.subFilter === 'sales_packages' ||
-      item.filterContext?.subFilter === 'options'
+      item.filterContext?.subFilter === 'options' ||
+      item.filterContext?.subFilter === 'hardware'
     ) {
       setSearchQuery('');
       setSpecSearchQuery('');
@@ -722,6 +740,7 @@ export default function DnextRemoteCatalogView({ selectedEnv: propSelectedEnv, e
       if (e.entityType !== 'ProductOffering') return;
       if (subFilter === 'sales_packages' && !isSalesPackageSpec(e)) return;
       if (subFilter === 'options' && !isOptionSpec(e)) return;
+      if (subFilter === 'hardware' && !isHardwareSpec(e)) return;
 
       const spec = e.productSpecification || e.raw?.productSpecification;
       let name = (spec?.name || spec?.id || '').trim();
@@ -736,12 +755,21 @@ export default function DnextRemoteCatalogView({ selectedEnv: propSelectedEnv, e
       .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
   }, [entities, subFilter]);
 
+  // Product specifications matching the user's typed search query in real time
+  const matchingProductSpecs = useMemo(() => {
+    if (!specSearchQuery.trim()) return filteredProductSpecs;
+    const q = specSearchQuery.toLowerCase().trim();
+    return filteredProductSpecs.filter(s => s.name.toLowerCase().includes(q));
+  }, [filteredProductSpecs, specSearchQuery]);
+
   // Filtered groups based on type, subfilter, status, spec, and search query
   const isSpecializedActive =
     userListTemplateId === 'sales_packages' ||
     userListTemplateId === 'options' ||
+    userListTemplateId === 'hardware' ||
     subFilter === 'sales_packages' ||
-    subFilter === 'options';
+    subFilter === 'options' ||
+    subFilter === 'hardware';
 
   const filteredGroups = useMemo(() => {
     return groupedEntities.filter(group => {
@@ -787,6 +815,11 @@ export default function DnextRemoteCatalogView({ selectedEnv: propSelectedEnv, e
       if (subFilter === 'options') {
         const matchLatest = isOptionSpec(group.latestItem);
         const matchPrev = (group.previousVersions || []).some(v => isOptionSpec(v));
+        if (!matchLatest && !matchPrev) return false;
+      }
+      if (subFilter === 'hardware') {
+        const matchLatest = isHardwareSpec(group.latestItem);
+        const matchPrev = (group.previousVersions || []).some(v => isHardwareSpec(v));
         if (!matchLatest && !matchPrev) return false;
       }
       if (subFilter === 'bundle') {
@@ -921,8 +954,10 @@ export default function DnextRemoteCatalogView({ selectedEnv: propSelectedEnv, e
   const isSpecializedOfferingView =
     activeListTemplateId === 'sales_packages' ||
     activeListTemplateId === 'options' ||
+    activeListTemplateId === 'hardware' ||
     subFilter === 'sales_packages' ||
-    subFilter === 'options';
+    subFilter === 'options' ||
+    subFilter === 'hardware';
   const isSpecializedCustomView =
     isSpecializedOfferingView ||
     activeListTemplateId === 'categories';
@@ -1128,7 +1163,7 @@ export default function DnextRemoteCatalogView({ selectedEnv: propSelectedEnv, e
 
               {subFilter && (
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'rgba(230,0,0,0.06)', border: '1px solid var(--ds-brand)', padding: '3px 8px', borderRadius: '4px', fontSize: '11px', color: 'var(--ds-brand)', fontWeight: '600' }}>
-                  <span>Filter: <strong>{subFilter === 'sales_packages' ? 'Sales Packages' : subFilter === 'options' ? 'Options' : subFilter}</strong></span>
+                  <span>Filter: <strong>{subFilter === 'sales_packages' ? 'Sales Packages' : subFilter === 'options' ? 'Options' : subFilter === 'hardware' ? 'Hardware' : subFilter}</strong></span>
                   <button
                     type="button"
                     onClick={() => {
@@ -1143,53 +1178,172 @@ export default function DnextRemoteCatalogView({ selectedEnv: propSelectedEnv, e
                 </div>
               )}
 
-              {/* Search with Product Specification - positioned next to the filter */}
+              {/* Filterable Specification Search Pulldown */}
               {(typeFilter === 'ProductOffering' || isSpecializedOfferingView) && (
-                <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
-                  <input
-                    type="text"
-                    list="product-spec-suggestions"
-                    placeholder="Search Product Specification…"
-                    value={specSearchQuery}
-                    onChange={e => setSpecSearchQuery(e.target.value)}
+                <div ref={specDropdownRef} style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
+                  <div
                     style={{
-                      padding: '7px 28px 7px 12px',
-                      borderRadius: '6px',
-                      border: `1px solid ${specSearchQuery ? 'var(--ds-brand)' : 'var(--ds-border-strong)'}`,
-                      background: specSearchQuery ? 'rgba(230,0,0,0.04)' : '#ffffff',
-                      color: C.text,
-                      fontSize: '12px',
-                      width: '260px',
-                      outline: 'none',
-                      transition: 'all 0.15s ease'
+                      display: 'flex',
+                      alignItems: 'center',
+                      position: 'relative',
+                      width: '280px'
                     }}
-                    title="Type to search offerings by Product Specification name"
-                  />
-                  {specSearchQuery && (
-                    <button
-                      type="button"
-                      onClick={() => setSpecSearchQuery('')}
+                  >
+                    <input
+                      type="text"
+                      placeholder="Filter by Product Specification…"
+                      value={specSearchQuery}
+                      onChange={e => {
+                        setSpecSearchQuery(e.target.value);
+                        if (!isSpecDropdownOpen) setIsSpecDropdownOpen(true);
+                      }}
+                      onFocus={() => setIsSpecDropdownOpen(true)}
+                      style={{
+                        padding: '7px 48px 7px 12px',
+                        borderRadius: '6px',
+                        border: `1px solid ${specSearchQuery ? 'var(--ds-brand)' : (isSpecDropdownOpen ? 'var(--ds-brand)' : 'var(--ds-border-strong)')}`,
+                        background: specSearchQuery ? 'rgba(230,0,0,0.04)' : '#ffffff',
+                        color: C.text,
+                        fontSize: '12px',
+                        width: '100%',
+                        outline: 'none',
+                        boxShadow: isSpecDropdownOpen ? '0 0 0 2px rgba(230,0,0,0.1)' : 'none',
+                        transition: 'all 0.15s ease'
+                      }}
+                      title="Type to filter specifications in real time or select from the pulldown"
+                    />
+
+                    <div style={{ position: 'absolute', right: '6px', display: 'flex', alignItems: 'center', gap: '2px' }}>
+                      {specSearchQuery && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSpecSearchQuery('');
+                          }}
+                          style={{
+                            background: 'transparent',
+                            border: 'none',
+                            color: 'var(--ds-brand)',
+                            cursor: 'pointer',
+                            fontSize: '12px',
+                            padding: '2px 4px',
+                            lineHeight: 1
+                          }}
+                          title="Clear specification filter"
+                        >
+                          ✕
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => setIsSpecDropdownOpen(prev => !prev)}
+                        style={{
+                          background: 'transparent',
+                          border: 'none',
+                          color: 'var(--ds-text-3)',
+                          cursor: 'pointer',
+                          fontSize: '10px',
+                          padding: '2px 4px',
+                          lineHeight: 1
+                        }}
+                        title={isSpecDropdownOpen ? 'Close specification list' : 'Open specification list'}
+                      >
+                        {isSpecDropdownOpen ? '▲' : '▼'}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Filterable Dropdown Pulldown Menu */}
+                  {isSpecDropdownOpen && (
+                    <div
                       style={{
                         position: 'absolute',
-                        right: '8px',
-                        background: 'transparent',
-                        border: 'none',
-                        color: 'var(--ds-brand)',
-                        cursor: 'pointer',
-                        fontSize: '12px',
-                        padding: '2px',
-                        lineHeight: 1
+                        top: 'calc(100% + 4px)',
+                        left: 0,
+                        width: '320px',
+                        background: '#ffffff',
+                        border: '1px solid var(--ds-border-strong)',
+                        borderRadius: '6px',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
+                        zIndex: 9999,
+                        maxHeight: '260px',
+                        overflowY: 'auto'
                       }}
-                      title="Clear specification search"
                     >
-                      ✕
-                    </button>
+                      {/* Option: All Specifications (Reset) */}
+                      <div
+                        onClick={() => {
+                          setSpecSearchQuery('');
+                          setIsSpecDropdownOpen(false);
+                        }}
+                        style={{
+                          padding: '8px 12px',
+                          fontSize: '12px',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          borderBottom: '1px solid var(--ds-border)',
+                          background: !specSearchQuery ? 'rgba(230,0,0,0.06)' : 'transparent',
+                          fontWeight: !specSearchQuery ? '700' : '500',
+                          color: !specSearchQuery ? 'var(--ds-brand)' : C.text
+                        }}
+                        onMouseEnter={e => { if (specSearchQuery) e.currentTarget.style.background = 'var(--ds-surface-subtle)'; }}
+                        onMouseLeave={e => { if (specSearchQuery) e.currentTarget.style.background = 'transparent'; }}
+                      >
+                        <span>All Specifications ({filteredProductSpecs.reduce((acc, s) => acc + s.count, 0)} offerings)</span>
+                        {!specSearchQuery && <span style={{ color: 'var(--ds-brand)', fontWeight: '800' }}>✓</span>}
+                      </div>
+
+                      {/* Filtered Specification Items */}
+                      {matchingProductSpecs.length === 0 ? (
+                        <div style={{ padding: '12px', fontSize: '12px', color: C.muted, fontStyle: 'italic', textAlign: 'center' }}>
+                          No specifications matching "{specSearchQuery}"
+                        </div>
+                      ) : (
+                        matchingProductSpecs.map(s => {
+                          const isSelected = specSearchQuery.trim().toLowerCase() === s.name.toLowerCase();
+                          return (
+                            <div
+                              key={s.name}
+                              onClick={() => {
+                                setSpecSearchQuery(s.name);
+                                setIsSpecDropdownOpen(false);
+                              }}
+                              style={{
+                                padding: '8px 12px',
+                                fontSize: '12px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                borderBottom: '1px solid var(--ds-border)',
+                                background: isSelected ? 'rgba(230,0,0,0.06)' : 'transparent',
+                                color: isSelected ? 'var(--ds-brand)' : C.text,
+                                fontWeight: isSelected ? '700' : '400'
+                              }}
+                              onMouseEnter={e => { if (!isSelected) e.currentTarget.style.background = 'var(--ds-surface-subtle)'; }}
+                              onMouseLeave={e => { if (!isSelected) e.currentTarget.style.background = 'transparent'; }}
+                            >
+                              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '230px' }} title={s.name}>
+                                {s.name}
+                              </span>
+                              <span style={{
+                                fontSize: '10px',
+                                padding: '1px 6px',
+                                borderRadius: '10px',
+                                background: isSelected ? 'var(--ds-brand)' : 'var(--ds-surface-2)',
+                                color: isSelected ? '#ffffff' : 'var(--ds-text-2)',
+                                fontWeight: '700'
+                              }}>
+                                {s.count}
+                              </span>
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
                   )}
-                  <datalist id="product-spec-suggestions">
-                    {filteredProductSpecs.map(s => (
-                      <option key={s.name} value={s.name} />
-                    ))}
-                  </datalist>
                 </div>
               )}
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import Icon from '../ui/Icon';
 import { isSalesPackageSpec } from '../list-views/listViewRegistry';
 import {
@@ -336,6 +336,21 @@ export default function SalesPackageNewDetailTemplate({
     name: 'FN_SalesPackage_Custom',
     version: '1.0'
   });
+
+  // ─── Filterable Specification Dropdown State ───
+  const [specSearchQuery, setSpecSearchQuery] = useState('');
+  const [isSpecDropdownOpen, setIsSpecDropdownOpen] = useState(false);
+  const specDropdownRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (specDropdownRef.current && !specDropdownRef.current.contains(e.target)) {
+        setIsSpecDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // ─── Categories & Category Groupings State ───
   const [categoriesCatalog, setCategoriesCatalog] = useState([]);
@@ -715,6 +730,29 @@ export default function SalesPackageNewDetailTemplate({
 
     return Array.from(specMap.values());
   }, [catalogPool, catalogSalesPackages]);
+
+  // Filtered available sales package specifications based on search input
+  const filteredSalesPackageSpecs = useMemo(() => {
+    const q = (specSearchQuery || '').trim().toLowerCase();
+    if (!q) return availableSalesPackageSpecs;
+    return availableSalesPackageSpecs.filter(spec => {
+      const name = (spec.name || '').toLowerCase();
+      const id = (spec.id || '').toLowerCase();
+      return name.includes(q) || id.includes(q);
+    });
+  }, [availableSalesPackageSpecs, specSearchQuery]);
+
+  const selectedSpecObj = useMemo(() => {
+    return availableSalesPackageSpecs.find(s => s.id === formData.specificationId) || null;
+  }, [availableSalesPackageSpecs, formData.specificationId]);
+
+  const selectedSpecDisplayName = useMemo(() => {
+    if (isCreatingNewSpec) return '+ Create New Product Specification...';
+    if (selectedSpecObj) {
+      return `${selectedSpecObj.name || selectedSpecObj.id}${selectedSpecObj.version ? ` (v${selectedSpecObj.version})` : ''}`;
+    }
+    return formData.specificationName || formData.specificationId || '';
+  }, [selectedSpecObj, formData.specificationName, formData.specificationId, isCreatingNewSpec]);
 
   // Extract Bandwidth Options from offers where specification matches *options*bandwith*
   const bandwidthOptionOffers = useMemo(() => {
@@ -3090,30 +3128,188 @@ export default function SalesPackageNewDetailTemplate({
               )}
             </div>
 
-            {/* 2. Product Specification Pull-down (selectable directly under template pull-down) */}
+            {/* 2. Product Specification Pull-down (Filterable as user types) */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
               <label style={{ ...labelStyle, marginBottom: 0, width: '220px', whiteSpace: 'nowrap', fontSize: '13px', color: 'var(--ds-text-2)' }}>
                 Product Specification:
               </label>
-              <div style={{ flex: 1, minWidth: '280px', maxWidth: '520px' }}>
-                <select
-                  value={isCreatingNewSpec ? '__create_new__' : (formData.specificationId || '')}
-                  onChange={(e) => handleSelectSpecification(e.target.value)}
-                  style={{
-                    ...inputStyle,
-                    fontWeight: '600',
-                    fontFamily: 'var(--ds-font-mono)',
-                    fontSize: '12px'
-                  }}
-                >
-                  <option value="">-- Select Specification --</option>
-                  <option value="__create_new__">+ Create New Product Specification...</option>
-                  {availableSalesPackageSpecs.map(spec => (
-                    <option key={spec.id} value={spec.id}>
-                      {spec.name || spec.id} {spec.version ? `(v${spec.version})` : ''}
-                    </option>
-                  ))}
-                </select>
+              <div ref={specDropdownRef} style={{ flex: 1, minWidth: '280px', maxWidth: '520px', position: 'relative' }}>
+                <div style={{ position: 'relative', width: '100%' }}>
+                  <input
+                    type="text"
+                    placeholder={selectedSpecDisplayName || "-- Type to filter or select Specification --"}
+                    value={isSpecDropdownOpen ? specSearchQuery : (selectedSpecDisplayName || '')}
+                    onChange={(e) => {
+                      setSpecSearchQuery(e.target.value);
+                      if (!isSpecDropdownOpen) setIsSpecDropdownOpen(true);
+                    }}
+                    onFocus={() => {
+                      setIsSpecDropdownOpen(true);
+                    }}
+                    style={{
+                      ...inputStyle,
+                      paddingRight: '52px',
+                      fontWeight: '600',
+                      fontFamily: 'var(--ds-font-mono)',
+                      fontSize: '12px',
+                      borderColor: isSpecDropdownOpen ? 'var(--ds-brand)' : (formData.specificationId ? 'var(--ds-border-strong)' : 'var(--ds-border)'),
+                      boxShadow: isSpecDropdownOpen ? '0 0 0 2px rgba(230,0,0,0.1)' : 'none',
+                      background: '#ffffff'
+                    }}
+                  />
+                  {/* Right action icons (Clear & Toggle Arrow) */}
+                  <div style={{
+                    position: 'absolute',
+                    right: '8px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}>
+                    {(formData.specificationId || specSearchQuery || isCreatingNewSpec) && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSpecSearchQuery('');
+                          handleSelectSpecification('');
+                        }}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: 'var(--ds-brand)',
+                          cursor: 'pointer',
+                          fontSize: '12px',
+                          padding: '2px 4px',
+                          lineHeight: 1
+                        }}
+                        title="Clear specification selection"
+                      >
+                        ✕
+                      </button>
+                    )}
+                    <span
+                      onClick={() => setIsSpecDropdownOpen(prev => !prev)}
+                      style={{
+                        fontSize: '10px',
+                        color: 'var(--ds-text-3)',
+                        cursor: 'pointer',
+                        padding: '2px 4px',
+                        transform: isSpecDropdownOpen ? 'rotate(180deg)' : 'none',
+                        transition: 'transform 0.15s ease'
+                      }}
+                      title={isSpecDropdownOpen ? "Close list" : "Open list"}
+                    >
+                      ▼
+                    </span>
+                  </div>
+                </div>
+
+                {/* Filterable Dropdown Pulldown Menu */}
+                {isSpecDropdownOpen && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: 'calc(100% + 4px)',
+                      left: 0,
+                      right: 0,
+                      maxHeight: '260px',
+                      overflowY: 'auto',
+                      background: '#ffffff',
+                      border: '1px solid var(--ds-border-strong)',
+                      borderRadius: '6px',
+                      boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
+                      zIndex: 1000
+                    }}
+                  >
+                    {/* Option: Create New Product Specification */}
+                    <div
+                      onClick={() => {
+                        handleSelectSpecification('__create_new__');
+                        setSpecSearchQuery('');
+                        setIsSpecDropdownOpen(false);
+                      }}
+                      style={{
+                        padding: '8px 12px',
+                        fontSize: '12px',
+                        fontWeight: '700',
+                        color: 'var(--ds-brand)',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        borderBottom: '1px solid var(--ds-border)',
+                        background: isCreatingNewSpec ? 'rgba(230,0,0,0.06)' : '#ffffff'
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(230,0,0,0.06)'; }}
+                      onMouseLeave={e => { if (!isCreatingNewSpec) e.currentTarget.style.background = '#ffffff'; }}
+                    >
+                      <span>+ Create New Product Specification...</span>
+                      {isCreatingNewSpec && <span style={{ marginLeft: 'auto', fontWeight: '800' }}>✓</span>}
+                    </div>
+
+                    {/* Filtered Specification Items */}
+                    {filteredSalesPackageSpecs.length === 0 ? (
+                      <div style={{ padding: '12px', fontSize: '12px', color: 'var(--ds-text-2)', fontStyle: 'italic', textAlign: 'center' }}>
+                        No specifications matching "{specSearchQuery}"
+                      </div>
+                    ) : (
+                      filteredSalesPackageSpecs.map(spec => {
+                        const isSelected = !isCreatingNewSpec && formData.specificationId === spec.id;
+                        return (
+                          <div
+                            key={spec.id}
+                            onClick={() => {
+                              handleSelectSpecification(spec.id);
+                              setSpecSearchQuery('');
+                              setIsSpecDropdownOpen(false);
+                            }}
+                            style={{
+                              padding: '8px 12px',
+                              fontSize: '12px',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                              borderBottom: '1px solid var(--ds-border)',
+                              background: isSelected ? 'rgba(230,0,0,0.06)' : '#ffffff',
+                              color: isSelected ? 'var(--ds-brand)' : 'var(--ds-text)',
+                              fontWeight: isSelected ? '700' : '500'
+                            }}
+                            onMouseEnter={e => { if (!isSelected) e.currentTarget.style.background = 'var(--ds-surface-subtle)'; }}
+                            onMouseLeave={e => { if (!isSelected) e.currentTarget.style.background = '#ffffff'; }}
+                          >
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', overflow: 'hidden' }}>
+                              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                {spec.name || spec.id}
+                              </span>
+                              {spec.name && spec.id !== spec.name && (
+                                <span style={{ fontSize: '10px', color: 'var(--ds-text-3)', fontFamily: 'var(--ds-font-mono)' }}>
+                                  {spec.id}
+                                </span>
+                              )}
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+                              {spec.version && (
+                                <span style={{
+                                  fontSize: '10px',
+                                  padding: '1px 6px',
+                                  borderRadius: '10px',
+                                  background: isSelected ? 'var(--ds-brand)' : 'var(--ds-surface-2)',
+                                  color: isSelected ? '#ffffff' : 'var(--ds-text-2)',
+                                  fontWeight: '600'
+                                }}>
+                                  v{spec.version}
+                                </span>
+                              )}
+                              {isSelected && <span style={{ color: 'var(--ds-brand)', fontWeight: '800' }}>✓</span>}
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 

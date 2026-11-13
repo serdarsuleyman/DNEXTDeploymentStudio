@@ -312,6 +312,7 @@ const TYPE_CONFIG = {
   // Offering subtypes
   offering: { label: 'Offering', icon: 'package' },
   bundle: { label: 'Bundle Offer', icon: 'layers' },
+  hardware: { label: 'Hardware', icon: 'cpu' },
   // Charge types
   recurring: { label: 'Recurring', icon: 'refresh' },
   onetime: { label: 'One-Time', icon: 'zap' },

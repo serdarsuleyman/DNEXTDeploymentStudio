@@ -6,6 +6,7 @@ import AllObjectsListView from './AllObjectsListView';
 import ProductOfferingsListView from './ProductOfferingsListView';
 import SalesPackagesListView from './SalesPackagesListView';
 import OptionsListView from './OptionsListView';
+import HardwareListView from './HardwareListView';
 import ProductOfferingPricesListView from './ProductOfferingPricesListView';
 import CategoriesListView from './CategoriesListView';
 
@@ -63,6 +64,45 @@ export const isSalesPackageSpec = (item) => {
   );
 };
 
+/**
+ * Identifies whether an entity is a Hardware offering strictly based on its
+ * Product Specification (productSpecification_FN_Hardware) or Hardware characteristics.
+ */
+export const isHardwareSpec = (item) => {
+  if (!item) return false;
+  if (item.entityType && item.entityType !== 'ProductOffering') return false;
+
+  const spec = item.productSpecification || item.raw?.productSpecification;
+  if (spec) {
+    let specStr = '';
+    if (typeof spec === 'string') {
+      specStr = spec.toLowerCase();
+    } else if (typeof spec === 'object') {
+      specStr = `${spec.name || ''} ${spec.id || ''} ${spec['@id'] || ''} ${spec.href || ''}`.toLowerCase();
+    }
+    if (
+      specStr.includes('fn_hardware') ||
+      specStr.includes('productspecification_fn_hardware')
+    ) {
+      return true;
+    }
+  }
+
+  // Also check if prodSpecCharValueUse indicates FN_Hardware
+  const charUses = item.prodSpecCharValueUse || item.raw?.prodSpecCharValueUse || [];
+  for (const c of charUses) {
+    const name = (c.name || '').toLowerCase();
+    if (name === 'productfamilyname' || name === 'product_family_name') {
+      const vals = c.productSpecCharacteristicValue || [];
+      if (vals.some(v => String(v?.value || '').toLowerCase().includes('fn_hardware'))) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+};
+
 export const LIST_VIEW_TEMPLATES = {
   CATEGORIES: {
     id: 'categories',
@@ -92,7 +132,7 @@ export const LIST_VIEW_TEMPLATES = {
     description: 'Dedicated offerings view with Product Specification column and specification filtering',
     applicableTypes: ['ProductOffering'],
     component: ProductOfferingsListView,
-    matches: (context) => context.typeFilter === 'ProductOffering' && context.subFilter !== 'sales_packages' && context.subFilter !== 'options'
+    matches: (context) => context.typeFilter === 'ProductOffering' && context.subFilter !== 'sales_packages' && context.subFilter !== 'options' && context.subFilter !== 'hardware'
   },
   SALES_PACKAGES: {
     id: 'sales_packages',
@@ -107,6 +147,25 @@ export const LIST_VIEW_TEMPLATES = {
       if (context.subFilter === 'sales_packages') return true;
       if (context.specFilter && (context.specFilter.toLowerCase().includes('sales') || context.specFilter.toLowerCase().includes('fn_salespackage'))) return true;
       if (sampleItem && isSalesPackageSpec(sampleItem)) return true;
+      return false;
+    }
+  },
+  HARDWARE: {
+    id: 'hardware',
+    name: 'Hardware View',
+    icon: 'cpu',
+    badge: 'Hardware',
+    description: 'Dedicated hardware offerings view for product specification productSpecification_FN_Hardware',
+    applicableTypes: ['ProductOffering'],
+    component: HardwareListView,
+    matches: (context, sampleItem) => {
+      if (context.typeFilter !== 'ProductOffering') return false;
+      if (context.subFilter === 'hardware') return true;
+      if (context.specFilter && (
+        context.specFilter.toLowerCase().includes('hardware') ||
+        context.specFilter.toLowerCase().includes('fn_hardware')
+      )) return true;
+      if (sampleItem && isHardwareSpec(sampleItem)) return true;
       return false;
     }
   },
@@ -154,22 +213,27 @@ export function resolveListViewTemplateId(context = {}, sampleItem = null) {
     return 'sales_packages';
   }
 
-  // 2. Options (subFilter, or spec matches option)
+  // 3. Hardware (subFilter, or spec matches hardware)
+  if (LIST_VIEW_TEMPLATES.HARDWARE.matches(context, sampleItem)) {
+    return 'hardware';
+  }
+
+  // 4. Options (subFilter, or spec matches option)
   if (LIST_VIEW_TEMPLATES.OPTIONS.matches(context, sampleItem)) {
     return 'options';
   }
 
-  // 3. Product Offering Price
+  // 5. Product Offering Price
   if (LIST_VIEW_TEMPLATES.PRICE_MODELS.matches(context, sampleItem)) {
     return 'price_models';
   }
 
-  // 4. Product Offerings
+  // 6. Product Offerings
   if (LIST_VIEW_TEMPLATES.PRODUCT_OFFERINGS.matches(context, sampleItem)) {
     return 'product_offerings';
   }
 
-  // 5. Default: All Objects
+  // 7. Default: All Objects
   return 'all_objects';
 }
 

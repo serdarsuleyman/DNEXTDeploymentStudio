@@ -53,6 +53,19 @@
               "countKey": "salesPackages"
             },
             {
+              "id": "hardware",
+              "label": "Hardware",
+              "icon": "cpu",
+              "active": true,
+              "filterContext": {
+                "typeFilter": "ProductOffering",
+                "subFilter": "hardware",
+                "specFilter": "productSpecification_FN_Hardware"
+              },
+              "targetListViewTemplateId": "hardware",
+              "countKey": "hardware"
+            },
+            {
               "id": "options",
               "label": "Options",
               "icon": "puzzle",
