@@ -367,30 +367,6 @@ export default function DnextEntityDrawer({ item, isOpen, onClose, onPurge, allE
                 </button>
               )}
 
-              {!currentItem.isNew && onPurge && (
-                <button
-                  onClick={() => onPurge(currentItem)}
-                  style={{
-                    background: 'rgba(230,0,0,0.06)',
-                    border: '1px solid rgba(230,0,0,0.25)',
-                    color: 'var(--ds-brand)',
-                    padding: '6px 12px',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    fontSize: '12px',
-                    fontWeight: '600',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '5px',
-                    transition: 'all 0.15s'
-                  }}
-                  title={`Purge ${currentItem.entityType} across all versions`}
-                >
-                  <span><Icon name="trash" size={14} /></span>
-                  <span>Purge</span>
-                </button>
-              )}
-
               {/* Windowed / Fullscreen icon button */}
               <button
                 onClick={() => setIsFullscreen(!isFullscreen)}

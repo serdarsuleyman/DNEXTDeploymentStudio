@@ -1600,9 +1600,6 @@ export default function DnextRemoteCatalogView({ selectedEnv: propSelectedEnv, e
         activeEnv={activeEnv}
         token={token}
         onSuccessRefresh={() => fetchRemoteEntities(token, activeEnv, false, true)}
-        onPurge={(itemToPurge) => {
-          handlePurgeSingle(itemToPurge);
-        }}
       />
 
       {/* ── Bulk Purge Confirmation Modal ── */}
