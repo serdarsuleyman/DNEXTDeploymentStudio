@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from 'react';
  */
 export const AREAS = [
   { id: 'catalog', label: 'Catalog', title: 'Live DNEXT Catalog', icon: 'globe', group: 'main' },
+  { id: 'rules', label: 'Rule Engine', title: 'Rule Engine — Compatibility & Eligibility', icon: 'sliders', group: 'main' },
   { id: 'releases', label: 'Releases', title: 'Deployment Packages', icon: 'rocket', group: 'main' },
 ];
 
@@ -14,8 +15,13 @@ const LEGACY_VIEW_KEY = 'dnext_active_view';
 const LEGACY_MAP = { 'remote-catalog': 'catalog', deployment: 'releases' };
 
 function readAreaFromHash() {
-  const id = window.location.hash.replace(/^#\/?/, '').split(/[/?]/)[0];
-  return AREAS.some(a => a.id === id) ? id : null;
+  const hashId = window.location.hash.replace(/^#\/?/, '').split(/[/?]/)[0];
+  if (AREAS.some(a => a.id === hashId)) return hashId;
+
+  const pathId = window.location.pathname.replace(/^\//, '').split('/')[0];
+  if (AREAS.some(a => a.id === pathId)) return pathId;
+
+  return null;
 }
 
 function initialArea() {

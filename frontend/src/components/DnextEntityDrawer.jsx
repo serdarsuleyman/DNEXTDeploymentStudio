@@ -591,7 +591,7 @@ export default function DnextEntityDrawer({ item, isOpen, onClose, onPurge, allE
           )}
 
           {/* Title & Copyable ID (hidden for templates with dedicated hero box) */}
-          {!currentItem.isNew && !['sales_package', 'standard_offering', 'option_offering'].includes(selectedTemplateId) && (
+          {!currentItem.isNew && !['sales_package', 'standard_offering', 'option_offering', 'hardware'].includes(selectedTemplateId) && (
             <div>
               <h2 style={{ margin: '0 0 6px 0', fontSize: '18px', fontWeight: '700', color: C.text, lineHeight: '1.3' }}>
                 {currentItem.name || currentItem.id}
@@ -676,11 +676,12 @@ export default function DnextEntityDrawer({ item, isOpen, onClose, onPurge, allE
                   copiedKey={copiedKey}
                 />
               )}
-              {(selectedTemplateId === 'standard_offering' || selectedTemplateId === 'option_offering') && (
+              {(selectedTemplateId === 'standard_offering' || selectedTemplateId === 'option_offering' || selectedTemplateId === 'hardware') && (
                 <StandardOfferingDetailTemplate
                   item={currentItem}
                   allEntities={allEntities}
                   isOptionView={selectedTemplateId === 'option_offering'}
+                  isHardwareView={selectedTemplateId === 'hardware'}
                   onNavigateToPrice={(pop) => handleNavigateToEntity(pop, 'ProductOfferingPrice')}
                   onNavigateToCategory={(cat) => handleNavigateToEntity(cat, 'Category')}
                   onNavigateToEntity={(entity, explicitType) => handleNavigateToEntity(entity, explicitType || 'ProductOffering')}

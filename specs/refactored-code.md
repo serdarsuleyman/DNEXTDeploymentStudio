@@ -119,3 +119,27 @@ This document tracks the incremental refactoring of the DNEXT Deployment Studio 
 - `node --test frontend/src/utils/__tests__/*.js`: 4/4 tests passed.
 - Direct Node verification of `backend/services/dnextClient.js`: 299 offerings, 28 specs, 546 prices resolved as cache hits.
 - Backend server syntax check & in-memory initialization: Verified clean startup.
+
+---
+
+## Completed: Hardware List View Column Customizer & Filtering
+
+### New Files
+- `frontend/src/components/list-views/hardwareColumnConfig.js`
+  - Catalogue of available columns (`id`, `name`, `spec`, `sku`, `product_type`, `package_type_id`, `package_subtype_id`, `product_family_id`, `maf`, `product_visibility`, `checkout_product`, `initial_selectable`, `contract_value`, `effective_date`, `expiration_date`, `start_date`, `end_date`, `version`, `lifecycle`).
+  - Default visible column keys (`id`, `name`, `spec`, `sku`, `product_type`, `version`, `lifecycle`).
+  - `getColumnRawValue` helper for multi-attribute sorting, text/select filtering, and JSONPath extraction.
+- `frontend/src/utils/__tests__/hardwareColumnConfig.test.js`
+  - Unit tests verifying column definitions and attribute extraction for hardware offerings.
+
+### Updated Files
+- `frontend/src/components/list-views/HardwareListView.jsx`
+  - Integrated `useColumnConfig` with `localStorage` persistence (`dnext_hardware_visible_columns`).
+  - Integrated `useTableFilterSort` for inline column filters, sort headers, and active filter pill bar.
+  - Added `ColumnCustomizerPopover` to toggle visible attributes dynamically with counter badge.
+  - Integrated `VersionMenuDropdown` for split-button version expand/collapse.
+  - Dynamic cell rendering for both parent rows and child version trees.
+
+### Verification
+- `npm run build --prefix frontend`: Built cleanly (`60 modules transformed`, built in `144ms`).
+- `node --test frontend/src/utils/__tests__/*.js`: 6/6 tests passed.

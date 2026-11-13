@@ -62,6 +62,11 @@ export default function OptionsListView({
     visibleColumnKeys,
     visibleColumns,
     toggleColumn,
+    moveColumn,
+    reorderColumns,
+    selectAll,
+    deselectAll,
+    toggleSelectAll,
     resetToDefaults,
     isCustomizerOpen,
     setIsCustomizerOpen,
@@ -247,6 +252,11 @@ export default function OptionsListView({
             onToggleOpen={() => setIsCustomizerOpen(prev => !prev)}
             customizerRef={customizerRef}
             onToggleColumn={toggleColumn}
+            onMoveColumn={moveColumn}
+            onReorderColumns={reorderColumns}
+            onSelectAll={selectAll}
+            onDeselectAll={deselectAll}
+            onToggleSelectAll={toggleSelectAll}
             onResetDefaults={resetToDefaults}
           />
 
@@ -545,7 +555,16 @@ export default function OptionsListView({
           )}
         </thead>
         <tbody>
-          {processedGroups.length === 0 ? (
+          {visibleColumns.length === 0 ? (
+            <tr>
+              <td colSpan={2} style={{ textAlign: 'center', padding: '36px 12px', color: C.muted }}>
+                <div style={{ fontSize: '13px', fontWeight: '600' }}>No columns selected.</div>
+                <div style={{ fontSize: '12px', color: 'var(--ds-text-2)', marginTop: '4px' }}>
+                  Use the <strong>Columns</strong> menu above to select columns to display.
+                </div>
+              </td>
+            </tr>
+          ) : processedGroups.length === 0 ? (
             <tr>
               <td colSpan={visibleColumns.length + 1} style={{ textAlign: 'center', padding: '36px 12px', color: C.muted }}>
                 <div style={{ fontSize: '20px', marginBottom: '6px' }}><Icon name="inbox" size={20} /></div>

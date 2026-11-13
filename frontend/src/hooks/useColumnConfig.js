@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 
 /**
  * Shared hook for configurable table columns with localStorage persistence,
- * optional schema migration, and customizer popover open/close state.
+ * column ordering, select/deselect all, optional schema migration, and customizer popover open/close state.
  */
 export function useColumnConfig({
   storageKey,
@@ -50,18 +50,66 @@ export function useColumnConfig({
     };
   }, [isCustomizerOpen]);
 
+  // visibleColumns strictly follows the user-defined order in visibleColumnKeys
   const visibleColumns = useMemo(() => {
-    return availableColumns.filter(col => visibleColumnKeys.includes(col.key));
+    return visibleColumnKeys
+      .map(key => availableColumns.find(col => col.key === key))
+      .filter(Boolean);
   }, [availableColumns, visibleColumnKeys]);
 
   const toggleColumn = (key) => {
     setVisibleColumnKeys(prev => {
       if (prev.includes(key)) {
-        if (prev.length <= 1) return prev;
         return prev.filter(k => k !== key);
       }
       return [...prev, key];
     });
+  };
+
+  const moveColumn = (key, direction) => {
+    setVisibleColumnKeys(prev => {
+      const idx = prev.indexOf(key);
+      if (idx === -1) return prev;
+      const targetIdx = direction === 'up' ? idx - 1 : idx + 1;
+      if (targetIdx < 0 || targetIdx >= prev.length) return prev;
+      const next = [...prev];
+      const [removed] = next.splice(idx, 1);
+      next.splice(targetIdx, 0, removed);
+      return next;
+    });
+  };
+
+  const reorderColumns = (source, target) => {
+    setVisibleColumnKeys(prev => {
+      const sourceIdx = typeof source === 'number' ? source : prev.indexOf(source);
+      const targetIdx = typeof target === 'number' ? target : prev.indexOf(target);
+
+      if (sourceIdx === -1 || targetIdx === -1 || sourceIdx === targetIdx) return prev;
+      if (sourceIdx < 0 || sourceIdx >= prev.length || targetIdx < 0 || targetIdx >= prev.length) return prev;
+
+      const next = [...prev];
+      const [moved] = next.splice(sourceIdx, 1);
+      next.splice(targetIdx, 0, moved);
+      return next;
+    });
+  };
+
+  const selectAll = () => {
+    const currentSet = new Set(visibleColumnKeys);
+    const unselected = availableColumns.filter(c => !currentSet.has(c.key)).map(c => c.key);
+    setVisibleColumnKeys([...visibleColumnKeys, ...unselected]);
+  };
+
+  const deselectAll = () => {
+    setVisibleColumnKeys([]);
+  };
+
+  const toggleSelectAll = () => {
+    if (availableColumns.length > 0 && visibleColumnKeys.length === availableColumns.length) {
+      deselectAll();
+    } else {
+      selectAll();
+    }
   };
 
   const resetToDefaults = () => {
@@ -69,13 +117,21 @@ export function useColumnConfig({
   };
 
   return {
+    availableColumns,
+    defaultColumnKeys,
     visibleColumnKeys,
     setVisibleColumnKeys,
     visibleColumns,
     toggleColumn,
+    moveColumn,
+    reorderColumns,
+    selectAll,
+    deselectAll,
+    toggleSelectAll,
     resetToDefaults,
     isCustomizerOpen,
     setIsCustomizerOpen,
+    onToggleOpen: () => setIsCustomizerOpen(prev => !prev),
     customizerRef
   };
 }

@@ -2,9 +2,9 @@
 // Configurable Detail View Registry for DNEXT Entities
 // Routes entities to customized visual templates based on entityType, isBundle flag, and Product Specification
 
-import { isSalesPackageSpec, isOptionSpec } from '../../utils/entityClassifiers';
+import { isSalesPackageSpec, isOptionSpec, isHardwareSpec } from '../../utils/entityClassifiers';
 
-export { isSalesPackageSpec, isOptionSpec };
+export { isSalesPackageSpec, isOptionSpec, isHardwareSpec };
 
 export const TEMPLATES = {
   SALES_PACKAGE_NEW: {
@@ -24,6 +24,15 @@ export const TEMPLATES = {
     description: 'Broadband access speed, specifications, recurring fees & contract terms',
     applicableTypes: ['ProductOffering'],
     matches: (item) => item?.entityType === 'ProductOffering' && isSalesPackageSpec(item)
+  },
+  HARDWARE: {
+    id: 'hardware',
+    name: 'Hardware View',
+    icon: 'cpu',
+    badge: 'Hardware',
+    description: 'Hardware product offering specifications, attributes, and details',
+    applicableTypes: ['ProductOffering'],
+    matches: (item) => item?.entityType === 'ProductOffering' && isHardwareSpec(item)
   },
   OPTION_OFFERING: {
     id: 'option_offering',
@@ -102,7 +111,12 @@ export function resolveTemplateId(item) {
     return 'sales_package';
   }
 
-  // 1b. Check Option Offering criteria next
+  // 1b. Check Hardware Offering criteria next
+  if (TEMPLATES.HARDWARE.matches(item)) {
+    return 'hardware';
+  }
+
+  // 1c. Check Option Offering criteria next
   if (TEMPLATES.OPTION_OFFERING.matches(item)) {
     return 'option_offering';
   }

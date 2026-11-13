@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Icon from '../ui/Icon';
 import { LifecyclePill, VersionCell } from '../list-views/cellRenderers';
-import { isOptionSpec } from './viewTemplateRegistry';
+import { isOptionSpec, isHardwareSpec } from './viewTemplateRegistry';
 
 const C = {
   bg: '#ffffff',
@@ -209,7 +209,8 @@ export default function StandardOfferingDetailTemplate({
   onNavigateToEntity,
   copyToClipboard,
   copiedKey,
-  isOptionView = false
+  isOptionView = false,
+  isHardwareView = false
 }) {
   const raw = item?.raw || {};
   const pops = Array.isArray(raw.productOfferingPrice) ? raw.productOfferingPrice : [];
@@ -218,7 +219,8 @@ export default function StandardOfferingDetailTemplate({
   const terms = Array.isArray(raw.productOfferingTerm) ? raw.productOfferingTerm : [];
   const bundledOffers = Array.isArray(raw.bundledProductOffering) ? raw.bundledProductOffering : [];
 
-  const isOption = isOptionView || isOptionSpec(item);
+  const isHardware = isHardwareView || isHardwareSpec(item);
+  const isOption = !isHardware && (isOptionView || isOptionSpec(item));
 
   // Tab state within the template
   const [activeSubTab, setActiveSubTab] = useState('overview');
@@ -484,6 +486,7 @@ export default function StandardOfferingDetailTemplate({
 
   // Header metric: Option Badge Text
   const optionBadgeText = useMemo(() => {
+    if (isHardware) return 'Hardware Offering';
     if (!isOption) {
       if (raw.isBundle) return 'Bundle Offering';
       return 'Standard Product Offering';
@@ -494,7 +497,7 @@ export default function StandardOfferingDetailTemplate({
     if (role === 'voice_tariff') return 'Voice Tariff Option';
     if (role === 'access_tech') return 'Access Technology Option';
     return 'Option Offering';
-  }, [isOption, raw.isBundle, item?.id, item?.name]);
+  }, [isHardware, isOption, raw.isBundle, item?.id, item?.name]);
 
   // Sub-tabs list aligned with Sales Package detail view
   const subTabs = useMemo(() => [
@@ -613,9 +616,9 @@ export default function StandardOfferingDetailTemplate({
               <span style={{
                 fontSize: '11px',
                 fontWeight: '700',
-                color: isOption ? 'var(--ds-info)' : (raw.isBundle ? 'var(--ds-spec)' : 'var(--ds-brand-dark)'),
-                background: isOption ? 'rgba(2,132,199,0.1)' : (raw.isBundle ? 'rgba(124,58,237,0.1)' : 'rgba(230,0,0,0.08)'),
-                border: isOption ? '1px solid rgba(2,132,199,0.3)' : (raw.isBundle ? '1px solid rgba(124,58,237,0.3)' : '1px solid rgba(230,0,0,0.2)'),
+                color: isHardware ? 'var(--ds-brand)' : isOption ? 'var(--ds-info)' : (raw.isBundle ? 'var(--ds-spec)' : 'var(--ds-brand-dark)'),
+                background: isHardware ? 'rgba(230,0,0,0.08)' : isOption ? 'rgba(2,132,199,0.1)' : (raw.isBundle ? 'rgba(124,58,237,0.1)' : 'rgba(230,0,0,0.08)'),
+                border: isHardware ? '1px solid rgba(230,0,0,0.25)' : isOption ? '1px solid rgba(2,132,199,0.3)' : (raw.isBundle ? '1px solid rgba(124,58,237,0.3)' : '1px solid rgba(230,0,0,0.2)'),
                 padding: '2px 8px',
                 borderRadius: '4px'
               }}>
@@ -624,7 +627,9 @@ export default function StandardOfferingDetailTemplate({
             </div>
 
             <p style={{ margin: 0, fontSize: '13px', color: C.muted, maxWidth: '620px', lineHeight: '1.5' }}>
-              {raw.description || (isOption
+              {raw.description || (isHardware
+                ? 'Commercial hardware product offering configured with technical specifications and device attributes.'
+                : isOption
                 ? 'Commercial component option for broadband access, speed tiering, or voice services.'
                 : 'Commercial broadband product offering configured with commercial terms and pricing models.')}
             </p>
@@ -670,23 +675,25 @@ export default function StandardOfferingDetailTemplate({
               </>
             )}
 
-            {/* Price Metric */}
-            <div style={{
-              background: '#ffffff',
-              border: `1px solid ${C.cardBorder}`,
-              borderRadius: '10px',
-              padding: '12px 18px',
-              minWidth: '115px',
-              textAlign: 'center',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
-            }}>
-              <div style={{ fontSize: '11px', color: C.muted, textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.05em' }}>
-                {hasBundlePop ? 'Bundle Price' : 'Price'}
+            {/* Price Metric (Hidden for Hardware detail view) */}
+            {!isHardware && (
+              <div style={{
+                background: '#ffffff',
+                border: `1px solid ${C.cardBorder}`,
+                borderRadius: '10px',
+                padding: '12px 18px',
+                minWidth: '115px',
+                textAlign: 'center',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+              }}>
+                <div style={{ fontSize: '11px', color: C.muted, textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.05em' }}>
+                  {hasBundlePop ? 'Bundle Price' : 'Price'}
+                </div>
+                <div style={{ fontSize: '18px', fontWeight: '800', color: hasBundlePop ? 'var(--ds-spec)' : 'var(--ds-warn)', marginTop: '2px' }}>
+                  {primaryPriceStr}
+                </div>
               </div>
-              <div style={{ fontSize: '18px', fontWeight: '800', color: hasBundlePop ? 'var(--ds-spec)' : 'var(--ds-warn)', marginTop: '2px' }}>
-                {primaryPriceStr}
-              </div>
-            </div>
+            )}
 
             {/* Status Metric */}
             <div style={{

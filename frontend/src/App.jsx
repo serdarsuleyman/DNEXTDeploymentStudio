@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import DnextDeploymentDashboard from './components/DnextDeploymentDashboard';
 import DnextRemoteCatalogView from './components/DnextRemoteCatalogView';
+import DnextRuleEngineView from './components/rule-engine/DnextRuleEngineView';
 import Icon from './components/ui/Icon';
 import AppRail from './components/shell/AppRail';
 import EnvironmentModal from './components/shell/EnvironmentModal';
@@ -52,6 +53,8 @@ function StudioShell() {
 
   const renderArea = () => {
     switch (activeArea) {
+      case 'rules':
+        return <DnextRuleEngineView />;
       case 'releases':
         return (
           <DnextDeploymentDashboard

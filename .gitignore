@@ -30,3 +30,4 @@ backend/data/vfde_catalog_reference.db
 .DS_Store
 *.tmp
 *.swp
+agent.md

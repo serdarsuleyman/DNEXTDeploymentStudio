@@ -52,6 +52,7 @@ export const isHardwareSpec = (item) => {
 
   const specStr = getSpecSearchString(item);
   if (
+    specStr.includes('hardware') ||
     specStr.includes('fn_hardware') ||
     specStr.includes('productspecification_fn_hardware')
   ) {
@@ -63,7 +64,10 @@ export const isHardwareSpec = (item) => {
     const name = (c.name || '').toLowerCase();
     if (name === 'productfamilyname' || name === 'product_family_name') {
       const vals = c.productSpecCharacteristicValue || [];
-      if (vals.some(v => String(v?.value || '').toLowerCase().includes('fn_hardware'))) {
+      if (vals.some(v => {
+        const str = String(v?.value || '').toLowerCase();
+        return str.includes('fn_hardware') || str.includes('hardware');
+      })) {
         return true;
       }
     }

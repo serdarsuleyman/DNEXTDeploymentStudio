@@ -18,6 +18,7 @@ const generatorRouter = require('./routes/generator');
 const staticFilesRouter = require('./routes/staticFiles');
 const syncRouter = require('./routes/sync');
 const proxyRouter = require('./routes/proxy');
+const rulesRouter = require('./routes/rules');
 
 const app = express();
 const PORT = process.env.PORT || 3002;
@@ -43,6 +44,7 @@ app.use('/api/dnext', specsRouter);
 app.use('/api/dnext', pricesRouter);
 app.use('/api/dnext', purgeRouter);
 app.use('/api/dnext', syncRouter);
+app.use('/api/dnext', rulesRouter);
 app.use('/api/sales-package', generatorRouter);
 app.use('/api/static-file', staticFilesRouter);
 app.use('/api/dnext-product-offering', proxyRouter);
@@ -69,6 +71,16 @@ db.get('SELECT COUNT(*) AS count FROM dnext_deployment_item', (err, row) => {
     }
   }
 });
+
+// Serve static frontend in production (e.g. Render / Docker)
+const frontendDist = path.join(__dirname, '../frontend/dist');
+if (fs.existsSync(frontendDist)) {
+  app.use(express.static(frontendDist));
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api/')) return next();
+    res.sendFile(path.join(frontendDist, 'index.html'));
+  });
+}
 
 app.listen(PORT, () => {
   console.log(`=======================================================`);

@@ -1,16 +1,37 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import Icon from '../ui/Icon';
-import { SpecLink, VersionCell, LifecyclePill, EntityTypeBadge } from './cellRenderers';
+import { VersionCell, LifecyclePill } from './cellRenderers';
 import { C, ENTITY_CONFIG } from './constants';
+import { useColumnConfig } from '../../hooks/useColumnConfig';
+import { useTableFilterSort } from '../../hooks/useTableFilterSort';
+import ColumnCustomizerPopover from './ColumnCustomizerPopover';
+import VersionMenuDropdown from './VersionMenuDropdown';
+import {
+  AVAILABLE_COLUMNS,
+  DEFAULT_COLUMN_KEYS,
+  getColumnRawValue
+} from './allObjectsColumnConfig';
+
+const STORAGE_KEY = 'dnext_all_objects_visible_columns';
+
+function migrateAllObjectsColumns(parsed) {
+  const valid = parsed.filter(k => AVAILABLE_COLUMNS.some(c => c.key === k));
+  if (valid.length === 0) return parsed;
+  return valid;
+}
 
 /**
  * AllObjectsListView
- * Dedicated list view component for general catalog overview and multi-entity browsing.
- * Features:
- * - Version column toggle button aligned with SalesPackageListView pattern
- * - Clean ID column
- * - Child version rows aligned with table headers
- * - Multi-version hierarchy tree
+ * Dedicated, configurable list view component for general catalog overview and multi-entity browsing.
+ *
+ * Configurable Features:
+ * - Dynamic Column Mappings: Configure visible columns & order via "Columns" popover.
+ * - Single-box Select All / Deselect All with indeterminate support.
+ * - Column Ordering with Move Up (▲) / Move Down (▼) buttons.
+ * - Sortable Columns: Click column headers to sort Ascending (▲), Descending (▼), or Reset.
+ * - Filterable Columns: Inline filter row and active filter pills to filter by any field value.
+ * - Version Expansion: Interactive click on the Version column expands all versions in a tree hierarchy.
+ * - LocalStorage Persistence: Preserves user column choices across browser sessions.
  */
 export default function AllObjectsListView({
   groups = [],
@@ -26,34 +47,145 @@ export default function AllObjectsListView({
   cacheStatus = null,
   onOpenDetail
 }) {
-  const [isVersionMenuOpen, setIsVersionMenuOpen] = useState(false);
-  const versionMenuRef = useRef(null);
+  // ── Column Configuration State (persisted in localStorage) ──
+  const {
+    visibleColumnKeys,
+    visibleColumns,
+    toggleColumn,
+    moveColumn,
+    reorderColumns,
+    selectAll,
+    deselectAll,
+    toggleSelectAll,
+    resetToDefaults,
+    isCustomizerOpen,
+    setIsCustomizerOpen,
+    customizerRef
+  } = useColumnConfig({
+    storageKey: STORAGE_KEY,
+    availableColumns: AVAILABLE_COLUMNS,
+    defaultColumnKeys: DEFAULT_COLUMN_KEYS,
+    migrateSavedKeys: migrateAllObjectsColumns
+  });
 
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (versionMenuRef.current && !versionMenuRef.current.contains(e.target)) {
-        setIsVersionMenuOpen(false);
-      }
+  const {
+    showFilterRow,
+    setShowFilterRow,
+    sortConfig,
+    handleSort,
+    clearSort,
+    columnFilters,
+    handleFilterChange,
+    clearAllFilters,
+    activeFilterEntries: rawFilterEntries,
+    distinctOptionsMap,
+    processedGroups
+  } = useTableFilterSort({
+    groups,
+    availableColumns: AVAILABLE_COLUMNS,
+    visibleColumns,
+    getColumnRawValue
+  });
+
+  // ── Active Filters List for Pill Display ──
+  const activeFilterEntries = useMemo(() => {
+    return rawFilterEntries.map(([k, v]) => ({
+      key: k,
+      label: AVAILABLE_COLUMNS.find(c => c.key === k)?.label || k,
+      val: v
+    }));
+  }, [rawFilterEntries]);
+
+  // ── Cell Rendering ──
+  const renderCellContent = (colKey, item, isParent, group) => {
+    const hasMultipleVersions = group.previousVersions && group.previousVersions.length > 0;
+    const isExpanded = expandedGroups.has(group.groupKey);
+    const typeCfg = ENTITY_CONFIG[item.entityType] || {
+      label: item.entityType || 'Entity',
+      color: { bg: 'rgba(230,0,0,0.06)', border: 'var(--ds-danger-border)', text: 'var(--ds-brand)' },
+      icon: 'file'
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
-  const multiVersionGroups = useMemo(() => groups.filter(g => g.previousVersions && g.previousVersions.length > 0), [groups]);
-  const hasVersions = multiVersionGroups.length > 0;
-  const isAnyExpanded = hasVersions && multiVersionGroups.some(g => expandedGroups && expandedGroups.has(g.groupKey));
+    switch (colKey) {
+      case 'type':
+        return (
+          <span style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: isParent ? '3px 8px' : '2px 6px',
+            borderRadius: '4px',
+            background: typeCfg.color.bg,
+            border: `1px solid ${typeCfg.color.border}`,
+            color: typeCfg.color.text,
+            fontSize: isParent ? '12px' : '11px',
+            fontWeight: '600'
+          }}>
+            <Icon name={typeCfg.icon} size={isParent ? 12 : 11} />
+            <span>{typeCfg.label}</span>
+          </span>
+        );
 
-  const handleToggleVersions = () => {
-    if (isAnyExpanded) {
-      onCollapseAll && onCollapseAll();
-    } else {
-      onExpandAll && onExpandAll();
+      case 'id':
+        return (
+          <span style={{ fontFamily: 'var(--ds-font-mono)', fontSize: isParent ? '12px' : '11px', color: isParent ? C.text : 'var(--ds-text-2)', fontWeight: '600' }}>
+            {item.id}
+          </span>
+        );
+
+      case 'name':
+        return (
+          <div style={{ color: isParent ? C.text : 'var(--ds-text-2)', fontSize: '13px', fontWeight: isParent ? '500' : '400' }}>
+            {item.name || '-'}
+          </div>
+        );
+
+      case 'description':
+        return (
+          <span style={{ fontSize: '12px', color: 'var(--ds-text-2)', maxWidth: '280px', display: 'inline-block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={item.description || item.raw?.description}>
+            {item.description || item.raw?.description || '-'}
+          </span>
+        );
+
+      case 'isBundle':
+        return (
+          <span style={{ fontSize: '12px', color: (item.isBundle || item.raw?.isBundle) ? 'var(--ds-brand)' : 'var(--ds-text-2)', fontWeight: (item.isBundle || item.raw?.isBundle) ? '600' : '400' }}>
+            {(item.isBundle || item.raw?.isBundle) ? 'Yes' : 'No'}
+          </span>
+        );
+
+      case 'start_date': {
+        const d = item.validFor?.startDateTime || item.raw?.validFor?.startDateTime;
+        return <span style={{ fontSize: '11px', color: 'var(--ds-text-2)' }}>{d ? new Date(d).toLocaleDateString() : '-'}</span>;
+      }
+
+      case 'end_date': {
+        const d = item.validFor?.endDateTime || item.raw?.validFor?.endDateTime;
+        return <span style={{ fontSize: '11px', color: 'var(--ds-text-2)' }}>{d ? new Date(d).toLocaleDateString() : '-'}</span>;
+      }
+
+      case 'version':
+        return (
+          <VersionCell
+            version={item.version}
+            totalVersions={isParent && hasMultipleVersions ? (group.totalVersions || group.previousVersions.length + 1) : 1}
+            isExpanded={Boolean(isExpanded)}
+            onToggle={isParent && hasMultipleVersions ? () => onToggleExpand && onToggleExpand(group.groupKey) : undefined}
+            isParent={isParent}
+          />
+        );
+
+      case 'lifecycle':
+        return <LifecyclePill status={item.lifecycleStatus} />;
+
+      default:
+        return <span>{getColumnRawValue(item, { key: colKey }) || '-'}</span>;
     }
   };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
-      {/* ── Toolbar: Expand/Collapse Versions & Refresh Catalog ── */}
+      {/* ── Top Toolbar: Controls, Filters, Customizer & Version Management ── */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
@@ -62,358 +194,475 @@ export default function AllObjectsListView({
         background: 'var(--ds-surface-subtle)',
         borderBottom: `1px solid ${C.border}`,
         borderRadius: '6px',
-        marginTop: '8px'
+        marginTop: '8px',
+        gap: '8px',
+        flexWrap: 'wrap'
       }}>
-        <div>
-          {hasVersions && (
-            <div style={{ position: 'relative' }} ref={versionMenuRef}>
-              <div style={{ display: 'inline-flex', alignItems: 'center' }}>
-                <button
-                  type="button"
-                  onClick={handleToggleVersions}
+        {/* Left Toolbar Controls */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+          {/* Toggle Column Filter Inputs */}
+          <button
+            type="button"
+            onClick={() => setShowFilterRow(prev => !prev)}
+            style={{
+              background: showFilterRow ? 'rgba(230,0,0,0.08)' : '#ffffff',
+              border: `1px solid ${showFilterRow ? 'var(--ds-brand)' : C.border}`,
+              color: showFilterRow ? 'var(--ds-brand)' : C.text,
+              padding: '4px 10px',
+              borderRadius: '5px',
+              fontSize: '12px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '5px',
+              transition: 'all 0.15s ease'
+            }}
+            title={showFilterRow ? "Hide column filters" : "Show column filter inputs"}
+          >
+            <span><Icon name="search" size={14} /></span>
+            <span>{showFilterRow ? 'Hide Filters' : 'Filter Columns'}</span>
+            {activeFilterEntries.length > 0 && (
+              <span style={{ background: 'var(--ds-brand)', color: '#fff', fontSize: '11px', padding: '1px 5px', borderRadius: '10px', fontWeight: '700' }}>
+                {activeFilterEntries.length}
+              </span>
+            )}
+          </button>
+
+          {/* Configure Columns Popover Toggle */}
+          <ColumnCustomizerPopover
+            entityLabel="Catalog Objects"
+            availableColumns={AVAILABLE_COLUMNS}
+            visibleColumns={visibleColumns}
+            visibleColumnKeys={visibleColumnKeys}
+            isOpen={isCustomizerOpen}
+            onToggleOpen={() => setIsCustomizerOpen(prev => !prev)}
+            customizerRef={customizerRef}
+            onToggleColumn={toggleColumn}
+            onMoveColumn={moveColumn}
+            onReorderColumns={reorderColumns}
+            onSelectAll={selectAll}
+            onDeselectAll={deselectAll}
+            onToggleSelectAll={toggleSelectAll}
+            onResetDefaults={resetToDefaults}
+          />
+
+          {/* Expand / Collapse Versions Single Button & Menu */}
+          <VersionMenuDropdown
+            groups={groups}
+            expandedGroups={expandedGroups}
+            onExpandAll={onExpandAll}
+            onCollapseAll={onCollapseAll}
+          />
+        </div>
+
+        {/* Right: Active Sort Reset & Refresh Catalog Button */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {sortConfig.key && (
+            <button
+              type="button"
+              onClick={clearSort}
+              style={{
+                background: 'rgba(230,0,0,0.06)',
+                border: '1px solid rgba(230,0,0,0.25)',
+                color: 'var(--ds-brand)',
+                padding: '4px 8px',
+                borderRadius: '5px',
+                fontSize: '11px',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+              title="Reset table sort"
+            >
+              <span>✕</span>
+              <span>Sorted by {AVAILABLE_COLUMNS.find(c => c.key === sortConfig.key)?.label || sortConfig.key} ({sortConfig.direction.toUpperCase()})</span>
+            </button>
+          )}
+
+          {onRefreshCatalog && (
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              {cacheStatus && (
+                <span
                   style={{
-                    background: isAnyExpanded ? 'rgba(230,0,0,0.08)' : '#ffffff',
-                    border: `1px solid ${isAnyExpanded ? 'var(--ds-brand)' : C.border}`,
-                    borderRight: 'none',
-                    borderTopRightRadius: 0,
-                    borderBottomRightRadius: 0,
-                    borderTopLeftRadius: '5px',
-                    borderBottomLeftRadius: '5px',
-                    color: isAnyExpanded ? 'var(--ds-brand)' : C.text,
-                    padding: '4px 9px',
-                    fontSize: '12px',
-                    fontWeight: '600',
-                    cursor: 'pointer',
+                    fontSize: '11px',
+                    color: cacheStatus.isCached ? 'var(--ds-ok)' : 'var(--ds-text-2)',
+                    background: cacheStatus.isCached ? 'rgba(16,185,129,0.08)' : 'rgba(0,0,0,0.04)',
+                    border: `1px solid ${cacheStatus.isCached ? 'rgba(16,185,129,0.25)' : 'var(--ds-border)'}`,
+                    padding: '3px 8px',
+                    borderRadius: '4px',
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: '5px',
-                    transition: 'all 0.15s ease'
+                    gap: '4px'
                   }}
-                  title={isAnyExpanded ? "Click to collapse all version trees" : "Click to expand all version trees"}
+                  title={cacheStatus.cachedAt ? `Loaded from SQLite backend cache (${new Date(cacheStatus.cachedAt).toLocaleString()})` : 'Live catalog data'}
                 >
-                  <span>{isAnyExpanded ? '⊟' : '⊞'}</span>
-                  <span>{isAnyExpanded ? 'Collapse Versions' : 'Expand Versions'}</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setIsVersionMenuOpen(prev => !prev)}
-                  style={{
-                    background: isAnyExpanded ? 'rgba(230,0,0,0.08)' : '#ffffff',
-                    border: `1px solid ${isAnyExpanded ? 'var(--ds-brand)' : C.border}`,
-                    borderTopLeftRadius: 0,
-                    borderBottomLeftRadius: 0,
-                    borderTopRightRadius: '5px',
-                    borderBottomRightRadius: '5px',
-                    color: isAnyExpanded ? 'var(--ds-brand)' : C.muted,
-                    padding: '4px 6px',
-                    fontSize: '11px',
-                    cursor: 'pointer',
-                    transition: 'all 0.15s ease'
-                  }}
-                  title="Version options menu"
-                >
-                  ▼
-                </button>
-              </div>
-
-              {isVersionMenuOpen && (
-                <div style={{
-                  position: 'absolute',
-                  left: 0,
-                  top: 'calc(100% + 6px)',
-                  background: '#ffffff',
-                  border: `1px solid var(--ds-border-strong)`,
-                  borderRadius: '6px',
-                  boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
-                  zIndex: 100,
-                  minWidth: '165px',
-                  overflow: 'hidden',
-                  padding: '4px 0'
-                }}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsVersionMenuOpen(false);
-                      onExpandAll && onExpandAll();
-                    }}
-                    style={{
-                      width: '100%',
-                      textAlign: 'left',
-                      padding: '7px 12px',
-                      background: 'none',
-                      border: 'none',
-                      fontSize: '12px',
-                      color: C.text,
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px'
-                    }}
-                    onMouseEnter={e => e.currentTarget.style.background = 'var(--ds-surface-2)'}
-                    onMouseLeave={e => e.currentTarget.style.background = 'none'}
-                  >
-                    <span>⊞</span>
-                    <span>Expand All Versions</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsVersionMenuOpen(false);
-                      onCollapseAll && onCollapseAll();
-                    }}
-                    style={{
-                      width: '100%',
-                      textAlign: 'left',
-                      padding: '7px 12px',
-                      background: 'none',
-                      border: 'none',
-                      fontSize: '12px',
-                      color: C.text,
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px'
-                    }}
-                    onMouseEnter={e => e.currentTarget.style.background = 'var(--ds-surface-2)'}
-                    onMouseLeave={e => e.currentTarget.style.background = 'none'}
-                  >
-                    <span>⊟</span>
-                    <span>Collapse All Versions</span>
-                  </button>
-                </div>
+                  <span>{cacheStatus.isCached ? 'Cached' : 'Live'}</span>
+                  {cacheStatus.cachedAt && (
+                    <span style={{ fontSize: '11px', color: 'var(--ds-text-2)' }}>
+                      ({new Date(cacheStatus.cachedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })})
+                    </span>
+                  )}
+                </span>
               )}
+              <button
+                type="button"
+                onClick={onRefreshCatalog}
+                disabled={isRefreshing}
+                style={{
+                  background: 'var(--ds-brand)',
+                  border: '1px solid var(--ds-brand-dark)',
+                  color: '#ffffff',
+                  padding: '4px 12px',
+                  borderRadius: '5px',
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  cursor: isRefreshing ? 'not-allowed' : 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  boxShadow: '0 1px 3px rgba(230,0,0,0.25)',
+                  transition: 'all 0.15s ease'
+                }}
+                title="Fetch latest remote entities from active DNEXT environment (bypasses cache)"
+              >
+                <span style={{ display: 'inline-block', animation: isRefreshing ? 'spin 1s infinite linear' : 'none' }}>
+                  {isRefreshing ? '' : '⟳'}
+                </span>
+                <span>{isRefreshing ? 'Refreshing…' : 'Refresh Catalog'}</span>
+              </button>
             </div>
           )}
         </div>
-
-        {onRefreshCatalog && (
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-            {cacheStatus && (
-              <span
-                style={{
-                  fontSize: '11px',
-                  color: cacheStatus.isCached ? 'var(--ds-ok)' : 'var(--ds-text-2)',
-                  background: cacheStatus.isCached ? 'rgba(16,185,129,0.08)' : 'rgba(0,0,0,0.04)',
-                  border: `1px solid ${cacheStatus.isCached ? 'rgba(16,185,129,0.25)' : 'var(--ds-border)'}`,
-                  padding: '3px 8px',
-                  borderRadius: '4px',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '4px'
-                }}
-                title={cacheStatus.cachedAt ? `Loaded from SQLite backend cache (${new Date(cacheStatus.cachedAt).toLocaleString()})` : 'Live catalog data'}
-              >
-                <span>{cacheStatus.isCached ? 'Cached' : 'Live'}</span>
-                {cacheStatus.cachedAt && (
-                  <span style={{ fontSize: '11px', color: 'var(--ds-text-2)' }}>
-                    ({new Date(cacheStatus.cachedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })})
-                  </span>
-                )}
-              </span>
-            )}
-            <button
-              type="button"
-              onClick={onRefreshCatalog}
-              disabled={isRefreshing}
-              style={{
-                background: 'var(--ds-brand)',
-                border: '1px solid var(--ds-brand-dark)',
-                color: '#ffffff',
-                padding: '4px 12px',
-                borderRadius: '5px',
-                fontSize: '12px',
-                fontWeight: '600',
-                cursor: isRefreshing ? 'not-allowed' : 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                opacity: isRefreshing ? 0.7 : 1,
-                transition: 'all 0.15s ease'
-              }}
-              title="Reload live catalog from DNEXT Direct Cloud Gateway (bypasses cache)"
-            >
-              <span style={{ display: 'inline-block', animation: isRefreshing ? 'spin 1s infinite linear' : 'none' }}>
-                {isRefreshing ? '' : '⟳'}
-              </span>
-              <span>{isRefreshing ? 'Refreshing…' : 'Refresh Catalog'}</span>
-            </button>
-          </div>
-        )}
       </div>
 
-      <table className="ds-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', marginTop: '12px', textAlign: 'left' }}>
+      {/* ── Active Column Filter Chips Bar ── */}
+      {activeFilterEntries.length > 0 && (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
+          flexWrap: 'wrap',
+          padding: '6px 12px',
+          background: 'rgba(230,0,0,0.04)',
+          borderBottom: `1px solid ${C.border}`,
+          fontSize: '12px'
+        }}>
+          <span style={{ color: 'var(--ds-brand)', fontWeight: '700' }}>Active Filters:</span>
+          {activeFilterEntries.map(entry => (
+            <span
+              key={entry.key}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px',
+                background: 'rgba(230,0,0,0.08)',
+                border: '1px solid rgba(230,0,0,0.25)',
+                color: 'var(--ds-brand-dark)',
+                padding: '2px 8px',
+                borderRadius: '4px'
+              }}
+            >
+              <span>{entry.label}: <strong>{entry.val}</strong></span>
+              <button
+                type="button"
+                onClick={() => handleFilterChange(entry.key, null)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--ds-brand)',
+                  cursor: 'pointer',
+                  padding: 0,
+                  fontSize: '11px',
+                  lineHeight: 1
+                }}
+                title={`Remove ${entry.label} filter`}
+              >
+                ✕
+              </button>
+            </span>
+          ))}
+          <button
+            type="button"
+            onClick={clearAllFilters}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: 'var(--ds-brand)',
+              cursor: 'pointer',
+              fontSize: '11px',
+              textDecoration: 'underline',
+              padding: '2px 4px'
+            }}
+          >
+            Clear all
+          </button>
+        </div>
+      )}
+
+      {/* ── Main Configurable Table ── */}
+      <table className="ds-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', marginTop: '6px', textAlign: 'left' }}>
         <thead>
+          {/* Header Row with Sort Triggers */}
           <tr style={{ borderBottom: `1px solid ${C.border}`, color: C.muted, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
             <th style={{ padding: '10px 8px', width: '38px', textAlign: 'center' }}>
               <input
                 type="checkbox"
-                checked={groups.length > 0 && selectedIds.size === groups.length}
+                checked={processedGroups.length > 0 && selectedIds.size === processedGroups.length}
                 onChange={onToggleSelectAll}
-                style={{ cursor: 'pointer', accentColor: C.indigo }}
+                style={{ cursor: 'pointer', accentColor: 'var(--ds-brand)' }}
               />
             </th>
-            <th style={{ padding: '10px 12px', width: '150px' }}>Type</th>
-            <th style={{ padding: '10px 12px' }}>ID / Identifier</th>
-            <th style={{ padding: '10px 12px' }}>Name / Title</th>
-            <th style={{ padding: '10px 12px', width: '100px' }}>Version</th>
-            <th style={{ padding: '10px 12px', width: '120px' }}>Lifecycle</th>
+            {visibleColumns.map(col => {
+              const isSorted = sortConfig.key === col.key;
+              const isFiltered = Boolean(columnFilters[col.key]);
+
+              return (
+                <th
+                  key={col.key}
+                  onClick={() => col.sortable && handleSort(col.key)}
+                  style={{
+                    padding: '10px 12px',
+                    width: col.width,
+                    minWidth: col.minWidth,
+                    cursor: col.sortable ? 'pointer' : 'default',
+                    userSelect: 'none',
+                    color: isSorted ? 'var(--ds-brand)' : isFiltered ? 'var(--ds-ok)' : C.muted,
+                    transition: 'color 0.15s ease'
+                  }}
+                  title={col.sortable ? `Click to sort by ${col.label}` : col.label}
+                >
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                    <span>{col.label}</span>
+                    {col.sortable && (
+                      <span style={{
+                        fontSize: isSorted ? '10px' : '9px',
+                        color: isSorted ? 'var(--ds-brand)' : 'rgba(0,0,0,0.25)',
+                        fontWeight: isSorted ? '800' : '400'
+                      }}>
+                        {isSorted ? (sortConfig.direction === 'asc' ? '▲' : '▼') : '↕'}
+                      </span>
+                    )}
+                    {isFiltered && (
+                      <span style={{ fontSize: '10px', color: 'var(--ds-ok)' }} title="Active filter on this column">
+                        ●
+                      </span>
+                    )}
+                  </div>
+                </th>
+              );
+            })}
           </tr>
+
+          {/* ── Optional Inline Filter Row ── */}
+          {showFilterRow && (
+            <tr style={{ background: 'var(--ds-surface-2)', borderBottom: `1px solid ${C.border}` }}>
+              <th style={{ padding: '4px 8px', textAlign: 'center' }}>
+                <span style={{ fontSize: '11px', color: C.muted }}><Icon name="search" size={12} /></span>
+              </th>
+              {visibleColumns.map(col => {
+                if (!col.filterable) {
+                  return <th key={col.key} style={{ padding: '4px 12px' }} />;
+                }
+
+                const currentVal = columnFilters[col.key] || '';
+                const distinctOptions = distinctOptionsMap[col.key] || [];
+
+                return (
+                  <th key={col.key} style={{ padding: '4px 10px' }}>
+                    {col.filterType === 'select' && distinctOptions.length > 0 ? (
+                      <select
+                        value={currentVal || '__all__'}
+                        onChange={e => handleFilterChange(col.key, e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '4px 6px',
+                          borderRadius: '4px',
+                          border: `1px solid ${currentVal ? 'var(--ds-brand)' : C.border}`,
+                          background: currentVal ? 'rgba(230,0,0,0.06)' : '#ffffff',
+                          color: currentVal ? 'var(--ds-brand)' : C.text,
+                          fontSize: '11px',
+                          outline: 'none',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        <option value="__all__">All {col.label}</option>
+                        {distinctOptions.map(opt => (
+                          <option key={opt} value={opt}>
+                            {opt}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                        <input
+                          type="text"
+                          placeholder={`Filter ${col.label}…`}
+                          value={currentVal}
+                          onChange={e => handleFilterChange(col.key, e.target.value)}
+                          style={{
+                            width: '100%',
+                            padding: '4px 20px 4px 6px',
+                            borderRadius: '4px',
+                            border: `1px solid ${currentVal ? 'var(--ds-brand)' : C.border}`,
+                            background: currentVal ? 'rgba(230,0,0,0.06)' : '#ffffff',
+                            color: currentVal ? 'var(--ds-brand)' : C.text,
+                            fontSize: '11px',
+                            outline: 'none'
+                          }}
+                        />
+                        {currentVal && (
+                          <button
+                            type="button"
+                            onClick={() => handleFilterChange(col.key, null)}
+                            style={{
+                              position: 'absolute',
+                              right: '4px',
+                              background: 'transparent',
+                              border: 'none',
+                              color: C.muted,
+                              cursor: 'pointer',
+                              fontSize: '11px',
+                              padding: '1px'
+                            }}
+                            title="Clear column filter"
+                          >
+                            ✕
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </th>
+                );
+              })}
+            </tr>
+          )}
         </thead>
         <tbody>
-          {groups.map((group) => {
-            const item = group.latestItem;
-            const isSelected = selectedIds.has(item.id);
-            const isExpanded = expandedGroups.has(group.groupKey);
-            const hasMultipleVersions = group.previousVersions && group.previousVersions.length > 0;
-            const typeCfg = ENTITY_CONFIG[item.entityType] || {
-              label: item.entityType,
-              color: { bg: 'rgba(230,0,0,0.06)', border: 'var(--ds-danger-border)', text: 'var(--ds-brand)' },
-              icon: 'file'
-            };
-
-            return (
-              <React.Fragment key={group.groupKey}>
-                {/* ── Parent / Latest Version Row ── */}
-                <tr
-                  onDoubleClick={() => onOpenDetail && onOpenDetail(item)}
-                  title="Double-click to view details"
-                  style={{
-                    borderBottom: hasMultipleVersions && isExpanded ? '1px dashed rgba(230,0,0,0.3)' : `1px solid ${C.border}`,
-                    background: isSelected ? 'rgba(230,0,0,0.06)' : isExpanded ? 'rgba(230,0,0,0.02)' : 'transparent',
-                    transition: 'background 0.15s',
-                    cursor: 'pointer'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = isSelected ? 'rgba(230,0,0,0.1)' : 'var(--ds-surface-subtle)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = isSelected ? 'rgba(230,0,0,0.06)' : isExpanded ? 'rgba(230,0,0,0.02)' : 'transparent';
-                  }}
-                >
-                  {/* Checkbox */}
-                  <td style={{ padding: '10px 8px', textAlign: 'center' }}>
-                    <input
-                      type="checkbox"
-                      checked={isSelected}
-                      onClick={(e) => e.stopPropagation()}
-                      onChange={() => onToggleSelectItem && onToggleSelectItem(item.id)}
-                      style={{ cursor: 'pointer', accentColor: C.indigo }}
-                    />
-                  </td>
-
-                  {/* Type Badge */}
-                  <td style={{ padding: '10px 12px' }}>
-                    <EntityTypeBadge
-                      type={item.entityType}
-                      label={typeCfg.label}
-                      icon={typeCfg.icon}
-                    />
-                  </td>
-
-                  {/* ID / Identifier (Clean, no version button jammed here) */}
-                  <td style={{ padding: '10px 12px' }}>
-                    <span style={{ fontFamily: 'var(--ds-font-mono)', fontSize: '12px', color: C.text, fontWeight: '600' }}>
-                      {item.id}
-                    </span>
-                  </td>
-
-                  {/* Name */}
-                  <td style={{ padding: '10px 12px' }}>
-                    <div style={{ color: C.text, fontSize: '13px', fontWeight: '500' }}>
-                      {item.name || '-'}
-                    </div>
-                  </td>
-
-                  {/* Version (Interactive Toggle Button as in SalesPackagesListView) */}
-                  <td
-                    style={{ padding: '10px 12px', cursor: hasMultipleVersions ? 'pointer' : undefined }}
-                    onClick={hasMultipleVersions ? (e) => {
-                      e.stopPropagation();
-                      onToggleExpand && onToggleExpand(group.groupKey);
-                    } : undefined}
+          {visibleColumns.length === 0 ? (
+            <tr>
+              <td colSpan={2} style={{ textAlign: 'center', padding: '36px 12px', color: C.muted }}>
+                <div style={{ fontSize: '13px', fontWeight: '600' }}>No columns selected.</div>
+                <div style={{ fontSize: '12px', color: 'var(--ds-text-2)', marginTop: '4px' }}>
+                  Use the <strong>Columns</strong> menu above to select columns to display.
+                </div>
+              </td>
+            </tr>
+          ) : processedGroups.length === 0 ? (
+            <tr>
+              <td colSpan={visibleColumns.length + 1} style={{ textAlign: 'center', padding: '36px 12px', color: C.muted }}>
+                <div style={{ fontSize: '20px', marginBottom: '6px' }}><Icon name="inbox" size={20} /></div>
+                <div style={{ fontSize: '13px', fontWeight: '600' }}>No objects match the column filters.</div>
+                {activeFilterEntries.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={clearAllFilters}
+                    style={{ marginTop: '8px', background: 'rgba(230,0,0,0.06)', border: '1px solid var(--ds-brand)', color: 'var(--ds-brand)', padding: '4px 10px', borderRadius: '4px', fontSize: '11px', cursor: 'pointer', fontWeight: '600' }}
                   >
-                    <VersionCell
-                      version={item.version}
-                      totalVersions={hasMultipleVersions ? (group.totalVersions || group.previousVersions.length + 1) : 1}
-                      isExpanded={Boolean(isExpanded)}
-                      onToggle={() => onToggleExpand && onToggleExpand(group.groupKey)}
-                      isParent
-                    />
-                  </td>
+                    Clear Active Filters
+                  </button>
+                )}
+              </td>
+            </tr>
+          ) : (
+            processedGroups.map(group => {
+              const item = group.latestItem;
+              const isSelected = selectedIds.has(item.id);
+              const isExpanded = expandedGroups.has(group.groupKey);
+              const hasMultipleVersions = group.previousVersions && group.previousVersions.length > 0;
 
-                  {/* Lifecycle Status */}
-                  <td style={{ padding: '10px 12px' }}>
-                    <LifecyclePill status={item.lifecycleStatus} />
-                  </td>
-                </tr>
+              return (
+                <React.Fragment key={group.groupKey}>
+                  {/* ── Parent / Latest Version Row ── */}
+                  <tr
+                    onDoubleClick={() => onOpenDetail && onOpenDetail(item)}
+                    title="Double-click to view details"
+                    style={{
+                      borderBottom: hasMultipleVersions && isExpanded ? '1px dashed rgba(230,0,0,0.3)' : `1px solid ${C.border}`,
+                      background: isSelected ? 'rgba(230,0,0,0.06)' : isExpanded ? 'rgba(230,0,0,0.02)' : 'transparent',
+                      transition: 'background 0.15s',
+                      cursor: 'pointer'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = isSelected ? 'rgba(230,0,0,0.1)' : 'var(--ds-surface-subtle)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = isSelected ? 'rgba(230,0,0,0.06)' : isExpanded ? 'rgba(230,0,0,0.02)' : 'transparent';
+                    }}
+                  >
+                    {/* Checkbox */}
+                    <td style={{ padding: '10px 8px', textAlign: 'center' }}>
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onClick={(e) => e.stopPropagation()}
+                        onChange={() => onToggleSelectItem && onToggleSelectItem(item.id)}
+                        style={{ cursor: 'pointer', accentColor: 'var(--ds-brand)' }}
+                      />
+                    </td>
 
-                {/* ── Sub-rows: Previous Versions (Tree Expanded, Column-Aligned) ── */}
-                {hasMultipleVersions && isExpanded && group.previousVersions.map((prevItem, pIdx) => {
-                  const isLastChild = pIdx === group.previousVersions.length - 1;
+                    {/* Dynamic Configured Columns */}
+                    {visibleColumns.map(col => {
+                      const isVersionCol = col.key === 'version';
+                      return (
+                        <td
+                          key={col.key}
+                          style={{
+                            padding: '10px 12px',
+                            cursor: isVersionCol && hasMultipleVersions ? 'pointer' : undefined
+                          }}
+                          onClick={isVersionCol && hasMultipleVersions ? (e) => {
+                            e.stopPropagation();
+                            onToggleExpand && onToggleExpand(group.groupKey);
+                          } : undefined}
+                        >
+                          {renderCellContent(col.key, item, true, group)}
+                        </td>
+                      );
+                    })}
+                  </tr>
 
-                  return (
-                    <tr
-                      key={`${group.groupKey}-v${prevItem.version}-${pIdx}`}
-                      onDoubleClick={() => onOpenDetail && onOpenDetail(prevItem)}
-                      title={`Double-click to view version ${prevItem.version} details`}
-                      style={{
-                        background: 'var(--ds-surface-subtle)',
-                        borderBottom: isLastChild ? `1px solid ${C.border}` : `1px dashed ${C.border}`,
-                        borderLeft: '3px solid var(--ds-brand)',
-                        cursor: 'pointer',
-                        transition: 'background 0.15s'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = 'rgba(230,0,0,0.04)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'var(--ds-surface-subtle)';
-                      }}
-                    >
-                      {/* Fixed Tree Indent Icon */}
-                      <td style={{ padding: '8px 8px', textAlign: 'center', color: 'var(--ds-brand)', fontSize: '12px' }}>
-                        <span style={{ opacity: 0.8 }}>↳</span>
-                      </td>
+                  {/* ── Sub-rows: Previous Versions (Tree Expanded) ── */}
+                  {hasMultipleVersions && isExpanded && group.previousVersions.map((prevItem, pIdx) => {
+                    const isLastChild = pIdx === group.previousVersions.length - 1;
+                    return (
+                      <tr
+                        key={`${group.groupKey}-v${prevItem.version}-${pIdx}`}
+                        onDoubleClick={() => onOpenDetail && onOpenDetail(prevItem)}
+                        title={`Double-click to view version ${prevItem.version} details`}
+                        style={{
+                          background: 'var(--ds-surface-subtle)',
+                          borderBottom: isLastChild ? `1px solid ${C.border}` : `1px dashed ${C.border}`,
+                          borderLeft: '3px solid var(--ds-brand)',
+                          cursor: 'pointer',
+                          transition: 'background 0.15s'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'rgba(230,0,0,0.04)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'var(--ds-surface-subtle)';
+                        }}
+                      >
+                        {/* Tree hierarchy branch guide */}
+                        <td style={{ padding: '8px', textAlign: 'center', color: C.muted, fontSize: '11px' }}>
+                          {isLastChild ? '└' : '├'}
+                        </td>
 
-                      {/* Type */}
-                      <td style={{ padding: '8px 12px' }}>
-                        <EntityTypeBadge
-                          type={prevItem.entityType}
-                          label={typeCfg.label}
-                          icon={typeCfg.icon}
-                          isChild
-                        />
-                      </td>
-
-                      {/* ID */}
-                      <td style={{ padding: '8px 12px' }}>
-                        <span style={{ fontFamily: 'var(--ds-font-mono)', fontSize: '11px', color: 'var(--ds-text-2)' }}>
-                          {prevItem.id}
-                        </span>
-                      </td>
-
-                      {/* Name */}
-                      <td style={{ padding: '8px 12px' }}>
-                        <div style={{ color: 'var(--ds-text-2)', fontSize: '12px' }}>
-                          {prevItem.name || '-'}
-                        </div>
-                      </td>
-
-                      {/* Version (Amber Badge for Child Row) */}
-                      <td style={{ padding: '8px 12px' }}>
-                        <VersionCell version={prevItem.version} isParent={false} />
-                      </td>
-
-                      {/* Lifecycle Status */}
-                      <td style={{ padding: '8px 12px' }}>
-                        <LifecyclePill status={prevItem.lifecycleStatus} compact />
-                      </td>
-                    </tr>
-                  );
-                })}
-              </React.Fragment>
-            );
-          })}
+                        {/* Dynamic Sub-Row Cells */}
+                        {visibleColumns.map(col => (
+                          <td key={col.key} style={{ padding: '8px 12px' }}>
+                            {renderCellContent(col.key, prevItem, false, group)}
+                          </td>
+                        ))}
+                      </tr>
+                    );
+                  })}
+                </React.Fragment>
+              );
+            })
+          )}
         </tbody>
       </table>
     </div>
