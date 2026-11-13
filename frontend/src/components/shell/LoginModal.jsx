@@ -21,14 +21,15 @@ export default function LoginModal({ onClose, targetEnv = null, onSuccess = null
   const passwordInputRef = useRef(null);
   const usernameInputRef = useRef(null);
 
-  // Auto-focus username if empty, otherwise password
+  // Auto-focus once on mount: username if empty, password if already pre-filled
   useEffect(() => {
-    if (!username) {
-      usernameInputRef.current?.focus();
-    } else {
+    const savedUser = localStorage.getItem('dnext_username');
+    if (savedUser) {
       passwordInputRef.current?.focus();
+    } else {
+      usernameInputRef.current?.focus();
     }
-  }, [username]);
+  }, []);
 
   const activeTarget = environments.find(e => e.name === envChoice) || initialEnv;
 
