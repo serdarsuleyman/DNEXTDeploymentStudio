@@ -94,6 +94,12 @@ function compareVersionsDesc(a, b) {
 
 const DEFAULT_ENVIRONMENTS = [
   {
+    name: 'dpc_ui.test-g',
+    url: 'https://dpc-ui.test-gcu.com/ui/productCatalogManagement/',
+    apiUrl: 'https://dpc-api.test-gcu.com',
+    authUrl: 'https://diam.test-gcu.com/realms/orbitant-realm/protocol/openid-connect/token'
+  },
+  {
     name: 'test',
     url: 'https://dpc-ui.test-gcu.com/ui/productCatalogManagement/',
     apiUrl: 'https://dpc-api.test-gcu.com',
@@ -104,24 +110,17 @@ const DEFAULT_ENVIRONMENTS = [
     url: 'https://dpc-api.pi.dev-gcu.com/ui/productCatalogManagement/',
     apiUrl: 'https://dpc-api.pi.dev-gcu.com',
     authUrl: 'https://diam.pi.dev-gcu.com/realms/orbitant-realm/protocol/openid-connect/token'
-  },
-  {
-    name: 'dpc_ui.test-g',
-    url: 'https://dpc-ui.test-gcu.com/ui/productCatalogManagement/',
-    apiUrl: 'https://dpc-api.test-gcu.com',
-    authUrl: 'https://diam.test-gcu.com/realms/orbitant-realm/protocol/openid-connect/token'
   }
 ];
 
 export default function DnextRemoteCatalogView({ selectedEnv: propSelectedEnv, environments: propEnvironments = [], onSelectEnv }) {
-  // Environments state
+  // Environments state (sourced from props, DEFAULT_ENVIRONMENTS, or /api/dnext/environments)
   const [environments, setEnvironments] = useState(() => {
-    if (Array.isArray(propEnvironments) && propEnvironments.length > 0) return propEnvironments;
-    return DEFAULT_ENVIRONMENTS;
+    return Array.isArray(propEnvironments) && propEnvironments.length > 0 ? propEnvironments : DEFAULT_ENVIRONMENTS;
   });
   
   const [selectedEnvName, setSelectedEnvName] = useState(() => {
-    return propSelectedEnv?.name || localStorage.getItem('dnext_env_name') || 'test';
+    return propSelectedEnv?.name || localStorage.getItem('dnext_env_name') || 'dpc_ui.test-g';
   });
 
   useEffect(() => {
@@ -147,20 +146,20 @@ export default function DnextRemoteCatalogView({ selectedEnv: propSelectedEnv, e
   }, [propSelectedEnv?.name]);
 
   const activeEnv = useMemo(() => {
-    const name = selectedEnvName || 'test';
+    const name = selectedEnvName || 'dpc_ui.test-g';
     const envList = environments.length > 0 ? environments : DEFAULT_ENVIRONMENTS;
-    const match = envList.find(e => e.name && e.name.toLowerCase() === name.toLowerCase())
-      || envList.find(e => e.name && (e.name.toLowerCase().includes(name.toLowerCase()) || name.toLowerCase().includes(e.name.toLowerCase())))
-      || (propSelectedEnv && propSelectedEnv.name.toLowerCase() === name.toLowerCase() ? propSelectedEnv : null)
-      || envList.find(e => e.name.toLowerCase().includes('test'))
+    const match = (name && envList.find(e => e.name && e.name.toLowerCase() === name.toLowerCase()))
+      || (name && envList.find(e => e.name && (e.name.toLowerCase().includes(name.toLowerCase()) || name.toLowerCase().includes(e.name.toLowerCase()))))
+      || (propSelectedEnv && (!name || propSelectedEnv.name?.toLowerCase() === name.toLowerCase()) ? propSelectedEnv : null)
+      || envList.find(e => (e.name || '').toLowerCase().includes('test'))
       || envList[0]
       || DEFAULT_ENVIRONMENTS[0];
 
-    const isTest = (match.name || '').toLowerCase().includes('test');
+    const isTest = (match.name || '').toLowerCase().includes('test') || (match.apiUrl || '').toLowerCase().includes('test');
     return {
       ...match,
-      apiUrl: match.apiUrl || (isTest ? 'https://dpc-api.test-gcu.com' : 'https://dpc-api.pi.dev-gcu.com'),
-      authUrl: match.authUrl || (isTest ? 'https://diam.test-gcu.com/realms/orbitant-realm/protocol/openid-connect/token' : 'https://diam.pi.dev-gcu.com/realms/orbitant-realm/protocol/openid-connect/token'),
+      apiUrl: match.apiUrl || localStorage.getItem('dnext_api_url') || (isTest ? 'https://dpc-api.test-gcu.com' : 'https://dpc-api.pi.dev-gcu.com'),
+      authUrl: match.authUrl || localStorage.getItem('dnext_auth_url') || (isTest ? 'https://diam.test-gcu.com/realms/orbitant-realm/protocol/openid-connect/token' : 'https://diam.pi.dev-gcu.com/realms/orbitant-realm/protocol/openid-connect/token'),
     };
   }, [selectedEnvName, environments, propSelectedEnv]);
 
@@ -263,7 +262,7 @@ export default function DnextRemoteCatalogView({ selectedEnv: propSelectedEnv, e
   const getTargetEnvHeaders = useCallback(async (authToken, targetEnv = null) => {
     const env = targetEnv || activeEnv;
     const isTest = (env?.name && env.name.toLowerCase().includes('test')) || (env?.apiUrl && env.apiUrl.toLowerCase().includes('test'));
-    const envName = env?.name || localStorage.getItem('dnext_env_name') || (isTest ? 'test' : 'Default (dev-gcu)');
+    const envName = env?.name || localStorage.getItem('dnext_env_name') || (isTest ? 'dpc_ui.test-g' : 'Default (dev-gcu)');
     const apiUrl = env?.apiUrl || localStorage.getItem('dnext_api_url') || (isTest ? 'https://dpc-api.test-gcu.com' : 'https://dpc-api.pi.dev-gcu.com');
     const authUrl = env?.authUrl || localStorage.getItem('dnext_auth_url') || (isTest ? 'https://diam.test-gcu.com/realms/orbitant-realm/protocol/openid-connect/token' : 'https://diam.pi.dev-gcu.com/realms/orbitant-realm/protocol/openid-connect/token');
 
@@ -272,7 +271,7 @@ export default function DnextRemoteCatalogView({ selectedEnv: propSelectedEnv, e
       'Accept': 'application/json',
       'Content-Type': 'application/json',
       'x-dnext-api-url': apiUrl,
-      ...(authUrl ? { 'x-dnext-auth-url': authUrl } : {}),
+      'x-dnext-auth-url': authUrl,
       'x-dnext-env-name': envName
     };
   }, [activeEnv]);

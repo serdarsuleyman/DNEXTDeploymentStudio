@@ -6,97 +6,39 @@
  * and CCB tariff/service codes across Sales Package views and creation workflows.
  */
 
+import referenceValues from '../config/referenceValues.json';
+
 // Certified Vodafone DSL Fallback Tiers & Service Codes paired with network technology (I1204 NGN / I1203 Bitstream)
-export const VODAFONE_DSL_FALLBACK_TIERS = [
-  {
-    speed: 175,
-    technology: 'I1203 Bitstream only',
-    technologyBadge: 'I1203 Bitstream only',
-    isBitstreamOnly: true,
-    upload: 40,
-    svcBw: 'V018U',
-    label: '175 Mbit/s',
-    desc: 'Available via Telekom Bitstream wholesale (Supervectoring)'
-  },
-  {
-    speed: 100,
-    technology: 'I1203 Bitstream only',
-    technologyBadge: 'I1203 Bitstream only',
-    isBitstreamOnly: true,
-    upload: 40,
-    svcBw: 'V018N',
-    label: '100 Mbit/s',
-    desc: 'Available via Telekom Bitstream wholesale (VDSL Vectoring)'
-  },
-  {
-    speed: 50,
-    technology: 'I1204 NGN & I1203 Bitstream',
-    technologyBadge: 'I1204 NGN / I1203 Bitstream',
-    isBitstreamOnly: false,
-    upload: 10,
-    svcBw: 'V018H',
-    label: '50 Mbit/s',
-    desc: 'Available on both I1204 NGN and I1203 Bitstream'
-  },
-  {
-    speed: 16,
-    technology: 'I1204 NGN & I1203 Bitstream',
-    technologyBadge: 'I1204 NGN / I1203 Bitstream',
-    isBitstreamOnly: false,
-    upload: 2.4,
-    svcBw: 'V018C',
-    label: '16 Mbit/s',
-    desc: 'Available on both I1204 NGN and I1203 Bitstream'
-  },
-  {
-    speed: 6,
-    technology: 'I1204 NGN & I1203 Bitstream',
-    technologyBadge: 'I1204 NGN / I1203 Bitstream',
-    isBitstreamOnly: false,
-    upload: 1,
-    svcBw: 'V0178',
-    label: '6 Mbit/s',
-    desc: 'Available on both I1204 NGN and I1203 Bitstream'
-  },
-  {
-    speed: 3,
-    technology: 'I1203 Bitstream only',
-    technologyBadge: 'I1203 Bitstream only',
-    isBitstreamOnly: true,
-    upload: 0.5,
-    svcBw: 'V0175',
-    label: '3 Mbit/s',
-    desc: 'Exclusively available on I1203 Bitstream (Not supported on I1204 NGN)'
-  },
-  {
-    speed: 2,
-    technology: 'I1204 NGN & I1203 Bitstream',
-    technologyBadge: 'I1204 NGN / I1203 Bitstream',
-    isBitstreamOnly: false,
-    upload: 0.5,
-    svcBw: 'V0174',
-    label: '2 Mbit/s',
-    desc: 'Available on both I1204 NGN and I1203 Bitstream'
-  },
-  {
-    speed: 1,
-    technology: 'I1204 NGN & I1203 Bitstream',
-    technologyBadge: 'I1204 NGN / I1203 Bitstream',
-    isBitstreamOnly: false,
-    upload: 0.25,
-    svcBw: 'V0118',
-    label: '1 Mbit/s',
-    desc: 'Available on both I1204 NGN and I1203 Bitstream'
-  },
-];
+export const VODAFONE_DSL_FALLBACK_TIERS = referenceValues.dslFallbackTiers;
+
+export const FALLBACK_VFDE_CATEGORIES = referenceValues.fallbackCategories;
+
+export const BASELINE_SALES_PACKAGE_SPECS = {
+  ...Object.fromEntries(
+    referenceValues.baselineSalesPackageSpecs.multiValueCharacteristics.map((name) => [
+      name,
+      { minCardinality: 0, maxCardinality: 99, valueType: 'string' }
+    ])
+  ),
+  ...referenceValues.baselineSalesPackageSpecs.scalarCharacteristics
+};
+
+export function getDefaultUploadSpeed(downSpeed) {
+  const s = Number(downSpeed) || 0;
+  const match = referenceValues.bandwidths.defaultUploadByDownloadMbps.find((r) => s >= r.minDown);
+  return match ? match.up : 10;
+}
+
+export function getDslAccessProfileDescription(downSpeed) {
+  const s = Number(downSpeed) || 0;
+  const match = referenceValues.bandwidths.dslAccessProfiles.find((r) => s >= r.minDown);
+  return match ? match.description : 'ADSL2+ / ATM / Annex J';
+}
 
 export function getStandardFallbackTiers(nominalSpeed) {
   const s = Number(nominalSpeed);
-  if (s >= 250) return [175];
-  if (s >= 100) return [50, 16];
-  if (s >= 50) return [16];
-  if (s >= 16) return [6, 3, 2, 1];
-  return [];
+  const rule = referenceValues.standardFallbackRules.find((r) => s >= r.minNominalSpeed);
+  return rule ? [...rule.fallbackSpeeds] : [];
 }
 
 // Helper to extract characteristic values array from any entity
@@ -155,6 +97,10 @@ export function detectTechnology(offering) {
   return 'DSL';
 }
 
+const KNOWN_SPEED_REGEX = new RegExp(
+  `(?:^|[^0-9])(${referenceValues.bandwidths.knownDownloadSpeedsMbps.join('|')})(?:[^0-9]|$)`
+);
+
 // Detect download and upload speeds in Mbps
 export function detectSpeeds(offering) {
   const raw = offering?.raw || offering || {};
@@ -165,11 +111,11 @@ export function detectSpeeds(offering) {
   let down = parseInt(bwChar, 10);
 
   if (isNaN(down) || !down) {
-    const m = (idStr + ' ' + nameStr).match(/(?:^|[^0-9])(1000|600|500|300|250|175|150|100|50|25|16|6|3|2|1)(?:[^0-9]|$)/);
+    const m = (idStr + ' ' + nameStr).match(KNOWN_SPEED_REGEX);
     down = m ? parseInt(m[1], 10) : 100;
   }
 
-  let up = (down >= 1000 ? 200 : down >= 500 ? 100 : down >= 250 ? 50 : down >= 100 ? 40 : 10);
+  let up = getDefaultUploadSpeed(down);
   const upChar = extractChar(offering, 'upstream_bandwidth') || extractChar(offering, 'bandwidth_upstream_max');
   const parsedUp = parseInt(upChar, 10);
   if (!isNaN(parsedUp) && parsedUp > 0) up = parsedUp;

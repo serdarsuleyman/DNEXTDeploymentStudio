@@ -5,7 +5,18 @@ const fs = require('fs');
 
 const CONFIG_PATH = path.join(__dirname, '..', 'config.json');
 
+function getRealmPath() {
+  try {
+    if (fs.existsSync(CONFIG_PATH)) {
+      const parsed = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
+      if (parsed.auth?.realmPath) return parsed.auth.realmPath;
+    }
+  } catch {}
+  return '/realms/orbitant-realm/protocol/openid-connect/token';
+}
+
 function deriveUrls(inputUrl) {
+  const realmPath = getRealmPath();
   try {
     let raw = (inputUrl || '').trim();
     if (!raw.startsWith('http://') && !raw.startsWith('https://')) {
@@ -25,15 +36,15 @@ function deriveUrls(inputUrl) {
     }
     return {
       apiUrl: apiOrigin,
-      authUrl: `${authOrigin}/realms/orbitant-realm/protocol/openid-connect/token`
+      authUrl: `${authOrigin}${realmPath}`
     };
   } catch (e) {
     const isTest = (inputUrl || '').toLowerCase().includes('test');
     return {
       apiUrl: isTest ? 'https://dpc-api.test-gcu.com' : 'https://dpc-api.pi.dev-gcu.com',
       authUrl: isTest
-        ? 'https://diam.test-gcu.com/realms/orbitant-realm/protocol/openid-connect/token'
-        : 'https://diam.pi.dev-gcu.com/realms/orbitant-realm/protocol/openid-connect/token'
+        ? `https://diam.test-gcu.com${realmPath}`
+        : `https://diam.pi.dev-gcu.com${realmPath}`
     };
   }
 }

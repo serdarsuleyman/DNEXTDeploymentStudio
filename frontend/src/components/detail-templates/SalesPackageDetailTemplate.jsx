@@ -1,29 +1,15 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Icon from '../ui/Icon';
 import { LifecyclePill, VersionCell, CodeChip } from '../list-views/cellRenderers';
+import { C } from '../../styles/theme';
 import {
   extractPsmStructure,
   detectTechnology,
   detectSpeeds,
   VODAFONE_DSL_FALLBACK_TIERS,
-  getStandardFallbackTiers
+  getStandardFallbackTiers,
+  getDslAccessProfileDescription
 } from '../../services/psmStructureService';
-
-const C = {
-  bg: '#ffffff',
-  panel: '#ffffff',
-  cardBg: '#ffffff',
-  cardBorder: 'var(--ds-border)',
-  subCardBg: 'var(--ds-surface-subtle)',
-  text: 'var(--ds-text)',
-  muted: 'var(--ds-text-2)',
-  indigo: 'var(--ds-brand)',
-  vodafoneRed: 'var(--ds-brand)',
-  accent: 'var(--ds-brand)',
-  success: 'var(--ds-ok)',
-  warning: 'var(--ds-warn)',
-  danger: 'var(--ds-brand)'
-};
 
 export default function SalesPackageDetailTemplate({
   item,
@@ -456,7 +442,7 @@ export default function SalesPackageDetailTemplate({
     ? 'FTTH (Fibre To The Home) / GPON'
     : resolvedTechnology === 'CABLE'
       ? 'DOCSIS 3.1 / Coaxial Cable'
-      : (resolvedDownSpeed >= 250 ? 'VDSL2 Supervectoring (Profile 35b)' : resolvedDownSpeed >= 100 ? 'VDSL2 Vectoring (Profile 17a)' : resolvedDownSpeed >= 50 ? 'VDSL2 (Profile 17a)' : 'ADSL2+ / ATM / Annex J');
+      : getDslAccessProfileDescription(resolvedDownSpeed);
 
   // ─── Resolve POPs & Child Component Decomposition (Fully Dynamic) ───
   const resolvedPops = useMemo(() => {

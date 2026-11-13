@@ -1,17 +1,7 @@
 // Shared constants and tokens for DNEXT List Views (Vodafone Theme)
-export const C = {
-  bg:          '#ffffff',
-  panel:       '#ffffff',
-  border:      'var(--ds-border)',
-  text:        'var(--ds-text)',
-  muted:       'var(--ds-text-2)',
-  accent:      'var(--ds-brand)',
-  indigo:      'var(--ds-brand)',
-  vodafoneRed: 'var(--ds-brand)',
-  success:     'var(--ds-ok)',
-  warning:     'var(--ds-warn)',
-  danger:      'var(--ds-brand)',
-};
+import { C } from '../../styles/theme';
+
+export { C };
 
 export const ENTITY_CONFIG = {
   Category: {

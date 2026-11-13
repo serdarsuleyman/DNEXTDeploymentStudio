@@ -1,5 +1,10 @@
 {
   "sourcePath": "tmf_packages",
+  "auth": {
+    "clientId": "orbitant-ui-client",
+    "scope": "openid",
+    "realmPath": "/realms/orbitant-realm/protocol/openid-connect/token"
+  },
   "environments": [
     {
       "name": "Default (dev-gcu)",

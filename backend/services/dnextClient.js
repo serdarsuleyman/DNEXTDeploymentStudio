@@ -267,7 +267,15 @@ async function fetchPaginatedDnextCollection(endpointPath, query = {}, authHeade
 
   // Check persistent SQLite cache if not forcing refresh
   if (!isForceRefresh) {
-    const cached = await getCatalogCache(cacheKey);
+    let cached = await getCatalogCache(cacheKey);
+    // Resilient fallback: If cache miss on 'test' or 'default', try 'dpc_ui.test-g' where cached entities are stored
+    if ((!cached || !cached.payload) && (envName === 'test' || envName === 'default')) {
+      const altKey = `dpc_ui.test-g:${endpointPath}:${sortedQueryStr}`;
+      cached = await getCatalogCache(altKey);
+    } else if ((!cached || !cached.payload) && envName === 'dpc_ui.test-g') {
+      const altKey = `test:${endpointPath}:${sortedQueryStr}`;
+      cached = await getCatalogCache(altKey);
+    }
     if (cached && cached.payload) {
       try {
         const cachedItems = JSON.parse(cached.payload);

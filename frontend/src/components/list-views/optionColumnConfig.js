@@ -2,7 +2,8 @@
 // Configurable Column Schema and Definitions for OptionsListView
 // Following the Dynamic & Configurable UI Rendering Specification
 
-import { evaluateJsonPath, getColumnRawValue as getSalesPackageColumnRawValue } from './salesPackageColumnConfig';
+import { evaluateJsonPath } from '../../utils/jsonPath';
+import { getColumnRawValue as getSalesPackageColumnRawValue } from './salesPackageColumnConfig';
 
 export { evaluateJsonPath };
 

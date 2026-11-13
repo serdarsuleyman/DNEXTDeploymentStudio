@@ -1,7 +1,11 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import Icon from '../ui/Icon';
 import { CodeList, SpeedCell, PriceCell, DateCell, ValidityCell, TariffCodes, splitValues, SpecLink, VersionCell, LifecyclePill } from './cellRenderers';
 import { C } from './constants';
+import { useColumnConfig } from '../../hooks/useColumnConfig';
+import { useTableFilterSort } from '../../hooks/useTableFilterSort';
+import ColumnCustomizerPopover from './ColumnCustomizerPopover';
+import VersionMenuDropdown from './VersionMenuDropdown';
 import {
   AVAILABLE_COLUMNS,
   DEFAULT_COLUMN_KEYS,
@@ -11,6 +15,36 @@ import {
 } from './salesPackageColumnConfig';
 
 const STORAGE_KEY = 'dnext_sp_visible_columns';
+
+function migrateSalesPackageColumns(parsed) {
+  let next = parsed.filter(k => k !== 'tech' && k !== 'terms' && k !== 'categories').map(k => k === 'price' ? 'maf' : k);
+  const valid = next.filter(k => AVAILABLE_COLUMNS.some(c => c.key === k));
+  if (valid.length === 0) return next;
+
+  const insertAfter = (key, anchor) => {
+    if (DEFAULT_COLUMN_KEYS.includes(key) && !valid.includes(key)) {
+      const idx = valid.indexOf(anchor);
+      if (idx !== -1) valid.splice(idx + 1, 0, key);
+      else valid.push(key);
+    }
+  };
+
+  insertAfter('psm_code', 'name');
+  if (DEFAULT_COLUMN_KEYS.includes('sku') && !valid.includes('sku')) {
+    const psmIdx = valid.indexOf('psm_code');
+    if (psmIdx !== -1) valid.splice(psmIdx + 1, 0, 'sku');
+    else insertAfter('sku', 'name');
+  }
+  insertAfter('maf', 'psm_code');
+  insertAfter('ngn_packet_codes', 'psm_code');
+  if (valid.includes('vpn_packet_codes')) {
+    valid.splice(valid.indexOf('vpn_packet_codes'), 1, 'bitstream_packet_codes');
+  }
+  insertAfter('bitstream_packet_codes', 'ngn_packet_codes');
+  insertAfter('start_date', 'spec');
+  insertAfter('end_date', 'start_date');
+  return valid;
+}
 
 /**
  * SalesPackagesListView
@@ -40,269 +74,47 @@ export default function SalesPackagesListView({
   onSpecFilter
 }) {
   // ── Column Configuration State (persisted in localStorage) ──
-  const [visibleColumnKeys, setVisibleColumnKeys] = useState(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        let parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          // Remove legacy 'tech', 'terms', 'categories' and migrate 'price' to 'maf'
-          parsed = parsed.filter(k => k !== 'tech' && k !== 'terms' && k !== 'categories').map(k => k === 'price' ? 'maf' : k);
-          const valid = parsed.filter(k => AVAILABLE_COLUMNS.some(c => c.key === k));
-          if (valid.length > 0) {
-            // If psm_code is newly introduced in default columns, automatically include it
-            if (DEFAULT_COLUMN_KEYS.includes('psm_code') && !valid.includes('psm_code')) {
-              const nameIdx = valid.indexOf('name');
-              if (nameIdx !== -1) valid.splice(nameIdx + 1, 0, 'psm_code');
-              else valid.push('psm_code');
-            }
-            // If sku is newly introduced in default columns, automatically include it
-            if (DEFAULT_COLUMN_KEYS.includes('sku') && !valid.includes('sku')) {
-              const psmIdx = valid.indexOf('psm_code');
-              if (psmIdx !== -1) valid.splice(psmIdx + 1, 0, 'sku');
-              else {
-                const nameIdx = valid.indexOf('name');
-                if (nameIdx !== -1) valid.splice(nameIdx + 1, 0, 'sku');
-                else valid.push('sku');
-              }
-            }
-            // If maf is newly introduced in default columns, automatically include it
-            if (DEFAULT_COLUMN_KEYS.includes('maf') && !valid.includes('maf')) {
-              const psmIdx = valid.indexOf('psm_code');
-              if (psmIdx !== -1) valid.splice(psmIdx + 1, 0, 'maf');
-              else valid.push('maf');
-            }
-            // If ngn_packet_codes is newly introduced in default columns, automatically include it
-            if (DEFAULT_COLUMN_KEYS.includes('ngn_packet_codes') && !valid.includes('ngn_packet_codes')) {
-              const psmIdx = valid.indexOf('psm_code');
-              if (psmIdx !== -1) valid.splice(psmIdx + 1, 0, 'ngn_packet_codes');
-              else valid.push('ngn_packet_codes');
-            }
-            // If vpn_packet_codes was present, migrate to bitstream_packet_codes
-            if (valid.includes('vpn_packet_codes')) {
-              const vpnIdx = valid.indexOf('vpn_packet_codes');
-              valid.splice(vpnIdx, 1, 'bitstream_packet_codes');
-            }
-            // If bitstream_packet_codes is newly introduced in default columns, automatically include it
-            if (DEFAULT_COLUMN_KEYS.includes('bitstream_packet_codes') && !valid.includes('bitstream_packet_codes')) {
-              const ngnIdx = valid.indexOf('ngn_packet_codes');
-              if (ngnIdx !== -1) valid.splice(ngnIdx + 1, 0, 'bitstream_packet_codes');
-              else valid.push('bitstream_packet_codes');
-            }
-            // If start_date is newly introduced in default columns, automatically include it
-            if (DEFAULT_COLUMN_KEYS.includes('start_date') && !valid.includes('start_date')) {
-              const specIdx = valid.indexOf('spec');
-              if (specIdx !== -1) valid.splice(specIdx + 1, 0, 'start_date');
-              else valid.push('start_date');
-            }
-            // If end_date is newly introduced in default columns, automatically include it
-            if (DEFAULT_COLUMN_KEYS.includes('end_date') && !valid.includes('end_date')) {
-              const startIdx = valid.indexOf('start_date');
-              if (startIdx !== -1) valid.splice(startIdx + 1, 0, 'end_date');
-              else valid.push('end_date');
-            }
-            return valid;
-          }
-        }
-      }
-    } catch (e) {}
-    return DEFAULT_COLUMN_KEYS;
+  const {
+    visibleColumnKeys,
+    visibleColumns,
+    toggleColumn,
+    resetToDefaults,
+    isCustomizerOpen,
+    setIsCustomizerOpen,
+    customizerRef
+  } = useColumnConfig({
+    storageKey: STORAGE_KEY,
+    availableColumns: AVAILABLE_COLUMNS,
+    defaultColumnKeys: DEFAULT_COLUMN_KEYS,
+    migrateSavedKeys: migrateSalesPackageColumns
   });
 
-  const [isCustomizerOpen, setIsCustomizerOpen] = useState(false);
-  const [showFilterRow, setShowFilterRow] = useState(false);
-  const customizerRef = useRef(null);
-
-  // ── Version Expand / Collapse Single Button & Menu State ──
-  const [isVersionMenuOpen, setIsVersionMenuOpen] = useState(false);
-  const versionMenuRef = useRef(null);
-
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (versionMenuRef.current && !versionMenuRef.current.contains(e.target)) {
-        setIsVersionMenuOpen(false);
-      }
-    };
-    if (isVersionMenuOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
+  const getCustomSortValue = useCallback((item, colDef) => {
+    if (colDef.key === 'speed') {
+      return extractSpeedProfile(item).numericDown || 0;
     }
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isVersionMenuOpen]);
+    return null;
+  }, []);
 
-  const multiVersionGroups = useMemo(() => {
-    return groups.filter(g => g.previousVersions && g.previousVersions.length > 0);
-  }, [groups]);
-
-  const hasVersions = multiVersionGroups.length > 0;
-  const isAnyExpanded = hasVersions && multiVersionGroups.some(g => expandedGroups && expandedGroups.has(g.groupKey));
-
-  const handleToggleVersions = () => {
-    if (isAnyExpanded) {
-      if (onCollapseAll) onCollapseAll();
-    } else {
-      if (onExpandAll) onExpandAll();
-    }
-  };
-
-  // ── Sorting State ──
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
-
-  // ── Column Filtering State ──
-  const [columnFilters, setColumnFilters] = useState({});
-
-  // Save visible columns to localStorage
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(visibleColumnKeys));
-    } catch (e) {}
-  }, [visibleColumnKeys]);
-
-  // Click outside to close customizer popover
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (customizerRef.current && !customizerRef.current.contains(e.target)) {
-        setIsCustomizerOpen(false);
-      }
-    };
-    if (isCustomizerOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isCustomizerOpen]);
-
-  // Active visible column definitions in display order
-  const visibleColumns = useMemo(() => {
-    return AVAILABLE_COLUMNS.filter(col => visibleColumnKeys.includes(col.key));
-  }, [visibleColumnKeys]);
-
-  const toggleColumn = (key) => {
-    setVisibleColumnKeys(prev => {
-      if (prev.includes(key)) {
-        if (prev.length <= 1) return prev;
-        return prev.filter(k => k !== key);
-      }
-      return [...prev, key];
-    });
-  };
-
-  const resetToDefaults = () => {
-    setVisibleColumnKeys(DEFAULT_COLUMN_KEYS);
-  };
-
-  // ── Sorting Handler ──
-  const handleSort = (colKey) => {
-    const colDef = AVAILABLE_COLUMNS.find(c => c.key === colKey);
-    if (!colDef || !colDef.sortable) return;
-
-    setSortConfig(prev => {
-      if (prev.key === colKey) {
-        if (prev.direction === 'asc') return { key: colKey, direction: 'desc' };
-        if (prev.direction === 'desc') return { key: null, direction: 'asc' };
-      }
-      return { key: colKey, direction: 'asc' };
-    });
-  };
-
-  // ── Column Filter Handler ──
-  const handleFilterChange = (colKey, value) => {
-    setColumnFilters(prev => {
-      const next = { ...prev };
-      if (!value || value.trim() === '' || value === '__all__') {
-        delete next[colKey];
-      } else {
-        next[colKey] = value;
-      }
-      return next;
-    });
-  };
-
-  const clearAllFilters = () => {
-    setColumnFilters({});
-  };
-
-  const activeFilterEntries = Object.entries(columnFilters);
-
-  // Automatically open filter row if any column filter is active
-  useEffect(() => {
-    if (activeFilterEntries.length > 0 && !showFilterRow) {
-      setShowFilterRow(true);
-    }
-  }, [activeFilterEntries.length]);
-
-  // Compute distinct options for select-friendly filterable columns
-  const distinctOptionsMap = useMemo(() => {
-    const map = {};
-    visibleColumns.forEach(col => {
-      if (col.filterable && col.filterType === 'select') {
-        const set = new Set();
-        groups.forEach(g => {
-          const val = getColumnRawValue(g.latestItem, col);
-          if (val) set.add(val);
-        });
-        map[col.key] = Array.from(set).sort();
-      }
-    });
-    return map;
-  }, [groups, visibleColumns]);
-
-  // ── Filter & Sort Groups ──
-  const processedGroups = useMemo(() => {
-    // 1. Column Filtering
-    let result = groups.filter(group => {
-      for (const [colKey, filterVal] of activeFilterEntries) {
-        if (!filterVal) continue;
-        const colDef = AVAILABLE_COLUMNS.find(c => c.key === colKey);
-        if (!colDef) continue;
-
-        const target = filterVal.toLowerCase().trim();
-        const latestVal = getColumnRawValue(group.latestItem, colDef).toLowerCase();
-        const matchLatest = colDef.filterType === 'select'
-          ? latestVal === target
-          : latestVal.includes(target);
-
-        const matchPrev = (group.previousVersions || []).some(v => {
-          const vVal = getColumnRawValue(v, colDef).toLowerCase();
-          return colDef.filterType === 'select' ? vVal === target : vVal.includes(target);
-        });
-
-        if (!matchLatest && !matchPrev) return false;
-      }
-      return true;
-    });
-
-    // 2. Sorting
-    if (sortConfig.key) {
-      const colDef = AVAILABLE_COLUMNS.find(c => c.key === sortConfig.key);
-      if (colDef) {
-        const dir = sortConfig.direction === 'asc' ? 1 : -1;
-        result = [...result].sort((a, b) => {
-          // Special numeric handling for speed
-          if (colDef.key === 'speed') {
-            const numA = extractSpeedProfile(a.latestItem).numericDown || 0;
-            const numB = extractSpeedProfile(b.latestItem).numericDown || 0;
-            if (numA !== numB) return (numA - numB) * dir;
-          }
-
-          const valA = getColumnRawValue(a.latestItem, colDef);
-          const valB = getColumnRawValue(b.latestItem, colDef);
-
-          const numA = parseFloat(valA);
-          const numB = parseFloat(valB);
-          if (!isNaN(numA) && !isNaN(numB)) {
-            return (numA - numB) * dir;
-          }
-
-          return valA.localeCompare(valB) * dir;
-        });
-      }
-    }
-
-    return result;
-  }, [groups, activeFilterEntries, sortConfig]);
+  const {
+    showFilterRow,
+    setShowFilterRow,
+    sortConfig,
+    handleSort,
+    clearSort,
+    columnFilters,
+    handleFilterChange,
+    clearAllFilters,
+    activeFilterEntries,
+    distinctOptionsMap,
+    processedGroups
+  } = useTableFilterSort({
+    groups,
+    availableColumns: AVAILABLE_COLUMNS,
+    visibleColumns,
+    getColumnRawValue,
+    getCustomSortValue
+  });
 
   // ── Cell Render Helpers ──
   const renderCellContent = (colKey, item, isParent = true, group = null) => {
@@ -479,270 +291,25 @@ export default function SalesPackagesListView({
           </button>
 
           {/* Configure Columns Popover Toggle - Positioned next to Filter Columns button */}
-          <div style={{ position: 'relative' }} ref={customizerRef}>
-            <button
-              type="button"
-              onClick={() => setIsCustomizerOpen(prev => !prev)}
-              style={{
-                background: isCustomizerOpen ? 'rgba(230,0,0,0.08)' : '#ffffff',
-                border: `1px solid ${isCustomizerOpen ? 'var(--ds-brand)' : C.border}`,
-                color: isCustomizerOpen ? 'var(--ds-brand)' : C.text,
-                padding: '4px 10px',
-                borderRadius: '5px',
-                fontSize: '12px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                transition: 'all 0.15s ease'
-              }}
-              title="Configure visible columns for Sales Packages"
-            >
-              <span><Icon name="settings" size={14} /></span>
-              <span>Columns</span>
-              <span style={{
-                background: 'var(--ds-brand)',
-                color: '#fff',
-                fontSize: '11px',
-                padding: '1px 5px',
-                borderRadius: '10px',
-                fontWeight: '700'
-              }}>
-                {visibleColumns.length}/{AVAILABLE_COLUMNS.length}
-              </span>
-            </button>
-
-            {/* ── Dropdown Popover ── */}
-            {isCustomizerOpen && (
-              <div style={{
-                position: 'absolute',
-                left: 0,
-                top: 'calc(100% + 6px)',
-                width: '340px',
-                background: '#ffffff',
-                border: `1px solid var(--ds-border-strong)`,
-                borderRadius: '8px',
-                boxShadow: '0 12px 30px rgba(0,0,0,0.12)',
-                zIndex: 100,
-                padding: '14px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '12px'
-              }}>
-                {/* Header */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: `1px solid ${C.border}`, paddingBottom: '8px' }}>
-                  <div>
-                    <div style={{ fontSize: '13px', fontWeight: '700', color: C.text }}>Configure Table Columns</div>
-                    <div style={{ fontSize: '11px', color: C.muted }}>Toggle attributes for Sales Packages</div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={resetToDefaults}
-                    style={{
-                      background: 'transparent',
-                      border: 'none',
-                      color: 'var(--ds-brand)',
-                      fontSize: '11px',
-                      cursor: 'pointer',
-                      padding: '2px 4px',
-                      fontWeight: '600'
-                    }}
-                    title="Reset to default columns"
-                  >
-                    Reset Defaults
-                  </button>
-                </div>
-
-                {/* Available Column Checkboxes */}
-                <div style={{ maxHeight: '320px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                  {AVAILABLE_COLUMNS.map(col => {
-                    const isChecked = visibleColumnKeys.includes(col.key);
-                    return (
-                      <label
-                        key={col.key}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          padding: '6px 8px',
-                          borderRadius: '4px',
-                          background: isChecked ? 'rgba(230,0,0,0.06)' : 'transparent',
-                          cursor: 'pointer',
-                          fontSize: '12px',
-                          color: isChecked ? 'var(--ds-text)' : 'var(--ds-text-3)',
-                          transition: 'background 0.15s ease'
-                        }}
-                      >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <input
-                            type="checkbox"
-                            checked={isChecked}
-                            onChange={() => toggleColumn(col.key)}
-                            style={{ cursor: 'pointer', accentColor: 'var(--ds-brand)' }}
-                          />
-                          <span>{col.label}</span>
-                          {col.jsonPath && (
-                            <span style={{ fontSize: '10px', background: 'rgba(230,0,0,0.08)', color: 'var(--ds-brand)', padding: '1px 4px', borderRadius: '3px', fontWeight: '700' }}>
-                              JSONPath
-                            </span>
-                          )}
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          {col.sortable && <span title="Sortable column" style={{ fontSize: '11px', color: 'var(--ds-brand)' }}>↕</span>}
-                          {col.filterable && <span title="Filterable column" style={{ fontSize: '11px', color: 'var(--ds-ok)' }}><Icon name="search" size={12} /></span>}
-                        </div>
-                      </label>
-                    );
-                  })}
-                </div>
-
-                {/* Footer */}
-                <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11px', color: C.muted }}>
-                  <span>{visibleColumns.length} of {AVAILABLE_COLUMNS.length} active</span>
-                  <button
-                    type="button"
-                    onClick={() => setIsCustomizerOpen(false)}
-                    style={{
-                      background: 'var(--ds-brand)',
-                      border: 'none',
-                      color: '#fff',
-                      padding: '4px 10px',
-                      borderRadius: '4px',
-                      fontSize: '11px',
-                      fontWeight: '600',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    Done
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
+          <ColumnCustomizerPopover
+            entityLabel="Sales Packages"
+            availableColumns={AVAILABLE_COLUMNS}
+            visibleColumns={visibleColumns}
+            visibleColumnKeys={visibleColumnKeys}
+            isOpen={isCustomizerOpen}
+            onToggleOpen={() => setIsCustomizerOpen(prev => !prev)}
+            customizerRef={customizerRef}
+            onToggleColumn={toggleColumn}
+            onResetDefaults={resetToDefaults}
+          />
 
           {/* Expand / Collapse Versions Single Button & Menu */}
-          {hasVersions && (
-            <div style={{ position: 'relative' }} ref={versionMenuRef}>
-              <div style={{ display: 'inline-flex', alignItems: 'center' }}>
-                <button
-                  type="button"
-                  onClick={handleToggleVersions}
-                  style={{
-                    background: isAnyExpanded ? 'rgba(230,0,0,0.08)' : '#ffffff',
-                    border: `1px solid ${isAnyExpanded ? 'var(--ds-brand)' : C.border}`,
-                    borderRight: 'none',
-                    borderTopRightRadius: 0,
-                    borderBottomRightRadius: 0,
-                    borderTopLeftRadius: '5px',
-                    borderBottomLeftRadius: '5px',
-                    color: isAnyExpanded ? 'var(--ds-brand)' : C.text,
-                    padding: '4px 9px',
-                    fontSize: '12px',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '5px',
-                    transition: 'all 0.15s ease'
-                  }}
-                  title={isAnyExpanded ? "Click to collapse all version trees" : "Click to expand all version trees"}
-                >
-                  <span>{isAnyExpanded ? '⊟' : '⊞'}</span>
-                  <span>{isAnyExpanded ? 'Collapse Versions' : 'Expand Versions'}</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setIsVersionMenuOpen(prev => !prev)}
-                  style={{
-                    background: isAnyExpanded ? 'rgba(230,0,0,0.08)' : '#ffffff',
-                    border: `1px solid ${isAnyExpanded ? 'var(--ds-brand)' : C.border}`,
-                    borderTopLeftRadius: 0,
-                    borderBottomLeftRadius: 0,
-                    borderTopRightRadius: '5px',
-                    borderBottomRightRadius: '5px',
-                    color: isAnyExpanded ? 'var(--ds-brand)' : C.muted,
-                    padding: '4px 6px',
-                    fontSize: '11px',
-                    cursor: 'pointer',
-                    transition: 'all 0.15s ease'
-                  }}
-                  title="Version options menu"
-                >
-                  ▼
-                </button>
-              </div>
-
-              {isVersionMenuOpen && (
-                <div style={{
-                  position: 'absolute',
-                  left: 0,
-                  top: 'calc(100% + 6px)',
-                  background: '#ffffff',
-                  border: `1px solid var(--ds-border-strong)`,
-                  borderRadius: '6px',
-                  boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
-                  zIndex: 100,
-                  minWidth: '165px',
-                  padding: '4px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '2px'
-                }}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (onExpandAll) onExpandAll();
-                      setIsVersionMenuOpen(false);
-                    }}
-                    style={{
-                      background: 'transparent',
-                      border: 'none',
-                      color: 'var(--ds-text)',
-                      padding: '6px 10px',
-                      fontSize: '12px',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      textAlign: 'left',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px'
-                    }}
-                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(230,0,0,0.06)'}
-                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                  >
-                    <span>⊞</span>
-                    <span>Expand All Versions</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (onCollapseAll) onCollapseAll();
-                      setIsVersionMenuOpen(false);
-                    }}
-                    style={{
-                      background: 'transparent',
-                      border: 'none',
-                      color: 'var(--ds-text)',
-                      padding: '6px 10px',
-                      fontSize: '12px',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      textAlign: 'left',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px'
-                    }}
-                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(230,0,0,0.06)'}
-                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                  >
-                    <span>⊟</span>
-                    <span>Collapse All Versions</span>
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
+          <VersionMenuDropdown
+            groups={groups}
+            expandedGroups={expandedGroups}
+            onExpandAll={onExpandAll}
+            onCollapseAll={onCollapseAll}
+          />
         </div>
 
         {/* Right: Active Sort Reset */}
@@ -750,7 +317,7 @@ export default function SalesPackagesListView({
           {sortConfig.key && (
             <button
               type="button"
-              onClick={() => setSortConfig({ key: null, direction: 'asc' })}
+              onClick={clearSort}
               style={{
                 background: 'rgba(230,0,0,0.06)',
                 border: '1px solid rgba(230,0,0,0.25)',

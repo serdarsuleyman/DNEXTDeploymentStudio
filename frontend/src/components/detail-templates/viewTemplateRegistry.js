@@ -2,59 +2,9 @@
 // Configurable Detail View Registry for DNEXT Entities
 // Routes entities to customized visual templates based on entityType, isBundle flag, and Product Specification
 
-/**
- * Identifies whether an entity is a Sales Package strictly based on its Product Specification,
- * NOT on characteristics.
- *
- * Checks specification name, id, @id, and href for Sales Package designations:
- * - VF_DE_SPEC_SALES_PACKAGE / VF_DE_Sales_Package_Specification / VF_DE_SALES_SPEC / spec_sales_package
- * - productspecification_fn_salespackage_dsl / productspecification_fn_salespackage_ftth
- * - Any specification whose id or name contains 'sales_package', 'salespackage', 'sales_spec', 'salesspec', or 'fn_salespackage'
- */
-export const isSalesPackageSpec = (item) => {
-  if (!item) return false;
-  const spec = item.productSpecification || item.raw?.productSpecification;
-  if (!spec) return false;
+import { isSalesPackageSpec, isOptionSpec } from '../../utils/entityClassifiers';
 
-  let specStr = '';
-  if (typeof spec === 'string') {
-    specStr = spec.toLowerCase();
-  } else if (typeof spec === 'object') {
-    specStr = `${spec.name || ''} ${spec.id || ''} ${spec['@id'] || ''} ${spec.href || ''}`.toLowerCase();
-  }
-
-  if (!specStr.trim()) return false;
-
-  return (
-    specStr.includes('sales_package') ||
-    specStr.includes('salespackage') ||
-    specStr.includes('sales_spec') ||
-    specStr.includes('salesspec') ||
-    specStr.includes('fn_salespackage') ||
-    specStr.includes('sales-package')
-  );
-};
-
-/**
- * Identifies whether an entity is an Option Offering based on its Product Specification
- * containing 'option'.
- */
-export const isOptionSpec = (item) => {
-  if (!item) return false;
-  if (item.entityType && item.entityType !== 'ProductOffering') return false;
-
-  const spec = item.productSpecification || item.raw?.productSpecification;
-  if (!spec) return false;
-
-  let specStr = '';
-  if (typeof spec === 'string') {
-    specStr = spec.toLowerCase();
-  } else if (typeof spec === 'object') {
-    specStr = `${spec.name || ''} ${spec.id || ''} ${spec['@id'] || ''} ${spec.href || ''}`.toLowerCase();
-  }
-
-  return specStr.includes('option');
-};
+export { isSalesPackageSpec, isOptionSpec };
 
 export const TEMPLATES = {
   SALES_PACKAGE_NEW: {

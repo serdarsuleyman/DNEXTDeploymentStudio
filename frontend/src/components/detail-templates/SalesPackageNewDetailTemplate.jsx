@@ -1,33 +1,19 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import Icon from '../ui/Icon';
-import { isSalesPackageSpec } from '../list-views/listViewRegistry';
+import { isSalesPackageSpec } from '../../utils/entityClassifiers';
+import { C } from '../../styles/theme';
 import {
   extractPsmStructure,
   syncPsmCharacteristics,
   detectSupportedNetworks,
   extractMasterPacketId,
   extractChar,
-  extractCharValues
+  extractCharValues,
+  VODAFONE_DSL_FALLBACK_TIERS,
+  getStandardFallbackTiers,
+  FALLBACK_VFDE_CATEGORIES,
+  BASELINE_SALES_PACKAGE_SPECS
 } from '../../services/psmStructureService';
-
-/**
- * Styling constants consistent with DNext Deployment Studio & Vodafone Design System
- */
-const C = {
-  bg: '#ffffff',
-  panel: '#ffffff',
-  cardBg: '#ffffff',
-  cardBorder: 'var(--ds-border)',
-  subCardBg: 'var(--ds-surface-subtle)',
-  text: 'var(--ds-text)',
-  muted: 'var(--ds-text-2)',
-  indigo: 'var(--ds-brand)',
-  vodafoneRed: 'var(--ds-brand)',
-  accent: 'var(--ds-brand)',
-  success: 'var(--ds-ok)',
-  warning: 'var(--ds-warn)',
-  danger: 'var(--ds-brand)'
-};
 
 // Helper to detect technology from name or spec
 function detectTechnology(name = '', specName = '', specId = '') {
@@ -37,209 +23,6 @@ function detectTechnology(name = '', specName = '', specId = '') {
   if (combined.includes('fiber') || combined.includes('fibre') || combined.includes('ftth') || combined.includes('glasfaser')) return 'FIBRE';
   return 'FIBRE';
 }
-
-// Certified Vodafone DSL Fallback Tiers & Service Codes paired with network technology (I1204 NGN / I1203 Bitstream)
-export const VODAFONE_DSL_FALLBACK_TIERS = [
-  {
-    speed: 175,
-    technology: 'I1203 Bitstream only',
-    technologyBadge: 'I1203 Bitstream only',
-    isBitstreamOnly: true,
-    upload: 40,
-    svcBw: 'V018U',
-    sku: 'IP077V018UIB',
-    label: '175 Mbit/s',
-    desc: 'Available via Telekom Bitstream wholesale (Supervectoring)'
-  },
-  {
-    speed: 100,
-    technology: 'I1203 Bitstream only',
-    technologyBadge: 'I1203 Bitstream only',
-    isBitstreamOnly: true,
-    upload: 40,
-    svcBw: 'V018N',
-    sku: 'IP076V018NIB',
-    label: '100 Mbit/s',
-    desc: 'Available via Telekom Bitstream wholesale (VDSL Vectoring)'
-  },
-  {
-    speed: 50,
-    technology: 'I1204 NGN & I1203 Bitstream',
-    technologyBadge: 'I1204 NGN / I1203 Bitstream',
-    isBitstreamOnly: false,
-    upload: 10,
-    svcBw: 'V018H',
-    sku: 'IP074V018HIB',
-    label: '50 Mbit/s',
-    desc: 'Available on both I1204 NGN and I1203 Bitstream'
-  },
-  {
-    speed: 16,
-    technology: 'I1204 NGN & I1203 Bitstream',
-    technologyBadge: 'I1204 NGN / I1203 Bitstream',
-    isBitstreamOnly: false,
-    upload: 2.4,
-    svcBw: 'V018C',
-    sku: 'IP073V018CIB',
-    label: '16 Mbit/s',
-    desc: 'Available on both I1204 NGN and I1203 Bitstream'
-  },
-  {
-    speed: 6,
-    technology: 'I1204 NGN & I1203 Bitstream',
-    technologyBadge: 'I1204 NGN / I1203 Bitstream',
-    isBitstreamOnly: false,
-    upload: 1,
-    svcBw: 'V0178',
-    sku: 'IP073V0178IB',
-    label: '6 Mbit/s',
-    desc: 'Available on both I1204 NGN and I1203 Bitstream'
-  },
-  {
-    speed: 3,
-    technology: 'I1203 Bitstream only',
-    technologyBadge: 'I1203 Bitstream only',
-    isBitstreamOnly: true,
-    upload: 0.5,
-    svcBw: 'V0175',
-    sku: 'IP073V0175IB',
-    label: '3 Mbit/s',
-    desc: 'Exclusively available on I1203 Bitstream (Not supported on I1204 NGN)'
-  },
-  {
-    speed: 2,
-    technology: 'I1204 NGN & I1203 Bitstream',
-    technologyBadge: 'I1204 NGN / I1203 Bitstream',
-    isBitstreamOnly: false,
-    upload: 0.5,
-    svcBw: 'V0174',
-    sku: 'IP073V0174IB',
-    label: '2 Mbit/s',
-    desc: 'Available on both I1204 NGN and I1203 Bitstream'
-  },
-  {
-    speed: 1,
-    technology: 'I1204 NGN & I1203 Bitstream',
-    technologyBadge: 'I1204 NGN / I1203 Bitstream',
-    isBitstreamOnly: false,
-    upload: 0.25,
-    svcBw: 'V0118',
-    sku: 'IP073V0118IB',
-    label: '1 Mbit/s',
-    desc: 'Available on both I1204 NGN and I1203 Bitstream'
-  },
-];
-
-export function getStandardFallbackTiers(nominalSpeed) {
-  const s = Number(nominalSpeed);
-  if (s >= 250) return [175];
-  if (s >= 100) return [50, 16];
-  if (s >= 50) return [16];
-  if (s >= 16) return [6, 3, 2, 1];
-  return [];
-}
-
-/**
- * Fallback Vodafone DE Product Categories reference dataset
- */
-const FALLBACK_VFDE_CATEGORIES = [
-  { id: 'FN0553', name: 'Glasfaser 10/25', parentId: 'FN2' },
-  { id: 'FN0552', name: 'DSL 10/25', parentId: 'FN2' },
-  { id: 'FN0451', name: 'Glasfaser 06/23', parentId: 'FN2' },
-  { id: 'FN187', name: 'FIBRE 02/19', parentId: 'FN2' },
-  { id: 'FN180', name: 'DSL 10/16', parentId: 'FN2' },
-  { id: 'FN2', name: 'FN_GUI Configuration', parentId: 'FN146' },
-  { id: 'FN1', name: 'FN_Package Configuration', parentId: 'FN146' },
-  { id: 'FN150', name: 'FN_Bundle Configuration', parentId: 'FN146' },
-  { id: 'FN0643', name: 'Promos_for_C1', parentId: 'FN146' },
-  { id: 'FN34', name: 'Bandbreite', parentId: 'FN2' },
-  { id: 'FN35', name: 'Internet-Optionen', parentId: 'FN2' },
-  { id: 'FN7', name: 'Anschluss-Optionen', parentId: 'FN2' },
-  { id: 'FN147', name: 'Sprach-Optionen Festnetz', parentId: 'FN2' },
-  { id: 'FN148', name: 'Sprach-Optionen mit Mobilfunk', parentId: 'FN2' }
-];
-
-/**
- * Baseline characteristic definitions from TMF620 Catalog Specifications
- * Used to immediately and accurately determine cardinality & array type
- */
-const BASELINE_SALES_PACKAGE_SPECS = {
-  // 61 characteristics from FN_SalesPackage_FTTH and FN_SalesPackage_DSL (all maxCardinality: 99)
-  connection_type: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  product_type: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  package_type_id: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  package_subtype_id: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  sku: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  prepaid: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  product_visibility: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  display_name_communication: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  display_name_inventory: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  display_name_cart: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  display_name_configurator: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  maf: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  minimum_contract_duration: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  minimum_contract_duration_unit: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  effective_date: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  expiration_date: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  sorting: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  additional_text: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  checkout_product: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  initial_selectable: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  contract_value: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  hierarchy_value: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  lifecycle_status: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  product_family_id: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  product_version_id: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  summary_text: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  cancellation_period: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  cancellation_period_unit: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  product_code_internet: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  tariff_code_internet: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  service_code_internet: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  product_code_voice: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  tariff_code_voice: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  service_code_voice: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  psm_sales_packet_code: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  psm_sales_packet_code_internet_ngn: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  psm_sales_packet_code_internet_bitstream: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  psm_sales_packet_code_voice_ngn: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  psm_sales_packet_code_voice_bitstream: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  psm_aaw_packet_id: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  is_internet_flat: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  is_voice_by_call: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  is_voice_allnet_flat: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  is_gigakombi_eligibile: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  is_friends_family_eligible: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  downstream_bandwidth: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  upstream_bandwidth: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  bandwidth: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  product_code_internet_ngn: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  product_code_internet_bitstream: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  tariff_code_internet_ngn: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  tariff_code_internet_bitstream: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  service_code_internet_ngn: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  service_code_internet_bitstream: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  product_code_voice_ngn: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  product_code_voice_bitstream: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  tariff_code_voice_ngn: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  tariff_code_voice_bitstream: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  service_code_voice_ngn: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  service_code_voice_bitstream: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-  play_type: { minCardinality: 0, maxCardinality: 99, valueType: 'string' },
-
-  // Scalar-only definitions from associated options/specifications
-  option_ranking: { minCardinality: 0, maxCardinality: 1, valueType: 'integer' },
-  bandwidth_downstream_max: { minCardinality: 0, maxCardinality: 1, valueType: 'number' },
-  bandwidth_downstream_avg: { minCardinality: 0, maxCardinality: 1, valueType: 'number' },
-  bandwidth_downstream_min: { minCardinality: 0, maxCardinality: 1, valueType: 'number' },
-  bandwidth_upstream_max: { minCardinality: 0, maxCardinality: 1, valueType: 'number' },
-  bandwidth_upstream_avg: { minCardinality: 0, maxCardinality: 1, valueType: 'number' },
-  bandwidth_upstream_min: { minCardinality: 0, maxCardinality: 1, valueType: 'number' },
-  bandwidth_unit: { minCardinality: 0, maxCardinality: 1, valueType: 'string' },
-  sku_suffix: { minCardinality: 0, maxCardinality: 1, valueType: 'string' },
-  productfamilyname: { minCardinality: 0, maxCardinality: 1, valueType: 'string' },
-  wechselgarantietype: { minCardinality: 0, maxCardinality: 1, valueType: 'string' }
-};
 
 // Helper to extract speeds from entity characteristics or text
 function detectSpeeds(name = '', raw = null) {
@@ -330,12 +113,11 @@ export default function SalesPackageNewDetailTemplate({
   const [charFilterQuery, setCharFilterQuery] = useState('');
   const [selectedPopId, setSelectedPopId] = useState('');
   const [isPublished, setIsPublished] = useState(false);
-  const [isCreatingNewSpec, setIsCreatingNewSpec] = useState(false);
-  const [newSpecData, setNewSpecData] = useState({
-    id: 'productSpecification_FN_SalesPackage_Custom',
-    name: 'FN_SalesPackage_Custom',
-    version: '1.0'
-  });
+
+  // ─── Filterable Template Dropdown State ───
+  const [templateSearchQuery, setTemplateSearchQuery] = useState('');
+  const [isTemplateDropdownOpen, setIsTemplateDropdownOpen] = useState(false);
+  const templateDropdownRef = useRef(null);
 
   // ─── Filterable Specification Dropdown State ───
   const [specSearchQuery, setSpecSearchQuery] = useState('');
@@ -344,6 +126,9 @@ export default function SalesPackageNewDetailTemplate({
 
   useEffect(() => {
     function handleClickOutside(e) {
+      if (templateDropdownRef.current && !templateDropdownRef.current.contains(e.target)) {
+        setIsTemplateDropdownOpen(false);
+      }
       if (specDropdownRef.current && !specDropdownRef.current.contains(e.target)) {
         setIsSpecDropdownOpen(false);
       }
@@ -363,6 +148,21 @@ export default function SalesPackageNewDetailTemplate({
   const [isAddingCustomSku, setIsAddingCustomSku] = useState(false);
   const [expandedGroupIds, setExpandedGroupIds] = useState({});
   const [newPsmPacketInput, setNewPsmPacketInput] = useState('');
+
+  const envHeaders = useMemo(() => {
+    const isTest = (activeEnv?.name && activeEnv.name.toLowerCase().includes('test')) || (activeEnv?.apiUrl && activeEnv.apiUrl.toLowerCase().includes('test'));
+    const envName = activeEnv?.name || localStorage.getItem('dnext_env_name') || (isTest ? 'dpc_ui.test-g' : 'Default (dev-gcu)');
+    const apiUrl = activeEnv?.apiUrl || localStorage.getItem('dnext_api_url') || (isTest ? 'https://dpc-api.test-gcu.com' : 'https://dpc-api.pi.dev-gcu.com');
+    const authUrl = activeEnv?.authUrl || localStorage.getItem('dnext_auth_url') || (isTest ? 'https://diam.test-gcu.com/realms/orbitant-realm/protocol/openid-connect/token' : 'https://diam.pi.dev-gcu.com/realms/orbitant-realm/protocol/openid-connect/token');
+
+    return {
+      'Accept': 'application/json',
+      'x-dnext-api-url': apiUrl,
+      'x-dnext-auth-url': authUrl,
+      'x-dnext-env-name': envName,
+      ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+    };
+  }, [activeEnv, token]);
 
   // Fetch catalog categories
   useEffect(() => {
@@ -386,7 +186,7 @@ export default function SalesPackageNewDetailTemplate({
       });
     }
 
-    fetch('/api/dnext/categories?limit=1000')
+    fetch('/api/dnext/categories?limit=1000', { headers: envHeaders })
       .then(res => res.ok ? res.json() : [])
       .then(data => {
         if (!isMounted) return;
@@ -445,7 +245,7 @@ export default function SalesPackageNewDetailTemplate({
       });
 
     return () => { isMounted = false; };
-  }, [allEntities]);
+  }, [allEntities, envHeaders]);
 
   // Fetch catalog offerings and specifications if allEntities does not contain them
   useEffect(() => {
@@ -453,8 +253,8 @@ export default function SalesPackageNewDetailTemplate({
     if (!allEntities || allEntities.length === 0) {
       setLoadingCatalog(true);
       Promise.all([
-        fetch('/api/dnext/product-offerings?limit=1000').then(r => r.json()).catch(() => []),
-        fetch('/api/dnext/product-specifications?limit=1000').then(r => r.json()).catch(() => [])
+        fetch('/api/dnext/product-offerings?limit=1000', { headers: envHeaders }).then(r => r.json()).catch(() => []),
+        fetch('/api/dnext/product-specifications?limit=1000', { headers: envHeaders }).then(r => r.json()).catch(() => [])
       ]).then(([offeringsData, specsData]) => {
         if (!isMounted) return;
         const oItems = Array.isArray(offeringsData) ? offeringsData : offeringsData?.data || offeringsData?.items || [];
@@ -468,7 +268,7 @@ export default function SalesPackageNewDetailTemplate({
       });
     } else {
       // If allEntities is passed, also attempt to load product-specifications if needed
-      fetch('/api/dnext/product-specifications?limit=1000')
+      fetch('/api/dnext/product-specifications?limit=1000', { headers: envHeaders })
         .then(r => r.json())
         .then(specsData => {
           if (!isMounted) return;
@@ -478,7 +278,7 @@ export default function SalesPackageNewDetailTemplate({
         .catch(() => {});
     }
     return () => { isMounted = false; };
-  }, [allEntities]);
+  }, [allEntities, envHeaders]);
 
   // Merge available entities
   const catalogPool = useMemo(() => {
@@ -506,114 +306,6 @@ export default function SalesPackageNewDetailTemplate({
     });
     return map;
   }, [catalogPool, remoteSpecifications]);
-
-  // Canonical characteristic definition lookup aligned strictly with ProductSpecification / prodSpecCharValueUse
-  const getCharDefinition = (charName, specId, offeringChar = null) => {
-    if (!charName) return null;
-    const cleanName = String(charName).trim();
-    const lowerName = cleanName.toLowerCase();
-
-    // 1. Offering characteristic definition (prodSpecCharValueUse)
-    const offRaw = offeringChar?.raw || offeringChar || {};
-    let offMaxCard = offRaw.maxCardinality !== undefined ? offRaw.maxCardinality : offeringChar?.maxCardinality;
-    let offMinCard = offRaw.minCardinality !== undefined ? offRaw.minCardinality : offeringChar?.minCardinality;
-    let offValType = offRaw.valueType || offeringChar?.valueType;
-
-    // 2. Underlying ProductSpecification definition (productSpecCharacteristic)
-    const targetSpecId = specId || formData.specificationId;
-    let spec = targetSpecId ? allSpecifications.get(targetSpecId) : null;
-    if (!spec && targetSpecId) {
-      for (const [sId, sObj] of allSpecifications.entries()) {
-        if (sId.toLowerCase() === targetSpecId.toLowerCase() || (sObj.name && sObj.name.toLowerCase() === targetSpecId.toLowerCase())) {
-          spec = sObj;
-          break;
-        }
-      }
-    }
-
-    let specChar = null;
-    if (spec) {
-      const specChars = Array.isArray(spec.productSpecCharacteristic)
-        ? spec.productSpecCharacteristic
-        : (Array.isArray(spec.raw?.productSpecCharacteristic) ? spec.raw.productSpecCharacteristic : []);
-      specChar = specChars.find(sc => (sc.name || '').trim().toLowerCase() === lowerName);
-    }
-
-    // 3. Fallback search across any SalesPackage specifications in catalog
-    if (!specChar) {
-      for (const [sId, sObj] of allSpecifications.entries()) {
-        if (sId.toLowerCase().includes('salespackage') || sId.toLowerCase().includes('sales_package')) {
-          const specChars = sObj.productSpecCharacteristic || sObj.raw?.productSpecCharacteristic || [];
-          const match = specChars.find(sc => (sc.name || '').trim().toLowerCase() === lowerName);
-          if (match) {
-            specChar = match;
-            break;
-          }
-        }
-      }
-    }
-
-    // 4. Fallback to baseline specification dictionary
-    const baseline = BASELINE_SALES_PACKAGE_SPECS[lowerName];
-
-    // Priority merge: offering override -> spec definition -> baseline dictionary
-    let maxCard = (offMaxCard !== undefined && offMaxCard !== null)
-      ? offMaxCard
-      : (specChar?.maxCardinality !== undefined && specChar?.maxCardinality !== null)
-        ? specChar.maxCardinality
-        : baseline?.maxCardinality;
-
-    let minCard = (offMinCard !== undefined && offMinCard !== null)
-      ? offMinCard
-      : (specChar?.minCardinality !== undefined && specChar?.minCardinality !== null)
-        ? specChar.minCardinality
-        : baseline?.minCardinality;
-
-    let valueType = offValType || specChar?.valueType || baseline?.valueType || 'string';
-
-    let hasDef = false;
-    let isArray = false;
-
-    if (maxCard !== undefined && maxCard !== null) {
-      hasDef = true;
-      if (String(maxCard) === '*' || String(maxCard).toLowerCase() === 'unbounded') {
-        isArray = true;
-      } else {
-        const num = Number(maxCard);
-        if (!isNaN(num)) {
-          isArray = num > 1;
-        }
-      }
-    } else if (String(valueType).toLowerCase() === 'array' || String(valueType).toLowerCase() === 'list') {
-      hasDef = true;
-      isArray = true;
-    }
-
-    return {
-      specChar,
-      hasDef,
-      minCardinality: minCard !== undefined && minCard !== null ? Number(minCard) : 0,
-      maxCardinality: maxCard !== undefined && maxCard !== null ? (String(maxCard) === '*' ? '*' : Number(maxCard)) : undefined,
-      valueType,
-      isArray
-    };
-  };
-
-  // Helper to determine whether a characteristic is an array strictly aligning with its definition
-  const resolveIsArray = (charName, specId, offeringChar, configuredValues = []) => {
-    const def = getCharDefinition(charName, specId, offeringChar);
-    if (def && def.hasDef) {
-      // Definition explicitly dictates array vs scalar
-      return def.isArray;
-    }
-    // Fallback if no definition specifies cardinality:
-    const vals = configuredValues.length > 0
-      ? configuredValues
-      : (Array.isArray(offeringChar?.productSpecCharacteristicValue)
-          ? offeringChar.productSpecCharacteristicValue
-          : (offeringChar?.values || []));
-    return vals.length > 1;
-  };
 
   // Extract real Sales Packages from DNEXT Catalog
   const catalogSalesPackages = useMemo(() => {
@@ -672,6 +364,30 @@ export default function SalesPackageNewDetailTemplate({
       return (b.speeds?.down || 0) - (a.speeds?.down || 0);
     });
   }, [catalogPool]);
+
+  // Filtered available templates based on search input
+  const filteredCatalogTemplates = useMemo(() => {
+    const q = (templateSearchQuery || '').trim().toLowerCase();
+    if (!q) return catalogSalesPackages;
+    return catalogSalesPackages.filter(tpl => {
+      const name = (tpl.name || '').toLowerCase();
+      const id = (tpl.id || '').toLowerCase();
+      const tech = (tpl.technology || '').toLowerCase();
+      const speed = tpl.speeds?.down ? `${tpl.speeds.down}` : '';
+      return name.includes(q) || id.includes(q) || tech.includes(q) || speed.includes(q);
+    });
+  }, [catalogSalesPackages, templateSearchQuery]);
+
+  const selectedTemplateObj = useMemo(() => {
+    return catalogSalesPackages.find(p => p.id === selectedTemplateId) || null;
+  }, [catalogSalesPackages, selectedTemplateId]);
+
+  const selectedTemplateDisplayName = useMemo(() => {
+    if (selectedTemplateObj) {
+      return `${selectedTemplateObj.name} (${selectedTemplateObj.technology} · ${selectedTemplateObj.id})`;
+    }
+    return '';
+  }, [selectedTemplateObj]);
 
   // Extract distinct Sales Package Product Specifications
   const availableSalesPackageSpecs = useMemo(() => {
@@ -741,18 +457,6 @@ export default function SalesPackageNewDetailTemplate({
       return name.includes(q) || id.includes(q);
     });
   }, [availableSalesPackageSpecs, specSearchQuery]);
-
-  const selectedSpecObj = useMemo(() => {
-    return availableSalesPackageSpecs.find(s => s.id === formData.specificationId) || null;
-  }, [availableSalesPackageSpecs, formData.specificationId]);
-
-  const selectedSpecDisplayName = useMemo(() => {
-    if (isCreatingNewSpec) return '+ Create New Product Specification...';
-    if (selectedSpecObj) {
-      return `${selectedSpecObj.name || selectedSpecObj.id}${selectedSpecObj.version ? ` (v${selectedSpecObj.version})` : ''}`;
-    }
-    return formData.specificationName || formData.specificationId || '';
-  }, [selectedSpecObj, formData.specificationName, formData.specificationId, isCreatingNewSpec]);
 
   // Extract Bandwidth Options from offers where specification matches *options*bandwith*
   const bandwidthOptionOffers = useMemo(() => {
@@ -906,6 +610,126 @@ export default function SalesPackageNewDetailTemplate({
     // Characteristics copied from template
     characteristics: []
   });
+
+  // ─── Selected Specification Display & Resolution ───
+  const selectedSpecObj = useMemo(() => {
+    return availableSalesPackageSpecs.find(s => s.id === formData.specificationId) || null;
+  }, [availableSalesPackageSpecs, formData.specificationId]);
+
+  const selectedSpecDisplayName = useMemo(() => {
+    if (selectedSpecObj) {
+      return `${selectedSpecObj.name || selectedSpecObj.id}${selectedSpecObj.version ? ` (v${selectedSpecObj.version})` : ''}`;
+    }
+    return formData.specificationName || formData.specificationId || '';
+  }, [selectedSpecObj, formData.specificationName, formData.specificationId]);
+
+  // Canonical characteristic definition lookup aligned strictly with ProductSpecification / prodSpecCharValueUse
+  const getCharDefinition = (charName, specId, offeringChar = null) => {
+    if (!charName) return null;
+    const cleanName = String(charName).trim();
+    const lowerName = cleanName.toLowerCase();
+
+    // 1. Offering characteristic definition (prodSpecCharValueUse)
+    const offRaw = offeringChar?.raw || offeringChar || {};
+    let offMaxCard = offRaw.maxCardinality !== undefined ? offRaw.maxCardinality : offeringChar?.maxCardinality;
+    let offMinCard = offRaw.minCardinality !== undefined ? offRaw.minCardinality : offeringChar?.minCardinality;
+    let offValType = offRaw.valueType || offeringChar?.valueType;
+
+    // 2. Underlying ProductSpecification definition (productSpecCharacteristic)
+    const targetSpecId = specId || formData?.specificationId;
+    let spec = targetSpecId ? allSpecifications.get(targetSpecId) : null;
+    if (!spec && targetSpecId) {
+      for (const [sId, sObj] of allSpecifications.entries()) {
+        if (sId.toLowerCase() === targetSpecId.toLowerCase() || (sObj.name && sObj.name.toLowerCase() === targetSpecId.toLowerCase())) {
+          spec = sObj;
+          break;
+        }
+      }
+    }
+
+    let specChar = null;
+    if (spec) {
+      const specChars = Array.isArray(spec.productSpecCharacteristic)
+        ? spec.productSpecCharacteristic
+        : (Array.isArray(spec.raw?.productSpecCharacteristic) ? spec.raw.productSpecCharacteristic : []);
+      specChar = specChars.find(sc => (sc.name || '').trim().toLowerCase() === lowerName);
+    }
+
+    // 3. Fallback search across any SalesPackage specifications in catalog
+    if (!specChar) {
+      for (const [sId, sObj] of allSpecifications.entries()) {
+        if (sId.toLowerCase().includes('salespackage') || sId.toLowerCase().includes('sales_package')) {
+          const specChars = sObj.productSpecCharacteristic || sObj.raw?.productSpecCharacteristic || [];
+          const match = specChars.find(sc => (sc.name || '').trim().toLowerCase() === lowerName);
+          if (match) {
+            specChar = match;
+            break;
+          }
+        }
+      }
+    }
+
+    // 4. Fallback to baseline specification dictionary
+    const baseline = BASELINE_SALES_PACKAGE_SPECS[lowerName];
+
+    // Priority merge: offering override -> spec definition -> baseline dictionary
+    let maxCard = (offMaxCard !== undefined && offMaxCard !== null)
+      ? offMaxCard
+      : (specChar?.maxCardinality !== undefined && specChar?.maxCardinality !== null)
+        ? specChar.maxCardinality
+        : baseline?.maxCardinality;
+
+    let minCard = (offMinCard !== undefined && offMinCard !== null)
+      ? offMinCard
+      : (specChar?.minCardinality !== undefined && specChar?.minCardinality !== null)
+        ? specChar.minCardinality
+        : baseline?.minCardinality;
+
+    let valueType = offValType || specChar?.valueType || baseline?.valueType || 'string';
+
+    let hasDef = false;
+    let isArray = false;
+
+    if (maxCard !== undefined && maxCard !== null) {
+      hasDef = true;
+      if (String(maxCard) === '*' || String(maxCard).toLowerCase() === 'unbounded') {
+        isArray = true;
+      } else {
+        const num = Number(maxCard);
+        if (!isNaN(num)) {
+          isArray = num > 1;
+        }
+      }
+    } else if (String(valueType).toLowerCase() === 'array' || String(valueType).toLowerCase() === 'list') {
+      hasDef = true;
+      isArray = true;
+    }
+
+    return {
+      specChar,
+      hasDef,
+      minCardinality: minCard !== undefined && minCard !== null ? Number(minCard) : 0,
+      maxCardinality: maxCard !== undefined && maxCard !== null ? (String(maxCard) === '*' ? '*' : Number(maxCard)) : undefined,
+      valueType,
+      isArray
+    };
+  };
+
+  // Helper to determine whether a characteristic is an array strictly aligning with its definition
+  const resolveIsArray = (charName, specId, offeringChar, configuredValues = []) => {
+    const def = getCharDefinition(charName, specId, offeringChar);
+    if (def && def.hasDef) {
+      // Definition explicitly dictates array vs scalar
+      return def.isArray;
+    }
+    // Fallback if no definition specifies cardinality:
+    const vals = configuredValues.length > 0
+      ? configuredValues
+      : (Array.isArray(offeringChar?.productSpecCharacteristicValue)
+          ? offeringChar.productSpecCharacteristicValue
+          : (offeringChar?.values || []));
+    return vals.length > 1;
+  };
 
   // Handle template selection from DNEXT Catalog
   const handleSelectCatalogTemplate = (templateId) => {
@@ -1374,12 +1198,6 @@ export default function SalesPackageNewDetailTemplate({
   };
 
   const handleSelectSpecification = (specId) => {
-    if (specId === '__create_new__') {
-      setIsCreatingNewSpec(true);
-      return;
-    }
-    setIsCreatingNewSpec(false);
-
     if (!specId) {
       setFormData(prev => ({
         ...prev,
@@ -1504,41 +1322,6 @@ export default function SalesPackageNewDetailTemplate({
       ccbBandwidthSku: `BW_${prev.downstreamSpeed || 250}_${prev.upstreamSpeed || 50}_${technology}`,
       characteristics: createdChars
     }));
-  };
-
-  const handleCreateSpecification = () => {
-    if (!newSpecData.id.trim()) {
-      alert('Specification ID is required');
-      return;
-    }
-    const specId = newSpecData.id.trim();
-    const specName = newSpecData.name.trim() || specId;
-    const specVersion = newSpecData.version || '1.0';
-    const technology = detectTechnology('', specName, specId);
-
-    const createdChars = Object.entries(BASELINE_SALES_PACKAGE_SPECS).map(([name, def]) => {
-      const isArray = def.maxCardinality > 1 || def.maxCardinality === '*' || def.maxCardinality === 99;
-      return {
-        id: name,
-        name,
-        isArray,
-        minCardinality: def.minCardinality ?? 0,
-        maxCardinality: def.maxCardinality ?? 99,
-        valueType: def.valueType || 'string',
-        values: [''],
-        value: ''
-      };
-    });
-
-    setFormData(prev => ({
-      ...prev,
-      specificationId: specId,
-      specificationName: specName,
-      specificationVersion: specVersion,
-      technology,
-      characteristics: createdChars
-    }));
-    setIsCreatingNewSpec(false);
   };
 
   // ─── PSM AAW Paket ID & Contract Term Management ───
@@ -3086,28 +2869,157 @@ export default function SalesPackageNewDetailTemplate({
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           {/* Preset Template & Selectable Product Specification Pull-down Menus */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {/* 1. Catalog Template Pull-down */}
+            {/* 1. Offer Template Pull-down (Filterable as user types) */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
               <label style={{ ...labelStyle, marginBottom: 0, width: '220px', whiteSpace: 'nowrap', fontSize: '13px', color: 'var(--ds-text-2)' }}>
-                Select Template from DNEXT Catalog:
+                Offer Template:
               </label>
-              <div style={{ flex: 1, minWidth: '280px', maxWidth: '520px' }}>
-                <select
-                  value={selectedTemplateId}
-                  onChange={(e) => handleSelectCatalogTemplate(e.target.value)}
-                  style={{
-                    ...inputStyle,
-                    fontWeight: '600',
-                    borderColor: selectedTemplateId ? C.vodafoneRed : 'var(--ds-border-strong)'
-                  }}
-                >
-                  <option value="">-- Choose a Sales Package from DNEXT Catalog --</option>
-                  {catalogSalesPackages.map(tpl => (
-                    <option key={tpl.id} value={tpl.id}>
-                      {tpl.name} ({tpl.technology} · {tpl.id})
-                    </option>
-                  ))}
-                </select>
+              <div ref={templateDropdownRef} style={{ flex: 1, minWidth: '280px', maxWidth: '520px', position: 'relative' }}>
+                <div style={{ position: 'relative', width: '100%' }}>
+                  <input
+                    type="text"
+                    placeholder={selectedTemplateDisplayName || "-- Type to filter or select Offer Template --"}
+                    value={isTemplateDropdownOpen ? templateSearchQuery : (selectedTemplateDisplayName || '')}
+                    onChange={(e) => {
+                      setTemplateSearchQuery(e.target.value);
+                      if (!isTemplateDropdownOpen) setIsTemplateDropdownOpen(true);
+                    }}
+                    onFocus={() => {
+                      setIsTemplateDropdownOpen(true);
+                    }}
+                    style={{
+                      ...inputStyle,
+                      paddingRight: '52px',
+                      fontWeight: '600',
+                      fontFamily: 'var(--ds-font-mono)',
+                      fontSize: '12px',
+                      borderColor: isTemplateDropdownOpen ? 'var(--ds-brand)' : (selectedTemplateId ? 'var(--ds-border-strong)' : 'var(--ds-border)'),
+                      boxShadow: isTemplateDropdownOpen ? '0 0 0 2px rgba(230,0,0,0.1)' : 'none',
+                      background: '#ffffff'
+                    }}
+                  />
+                  {/* Right action icons (Clear & Toggle Arrow) */}
+                  <div style={{
+                    position: 'absolute',
+                    right: '8px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}>
+                    {(selectedTemplateId || templateSearchQuery) && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setTemplateSearchQuery('');
+                          handleSelectCatalogTemplate('');
+                        }}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: 'var(--ds-brand)',
+                          cursor: 'pointer',
+                          fontSize: '12px',
+                          padding: '2px 4px',
+                          lineHeight: 1
+                        }}
+                        title="Clear template selection"
+                      >
+                        ✕
+                      </button>
+                    )}
+                    <span
+                      onClick={() => setIsTemplateDropdownOpen(prev => !prev)}
+                      style={{
+                        fontSize: '10px',
+                        color: 'var(--ds-text-3)',
+                        cursor: 'pointer',
+                        padding: '2px 4px',
+                        transform: isTemplateDropdownOpen ? 'rotate(180deg)' : 'none',
+                        transition: 'transform 0.15s ease'
+                      }}
+                      title={isTemplateDropdownOpen ? "Close list" : "Open list"}
+                    >
+                      ▼
+                    </span>
+                  </div>
+                </div>
+
+                {/* Filterable Dropdown Pulldown Menu */}
+                {isTemplateDropdownOpen && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: 'calc(100% + 4px)',
+                      left: 0,
+                      right: 0,
+                      maxHeight: '260px',
+                      overflowY: 'auto',
+                      background: '#ffffff',
+                      border: '1px solid var(--ds-border-strong)',
+                      borderRadius: '6px',
+                      boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
+                      zIndex: 1000
+                    }}
+                  >
+                    {filteredCatalogTemplates.length === 0 ? (
+                      <div style={{ padding: '12px', fontSize: '12px', color: 'var(--ds-text-2)', fontStyle: 'italic', textAlign: 'center' }}>
+                        No templates matching "{templateSearchQuery}"
+                      </div>
+                    ) : (
+                      filteredCatalogTemplates.map(tpl => {
+                        const isSelected = selectedTemplateId === tpl.id;
+                        return (
+                          <div
+                            key={tpl.id}
+                            onClick={() => {
+                              handleSelectCatalogTemplate(tpl.id);
+                              setTemplateSearchQuery('');
+                              setIsTemplateDropdownOpen(false);
+                            }}
+                            style={{
+                              padding: '8px 12px',
+                              fontSize: '12px',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                              borderBottom: '1px solid var(--ds-border)',
+                              background: isSelected ? 'rgba(230,0,0,0.06)' : '#ffffff',
+                              color: isSelected ? 'var(--ds-brand)' : 'var(--ds-text)',
+                              fontWeight: isSelected ? '700' : '500'
+                            }}
+                            onMouseEnter={e => { if (!isSelected) e.currentTarget.style.background = 'var(--ds-surface-subtle)'; }}
+                            onMouseLeave={e => { if (!isSelected) e.currentTarget.style.background = '#ffffff'; }}
+                          >
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', overflow: 'hidden' }}>
+                              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                {tpl.name}
+                              </span>
+                              <span style={{ fontSize: '10px', color: 'var(--ds-text-3)', fontFamily: 'var(--ds-font-mono)' }}>
+                                {tpl.id}
+                              </span>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+                              <span style={{
+                                fontSize: '10px',
+                                padding: '1px 6px',
+                                borderRadius: '10px',
+                                background: isSelected ? 'var(--ds-brand)' : 'var(--ds-surface-2)',
+                                color: isSelected ? '#ffffff' : 'var(--ds-text-2)',
+                                fontWeight: '600'
+                              }}>
+                                {tpl.technology}
+                              </span>
+                              {isSelected && <span style={{ color: 'var(--ds-brand)', fontWeight: '800' }}>✓</span>}
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                )}
               </div>
               {autoSelectedMeta && (
                 <span style={{
@@ -3167,7 +3079,7 @@ export default function SalesPackageNewDetailTemplate({
                     alignItems: 'center',
                     gap: '4px'
                   }}>
-                    {(formData.specificationId || specSearchQuery || isCreatingNewSpec) && (
+                    {(formData.specificationId || specSearchQuery) && (
                       <button
                         type="button"
                         onClick={() => {
@@ -3222,32 +3134,6 @@ export default function SalesPackageNewDetailTemplate({
                       zIndex: 1000
                     }}
                   >
-                    {/* Option: Create New Product Specification */}
-                    <div
-                      onClick={() => {
-                        handleSelectSpecification('__create_new__');
-                        setSpecSearchQuery('');
-                        setIsSpecDropdownOpen(false);
-                      }}
-                      style={{
-                        padding: '8px 12px',
-                        fontSize: '12px',
-                        fontWeight: '700',
-                        color: 'var(--ds-brand)',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        borderBottom: '1px solid var(--ds-border)',
-                        background: isCreatingNewSpec ? 'rgba(230,0,0,0.06)' : '#ffffff'
-                      }}
-                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(230,0,0,0.06)'; }}
-                      onMouseLeave={e => { if (!isCreatingNewSpec) e.currentTarget.style.background = '#ffffff'; }}
-                    >
-                      <span>+ Create New Product Specification...</span>
-                      {isCreatingNewSpec && <span style={{ marginLeft: 'auto', fontWeight: '800' }}>✓</span>}
-                    </div>
-
                     {/* Filtered Specification Items */}
                     {filteredSalesPackageSpecs.length === 0 ? (
                       <div style={{ padding: '12px', fontSize: '12px', color: 'var(--ds-text-2)', fontStyle: 'italic', textAlign: 'center' }}>
@@ -3255,7 +3141,7 @@ export default function SalesPackageNewDetailTemplate({
                       </div>
                     ) : (
                       filteredSalesPackageSpecs.map(spec => {
-                        const isSelected = !isCreatingNewSpec && formData.specificationId === spec.id;
+                        const isSelected = formData.specificationId === spec.id;
                         return (
                           <div
                             key={spec.id}
@@ -3312,79 +3198,6 @@ export default function SalesPackageNewDetailTemplate({
                 )}
               </div>
             </div>
-
-            {/* Inline Panel when creating a new Product Specification */}
-            {isCreatingNewSpec && (
-              <div style={{
-                background: 'var(--ds-surface-subtle)',
-                border: '1px solid var(--ds-border-strong)',
-                borderRadius: '8px',
-                padding: '12px 16px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '10px',
-                marginLeft: '232px',
-                maxWidth: '520px'
-              }}>
-                <div style={{ fontSize: '12px', fontWeight: '700', color: 'var(--ds-text)' }}>
-                  Create New Product Specification
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                  <div>
-                    <label style={{ ...labelStyle, fontSize: '11px' }}>Spec ID *</label>
-                    <input
-                      type="text"
-                      value={newSpecData.id}
-                      onChange={(e) => setNewSpecData(p => ({ ...p, id: e.target.value }))}
-                      style={{ ...inputStyle, fontFamily: 'var(--ds-font-mono)', fontSize: '12px', padding: '5px 8px' }}
-                      placeholder="e.g. productSpecification_Custom"
-                    />
-                  </div>
-                  <div>
-                    <label style={{ ...labelStyle, fontSize: '11px' }}>Spec Name</label>
-                    <input
-                      type="text"
-                      value={newSpecData.name}
-                      onChange={(e) => setNewSpecData(p => ({ ...p, name: e.target.value }))}
-                      style={{ ...inputStyle, fontSize: '12px', padding: '5px 8px' }}
-                      placeholder="e.g. Custom SalesPackage Spec"
-                    />
-                  </div>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-                  <button
-                    type="button"
-                    onClick={() => setIsCreatingNewSpec(false)}
-                    style={{
-                      background: '#ffffff',
-                      border: '1px solid var(--ds-border-strong)',
-                      borderRadius: '4px',
-                      padding: '4px 10px',
-                      fontSize: '12px',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleCreateSpecification}
-                    style={{
-                      background: C.vodafoneRed,
-                      color: '#ffffff',
-                      border: 'none',
-                      borderRadius: '4px',
-                      padding: '4px 12px',
-                      fontSize: '12px',
-                      fontWeight: '700',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    Save & Use Specification
-                  </button>
-                </div>
-              </div>
-            )}
 
             {/* 3. PSM AAW Paket Id (multi-cardinality psm_aaw_packet_id) */}
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', flexWrap: 'wrap' }}>
