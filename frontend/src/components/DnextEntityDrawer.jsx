@@ -69,7 +69,7 @@ class DrawerErrorBoundary extends React.Component {
   }
 }
 
-export default function DnextEntityDrawer({ item, isOpen, onClose, onPurge, allEntities = [], activeEnv, token, onSuccessRefresh }) {
+export default function DnextEntityDrawer({ item, isOpen, onClose, onPurge, allEntities = [], activeEnv, token, onSuccessRefresh, zIndex = 1200 }) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
   const [charSearch, setCharSearch] = useState('');
@@ -83,6 +83,30 @@ export default function DnextEntityDrawer({ item, isOpen, onClose, onPurge, allE
   useEffect(() => {
     setActiveItem(item);
     setNavHistory([]);
+    if (item && (item.entityType === 'Category' || String(item.id).startsWith('FN')) && (!item.raw || !item.raw.subCategory)) {
+      fetch('/api/dnext/categories?limit=1000')
+        .then(res => res.ok ? res.json() : [])
+        .then(categories => {
+          if (Array.isArray(categories)) {
+            const match = categories.find(c => c.id && String(c.id).toLowerCase() === String(item.id).toLowerCase());
+            if (match) {
+              setActiveItem(prev => {
+                if (prev && String(prev.id).toLowerCase() === String(item.id).toLowerCase()) {
+                  return {
+                    ...prev,
+                    name: match.name || prev.name,
+                    version: match.version !== undefined ? String(match.version) : prev.version,
+                    lifecycleStatus: match.lifecycleStatus || prev.lifecycleStatus,
+                    raw: match
+                  };
+                }
+                return prev;
+              });
+            }
+          }
+        })
+        .catch(() => {});
+    }
   }, [item?.id, item?.version, isOpen]);
 
   const currentItem = activeItem || item;
@@ -197,6 +221,29 @@ export default function DnextEntityDrawer({ item, isOpen, onClose, onPurge, allE
           }
         })
         .catch(() => {});
+    } else if (entityType === 'Category' && (!nextEntity.raw || !nextEntity.raw.subCategory)) {
+      fetch('/api/dnext/categories?limit=1000')
+        .then(res => res.ok ? res.json() : [])
+        .then(categories => {
+          if (Array.isArray(categories)) {
+            const match = categories.find(c => c.id && String(c.id).toLowerCase() === String(targetId).toLowerCase());
+            if (match) {
+              setActiveItem(prev => {
+                if (prev && String(prev.id).toLowerCase() === String(targetId).toLowerCase()) {
+                  return {
+                    ...prev,
+                    name: match.name || prev.name,
+                    version: match.version !== undefined ? String(match.version) : prev.version,
+                    lifecycleStatus: match.lifecycleStatus || prev.lifecycleStatus,
+                    raw: match
+                  };
+                }
+                return prev;
+              });
+            }
+          }
+        })
+        .catch(() => {});
     }
   };
 
@@ -259,7 +306,7 @@ export default function DnextEntityDrawer({ item, isOpen, onClose, onPurge, allE
   });
 
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 1200, display: 'flex', justifyContent: 'flex-end' }}>
+    <div style={{ position: 'fixed', inset: 0, zIndex, display: 'flex', justifyContent: 'flex-end' }}>
       {/* Backdrop */}
       <div
         onClick={onClose}
@@ -276,7 +323,7 @@ export default function DnextEntityDrawer({ item, isOpen, onClose, onPurge, allE
       <div
         style={{
           position: 'relative',
-          zIndex: 1201,
+          zIndex: zIndex + 1,
           width: isFullscreen ? '100vw' : '740px',
           maxWidth: '100vw',
           height: '100vh',
@@ -647,7 +694,10 @@ export default function DnextEntityDrawer({ item, isOpen, onClose, onPurge, allE
               {selectedTemplateId === 'category' && (
                 <CategoryDetailTemplate
                   item={currentItem}
-                  onNavigateToEntity={(cat) => handleNavigateToEntity(cat, 'Category')}
+                  allEntities={allEntities}
+                  activeEnv={activeEnv}
+                  token={token}
+                  onNavigateToEntity={(entity, explicitType) => handleNavigateToEntity(entity, explicitType || (entity?.isBundle ? 'ProductOffering' : 'Category'))}
                   copyToClipboard={copyToClipboard}
                   copiedKey={copiedKey}
                 />

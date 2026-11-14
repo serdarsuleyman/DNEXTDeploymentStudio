@@ -3,6 +3,117 @@
     "@baseType": "Rule",
     "@schemaLocation": "/api/ruleEngine/v1/schema/rule.json",
     "@type": "BasicRule",
+    "id": "CR00830012",
+    "href": "/api/ruleEngine/v1/rule/CR00830012",
+    "name": "Auto-Add Shipping Costs (Versandkosten) for New Hardware",
+    "branchName": "MATCH",
+    "ruleType": "FORSOME",
+    "conditionVariantType": "expression",
+    "condition": [
+      "cart.containsProductInCategory(\"FN169\") || cart.containsProductInCategory(\"FN178\")"
+    ],
+    "result": {
+      "@type": "Result",
+      "variantType": "attributeValueList",
+      "attribute": {
+        "name": "Product Versandkosten Obligated Target",
+        "attribute": [
+          {
+            "name": "TargetAggregator",
+            "value": "having"
+          },
+          {
+            "name": "ConditionValue",
+            "value": ""
+          },
+          {
+            "name": "TargetCondition",
+            "attribute": [
+              {
+                "name": "Type",
+                "value": "Product"
+              },
+              {
+                "name": "Operator",
+                "value": ""
+              },
+              {
+                "name": "ConditionValue",
+                "value": ""
+              },
+              {
+                "name": "Params",
+                "attribute": [
+                  {
+                    "name": "SKU",
+                    "value": "PO_Versandkosten"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "category": [
+      "implicitCompatibility"
+    ],
+    "status": "draft",
+    "stateCategory": "Initial",
+    "ruleCharacteristic": [
+      {
+        "name": "package_type",
+        "value": "DSL"
+      },
+      {
+        "name": "description",
+        "value": "New Compatibility Rule"
+      },
+      {
+        "name": "source_type",
+        "value": "Service"
+      },
+      {
+        "name": "priority",
+        "value": "6"
+      },
+      {
+        "name": "operation_type",
+        "value": "Service-Product"
+      },
+      {
+        "name": "effective_date",
+        "value": "2026-11-14"
+      },
+      {
+        "name": "operation.value",
+        "value": "Defaulted-Obligated"
+      },
+      {
+        "name": "operation.askconfirmationfirst",
+        "value": "false"
+      },
+      {
+        "name": "operation.overrideinitialselectable",
+        "value": "false"
+      },
+      {
+        "name": "channels",
+        "value": "*"
+      },
+      {
+        "name": "process_contexts",
+        "value": "ACQ,MIGCOC"
+      }
+    ],
+    "revision": 0,
+    "createdDate": "2026-11-14T01:00:45.002Z",
+    "updatedDate": "2026-11-14T01:00:45.002Z"
+  },
+  {
+    "@baseType": "Rule",
+    "@schemaLocation": "/api/ruleEngine/v1/schema/rule.json",
+    "@type": "BasicRule",
     "name": "Sales Package at BB 1000 allowed  no oxg",
     "branchName": "MATCH",
     "ruleType": "FORALL",

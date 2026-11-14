@@ -17,6 +17,8 @@ import {
   classifyRule,
   detectProductDomain
 } from '../../utils/ruleDescriptors';
+import { getRuleCategoryMeta } from '../../utils/categoryResolver';
+import { RULE_COMMERCIAL_DEFINITIONS } from '../../data/ruleCommercialDefinitions.js';
 
 const STORAGE_KEY = 'dnext_rules_visible_columns';
 
@@ -218,18 +220,48 @@ export default function RulesListView({
           </div>
         );
 
+      case 'businessDefinition': {
+        const ref = RULE_COMMERCIAL_DEFINITIONS[item.id];
+        const chars = extractCompatibilityCharacteristics(item);
+        const text = ref?.businessDefinition || chars.description || item.name;
+        return (
+          <div
+            title={text}
+            style={{
+              fontSize: '12px',
+              color: 'var(--ds-text)',
+              lineHeight: '1.4',
+              maxWidth: '320px',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            {text}
+          </div>
+        );
+      }
+
       case 'category': {
         const cat = Array.isArray(item.category) ? item.category[0] : item.category;
+        const meta = getRuleCategoryMeta(cat);
         return (
-          <span style={{
-            fontSize: '11px',
-            fontWeight: '600',
-            color: 'var(--ds-spec)',
-            background: 'rgba(124,58,237,0.08)',
-            padding: '2px 7px',
-            borderRadius: '4px'
-          }}>
-            {cat || '-'}
+          <span
+            title={`${meta.fullTitle}: ${meta.description}`}
+            style={{
+              fontSize: '11px',
+              fontWeight: '600',
+              color: meta.badgeColor || 'var(--ds-spec)',
+              background: meta.bg || 'rgba(124,58,237,0.08)',
+              border: `1px solid ${meta.border || 'transparent'}`,
+              padding: '2px 7px',
+              borderRadius: '4px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}
+          >
+            <span>{meta.shortLabel}</span>
           </span>
         );
       }

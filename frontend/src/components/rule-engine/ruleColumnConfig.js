@@ -7,6 +7,7 @@ import {
   classifyRule,
   detectProductDomain
 } from '../../utils/ruleDescriptors.js';
+import { RULE_COMMERCIAL_DEFINITIONS } from '../../data/ruleCommercialDefinitions.js';
 
 export { evaluateJsonPath };
 
@@ -39,6 +40,10 @@ export function getColumnRawValue(item, colDef) {
       return detectProductDomain(item) || '';
     case 'name':
       return String(item.name || '');
+    case 'businessDefinition': {
+      const ref = RULE_COMMERCIAL_DEFINITIONS[item.id];
+      return ref?.businessDefinition || chars.description || item.name || '';
+    }
     case 'category':
       return Array.isArray(item.category) ? item.category.join(', ') : String(item.category || '');
     case 'ruleType':
@@ -112,6 +117,17 @@ export const AVAILABLE_COLUMNS = [
     width: 'auto',
     minWidth: '240px',
     defaultVisible: true,
+    sortable: true,
+    filterable: true,
+    filterType: 'text'
+  },
+  {
+    key: 'businessDefinition',
+    label: 'Commercial Definition',
+    description: 'LLM-generated commercial definition and policy rationale',
+    width: '320px',
+    minWidth: '240px',
+    defaultVisible: false,
     sortable: true,
     filterable: true,
     filterType: 'text'

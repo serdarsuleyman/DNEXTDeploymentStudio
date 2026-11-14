@@ -140,7 +140,8 @@ export function extractCompatibilityCharacteristics(rule) {
 
   return {
     package_type: map['package_type'] || 'DSL',
-    description: map['description'] || rule?.name || '',
+    description: map['description'] || rule?.description || rule?.name || '',
+    business_intent: map['business_intent'] || '',
     source_type: map['source_type'] || 'Service',
     priority: map['priority'] !== undefined ? parseInt(map['priority'], 10) || 5 : 5,
     operation_type: map['operation_type'] || 'Service-Service',
@@ -188,7 +189,15 @@ export function extractResultTargets(rule) {
             if (p.name === 'name') pName = p.value;
             if (p.name === 'value') pValue = p.value;
           });
-          if (pName) params[pName] = pValue;
+          if (pName) {
+            params[pName] = pValue;
+          } else {
+            pAttrs.forEach(p => {
+              if (p.name && p.name !== 'name' && p.value !== undefined) {
+                params[p.name] = p.value;
+              }
+            });
+          }
         }
       });
 
@@ -196,7 +205,33 @@ export function extractResultTargets(rule) {
     }
   });
 
-  return { groupName, targetAggregator, conditionValue, conditions };
+  // Extract helper properties from first condition if available
+  const firstCatCond = conditions.find(c =>
+    c.type === 'Category' ||
+    c.type === 'catalog.getProductsInCategory' ||
+    c.params?.categoryID ||
+    c.params?.categoryId
+  );
+  const categoryId = firstCatCond?.params?.categoryID || firstCatCond?.params?.categoryId || null;
+
+  const firstProdCond = conditions.find(c =>
+    c.type === 'Product' ||
+    c.params?.SKU ||
+    c.params?.sku
+  );
+  const productSku = firstProdCond?.params?.SKU || firstProdCond?.params?.sku || null;
+
+  const selectionType = firstProdCond ? 'Product' : (firstCatCond ? 'Category' : (groupName ? 'Category' : 'Unknown'));
+
+  return {
+    groupName,
+    targetAggregator,
+    conditionValue,
+    conditions,
+    selectionType,
+    categoryId,
+    productSku
+  };
 }
 
 /**
@@ -530,6 +565,7 @@ export function serializeCompatibilityCharacteristics(structured) {
   return [
     { name: 'package_type', value: String(structured.package_type || 'DSL') },
     { name: 'description', value: String(structured.description || '') },
+    ...(structured.business_intent ? [{ name: 'business_intent', value: String(structured.business_intent) }] : []),
     { name: 'source_type', value: String(structured.source_type || 'Service') },
     { name: 'priority', value: String(structured.priority !== undefined ? structured.priority : 5) },
     { name: 'operation_type', value: String(structured.operation_type || 'Service-Service') },
@@ -558,8 +594,9 @@ export function generateNaturalLanguageSummary(rule) {
   const actionVerb = (chars.operation_value || 'Allowed').toUpperCase();
 
   const targetDescriptions = targets.conditions.map(c => {
-    if (c.type === 'catalog.getProductsInCategory') {
-      return `products in Category ${c.params?.categoryID || '(category)'}`;
+    if (c.type === 'catalog.getProductsInCategory' || c.type === 'Category') {
+      const cid = c.params?.categoryID || c.params?.categoryId || c.params?.name;
+      return `Category ${cid || '(category)'}`;
     }
     if (c.type === 'catalog.getTariffsWithContractValue') {
       return `tariffs with contract value ${c.params?.Operation || '<='}`;

@@ -66,6 +66,93 @@ async function resolveAuthToken(req, envName, apiUrl, authUrl) {
   return null;
 }
 
+const CR_DEFINITIONS_FILE = path.join(__dirname, '../data/CR_BusinessDefinitions.json');
+const ROOT_CR_DEFINITIONS_FILE = path.join(__dirname, '../../CR_BusinessDefinitions.json');
+const LEGACY_DEFINITIONS_FILE = path.join(__dirname, '../data/rule_commercial_definitions.json');
+
+// In-memory cache for commercial definitions
+let definitionsCache = null;
+
+function loadCommercialDefinitions() {
+  if (definitionsCache) return definitionsCache;
+  try {
+    const fileToLoad = fs.existsSync(CR_DEFINITIONS_FILE)
+      ? CR_DEFINITIONS_FILE
+      : (fs.existsSync(ROOT_CR_DEFINITIONS_FILE) ? ROOT_CR_DEFINITIONS_FILE : LEGACY_DEFINITIONS_FILE);
+
+    if (fs.existsSync(fileToLoad)) {
+      definitionsCache = JSON.parse(fs.readFileSync(fileToLoad, 'utf8'));
+      return definitionsCache;
+    }
+  } catch (err) {
+    console.error('[RulesRoute] Failed to load rule commercial definitions:', err.message);
+  }
+  definitionsCache = {};
+  return definitionsCache;
+}
+
+function saveCommercialDefinitions(defs) {
+  definitionsCache = defs;
+  try {
+    const json = JSON.stringify(defs, null, 2);
+    fs.writeFileSync(CR_DEFINITIONS_FILE, json, 'utf8');
+    if (fs.existsSync(path.dirname(ROOT_CR_DEFINITIONS_FILE))) {
+      fs.writeFileSync(ROOT_CR_DEFINITIONS_FILE, json, 'utf8');
+    }
+    fs.writeFileSync(LEGACY_DEFINITIONS_FILE, json, 'utf8');
+  } catch (err) {
+    console.error('[RulesRoute] Failed to save rule commercial definitions:', err.message);
+  }
+}
+
+/**
+ * GET /api/dnext/rules/definitions
+ * Returns all LLM-generated commercial definitions and plain-language intents
+ */
+router.get('/rules/definitions', (req, res) => {
+  const defs = loadCommercialDefinitions();
+  res.json({
+    total: Object.keys(defs).length,
+    definitions: defs
+  });
+});
+
+/**
+ * GET /api/dnext/rules/:id/definition
+ * Returns commercial definition and plain-language intent for a specific rule
+ */
+router.get('/rules/:id/definition', (req, res) => {
+  const defs = loadCommercialDefinitions();
+  const ruleDef = defs[req.params.id];
+  if (!ruleDef) {
+    return res.status(404).json({ error: `Definition for rule ${req.params.id} not found` });
+  }
+  res.json(ruleDef);
+});
+
+/**
+ * PUT /api/dnext/rules/:id/definition
+ * Updates or overrides commercial definition for a specific rule
+ */
+router.put('/rules/:id/definition', (req, res) => {
+  const { id } = req.params;
+  const { businessDefinition, plainLanguageIntent, policyTag, regulatoryRef } = req.body;
+  const defs = loadCommercialDefinitions();
+
+  defs[id] = {
+    ...(defs[id] || { ruleId: id }),
+    businessDefinition: businessDefinition !== undefined ? businessDefinition : defs[id]?.businessDefinition,
+    plainLanguageIntent: plainLanguageIntent !== undefined ? plainLanguageIntent : defs[id]?.plainLanguageIntent,
+    policyTag: policyTag || defs[id]?.policyTag || 'Commercial Policy',
+    regulatoryRef: regulatoryRef || defs[id]?.regulatoryRef,
+    userOverridden: true,
+    lastUpdated: new Date().toISOString()
+  };
+
+  saveCommercialDefinitions(defs);
+  res.json({ success: true, definition: defs[id] });
+});
+
 /**
  * GET /api/dnext/rules
  * List, filter and search BasicRules from live DNEXT Rule Engine or SQLite cache

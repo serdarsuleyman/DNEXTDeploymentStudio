@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Icon from '../ui/Icon';
+import DnextEntityDrawer from '../DnextEntityDrawer';
 import {
   RULE_CATEGORIES,
   RULE_STATUSES,
@@ -18,6 +19,16 @@ import {
   detectProductDomain,
   generateNaturalLanguageSummary
 } from '../../utils/ruleDescriptors';
+import {
+  RULE_CATEGORY_DEFINITIONS,
+  getRuleCategoryMeta,
+  lookupCatalogCategory,
+  formatCategoryLabel,
+  getAllCatalogCategories,
+  extractCategoriesFromText,
+  generateRuleHumanSummary
+} from '../../utils/categoryResolver';
+import { RULE_COMMERCIAL_DEFINITIONS } from '../../data/ruleCommercialDefinitions.js';
 
 const C = {
   bg: '#ffffff',
@@ -44,8 +55,12 @@ export default function RuleDetailDrawer({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [activeTab, setActiveTab] = useState('visual'); // 'visual' | 'json'
   const [copiedId, setCopiedId] = useState(false);
+  const [copiedSummary, setCopiedSummary] = useState(false);
+  const [showCategoryHelp, setShowCategoryHelp] = useState(false);
   const [expandedConditions, setExpandedConditions] = useState({});
   const [allConditionsMultiline, setAllConditionsMultiline] = useState(false);
+  const [isSavingReference, setIsSavingReference] = useState(false);
+  const [savedReferenceFeedback, setSavedReferenceFeedback] = useState(false);
 
   // Form State
   const [formData, setFormData] = useState(null);
@@ -67,7 +82,17 @@ export default function RuleDetailDrawer({
         status: rule.status || 'draft',
         stateCategory: rule.stateCategory || 'Initial'
       });
-      setCharsData(extractCompatibilityCharacteristics(rule));
+
+      const initialChars = extractCompatibilityCharacteristics(rule);
+      const refDef = (rule.id && RULE_COMMERCIAL_DEFINITIONS[rule.id]) || null;
+      if (refDef?.businessDefinition) {
+        initialChars.description = refDef.businessDefinition;
+      }
+      if (refDef?.plainLanguageIntent) {
+        initialChars.business_intent = refDef.plainLanguageIntent;
+      }
+      setCharsData(initialChars);
+
       setTargetsData(extractResultTargets(rule));
       setRawJsonText(JSON.stringify(rule, null, 2));
       setJsonError(null);
@@ -99,6 +124,7 @@ export default function RuleDetailDrawer({
       id: formData.id,
       href: `/api/ruleEngine/v1/rule/${formData.id}`,
       name: formData.name,
+      description: charsData.description || formData.name,
       branchName: "MATCH",
       ruleType: formData.ruleType,
       conditionVariantType: formData.conditionVariantType,
@@ -122,10 +148,67 @@ export default function RuleDetailDrawer({
     };
   }, [formData, charsData, targetsData]);
 
-  // Natural language summary generated live
-  const naturalLanguageSummary = useMemo(() => {
-    return generateNaturalLanguageSummary(currentMergedRule);
-  }, [currentMergedRule]);
+  // Plain-Language Rule Summary generated live with Category Resolution
+  const humanRuleSummary = useMemo(() => {
+    return generateRuleHumanSummary(formData, charsData, targetsData);
+  }, [formData, charsData, targetsData]);
+
+  // Catalog category catalog list for searchable dropdowns
+  const allCatalogCategories = useMemo(() => {
+    return getAllCatalogCategories();
+  }, []);
+
+  // Commercial definition entry from reference data JSON
+  const currentReferenceDef = useMemo(() => {
+    return (formData?.id && RULE_COMMERCIAL_DEFINITIONS[formData.id]) || null;
+  }, [formData?.id]);
+
+  // Modal Detail View for any referenced Entity (Category or ProductOffering)
+  const [inspectedEntity, setInspectedEntity] = useState(null);
+
+  const handleOpenEntity = (entity) => {
+    if (!entity) return;
+    const id = typeof entity === 'string' ? entity : (entity.id || entity.name);
+    const isCat = String(id).startsWith('FN') || entity.entityType === 'Category';
+    const entityType = isCat ? 'Category' : (entity.entityType || 'ProductOffering');
+    const name = entity.name || id;
+    setInspectedEntity({
+      id,
+      name,
+      entityType,
+      version: entity.version !== undefined ? String(entity.version) : '1',
+      lifecycleStatus: entity.lifecycleStatus || 'Launched',
+      raw: typeof entity === 'object' ? entity : { id, name }
+    });
+  };
+
+  // Aggregated list of all categories referenced in the rule (intent, conditions, targets)
+  const allReferencedCategories = useMemo(() => {
+    const map = new Map();
+    // 1. From reference commercial definition
+    (currentReferenceDef?.referencedCategories || []).forEach(c => {
+      if (c?.id) map.set(c.id, c);
+    });
+    // 2. From conditions expressions (e.g. FN40, FN76)
+    (formData?.condition || []).forEach(condStr => {
+      extractCategoriesFromText(condStr).forEach(c => {
+        if (c?.id && !map.has(c.id)) map.set(c.id, c);
+      });
+    });
+    // 3. From target scope (e.g. FN36)
+    const targetCatId = targetsData?.categoryId || targetsData?.conditions?.find(c =>
+      c.type === 'Category' ||
+      c.type === 'catalog.getProductsInCategory' ||
+      c.params?.categoryID ||
+      c.params?.categoryId
+    )?.params?.categoryID;
+    if (targetCatId && !map.has(targetCatId)) {
+      const resolved = lookupCatalogCategory(targetCatId);
+      if (resolved) map.set(targetCatId, resolved);
+      else map.set(targetCatId, { id: targetCatId, name: targetCatId });
+    }
+    return Array.from(map.values());
+  }, [currentReferenceDef, formData?.condition, targetsData]);
 
   if (!isOpen || !rule || !formData) return null;
 
@@ -133,6 +216,52 @@ export default function RuleDetailDrawer({
     navigator.clipboard.writeText(formData.id);
     setCopiedId(true);
     setTimeout(() => setCopiedId(false), 2000);
+  };
+
+  const handleCopySummary = () => {
+    navigator.clipboard.writeText(humanRuleSummary);
+    setCopiedSummary(true);
+    setTimeout(() => setCopiedSummary(false), 2000);
+  };
+
+  const handleUseSummaryAsDefinition = () => {
+    setCharsData(prev => ({
+      ...prev,
+      description: humanRuleSummary,
+      business_intent: humanRuleSummary
+    }));
+  };
+
+  const handleSaveReferenceDefinition = async () => {
+    if (!formData?.id) return;
+    setIsSavingReference(true);
+    try {
+      await fetch(`/api/dnext/rules/${formData.id}/definition`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          businessDefinition: charsData.description,
+          plainLanguageIntent: humanRuleSummary,
+          policyTag: currentReferenceDef?.policyTag || 'Commercial Policy'
+        })
+      });
+      setSavedReferenceFeedback(true);
+      setTimeout(() => setSavedReferenceFeedback(false), 2500);
+    } catch (err) {
+      console.error('Failed to save commercial definition to reference data:', err);
+    } finally {
+      setIsSavingReference(false);
+    }
+  };
+
+  const handleInsertTag = (tag) => {
+    setCharsData(prev => {
+      const current = prev.description ? prev.description.trim() + ' ' : '';
+      return {
+        ...prev,
+        description: current + tag + ' '
+      };
+    });
   };
 
   const handleJsonChange = (e) => {
@@ -238,16 +367,6 @@ export default function RuleDetailDrawer({
     }));
   };
 
-  const formatConditionMultiline = (index) => {
-    const str = formData.condition[index] || '';
-    const formatted = str
-      .replace(/\s*\|\|\s*/g, '\n  || ')
-      .replace(/\s*&&\s*/g, '\n  && ')
-      .trim();
-    updateCondition(index, formatted);
-    setExpandedConditions(prev => ({ ...prev, [index]: true }));
-  };
-
   const flattenConditionSingleLine = (index) => {
     const str = formData.condition[index] || '';
     const flattened = str.replace(/\s*\n\s*/g, ' ').trim();
@@ -331,18 +450,111 @@ export default function RuleDetailDrawer({
           {/* Top Row: Badges, View Switcher & Action Buttons */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-              {/* Category Pill */}
-              <span style={{
-                fontSize: '11px',
-                fontWeight: '700',
-                color: 'var(--ds-brand)',
-                background: 'rgba(230,0,0,0.08)',
-                border: '1px solid rgba(230,0,0,0.25)',
-                padding: '2px 8px',
-                borderRadius: '4px'
-              }}>
-                {formData.category}
-              </span>
+              {/* Category Pill with Commercial Meaning Popover */}
+              {(() => {
+                const catMeta = getRuleCategoryMeta(formData.category);
+                return (
+                  <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
+                    <div
+                      style={{
+                        fontSize: '11px',
+                        fontWeight: '700',
+                        color: catMeta.badgeColor || 'var(--ds-brand)',
+                        background: catMeta.bg || 'rgba(230,0,0,0.08)',
+                        border: `1px solid ${catMeta.border || 'rgba(230,0,0,0.25)'}`,
+                        padding: '2px 8px',
+                        borderRadius: '4px',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '5px'
+                      }}
+                      title={`${catMeta.fullTitle}\n\n${catMeta.description}\n\nTiming: ${catMeta.evaluationPhase}`}
+                    >
+                      <span>{catMeta.shortLabel}</span>
+                      <button
+                        type="button"
+                        onClick={() => setShowCategoryHelp(!showCategoryHelp)}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          cursor: 'pointer',
+                          padding: '0 2px',
+                          color: 'inherit',
+                          fontSize: '11px',
+                          opacity: 0.85
+                        }}
+                        title="Learn more about this rule category"
+                      >
+                        ℹ️
+                      </button>
+                    </div>
+
+                    {/* Category Explanation Popover */}
+                    {showCategoryHelp && (
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: '100%',
+                          left: 0,
+                          marginTop: '6px',
+                          width: '320px',
+                          background: '#ffffff',
+                          border: '1px solid var(--ds-border-strong)',
+                          borderRadius: '8px',
+                          padding: '12px',
+                          boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+                          zIndex: 1300,
+                          animation: 'fadeIn 0.15s ease'
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                          <span style={{ fontSize: '12px', fontWeight: '800', color: catMeta.badgeColor }}>
+                            {catMeta.fullTitle}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setShowCategoryHelp(false)}
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.muted, fontSize: '13px' }}
+                          >
+                            ✕
+                          </button>
+                        </div>
+                        <p style={{ fontSize: '11px', color: C.text, lineHeight: '1.45', margin: '0 0 8px 0' }}>
+                          {catMeta.description}
+                        </p>
+                        <div style={{ fontSize: '10px', color: C.muted, background: 'var(--ds-surface-subtle)', padding: '5px 7px', borderRadius: '4px', marginBottom: '10px' }}>
+                          ⏱️ <strong>Evaluation Timing:</strong> {catMeta.evaluationPhase}
+                        </div>
+                        <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: '8px' }}>
+                          <span style={{ fontSize: '10px', fontWeight: '700', color: C.muted, display: 'block', marginBottom: '4px' }}>
+                            Change Rule Category:
+                          </span>
+                          <select
+                            value={formData.category}
+                            onChange={e => {
+                              setFormData(prev => ({ ...prev, category: e.target.value }));
+                            }}
+                            style={{
+                              width: '100%',
+                              padding: '5px 8px',
+                              borderRadius: '4px',
+                              border: `1px solid ${C.border}`,
+                              fontSize: '11px',
+                              fontWeight: '600'
+                            }}
+                          >
+                            {Object.values(RULE_CATEGORY_DEFINITIONS).map(cDef => (
+                              <option key={cDef.id} value={cDef.id}>
+                                {cDef.shortLabel} ({cDef.id})
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
 
               {/* Status Pill */}
               <span style={{
@@ -492,27 +704,18 @@ export default function RuleDetailDrawer({
           {/* Rule Name and Copyable ID */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <input
-                type="text"
-                value={formData.name}
-                onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                placeholder="Enter rule title / commercial description…"
-                style={{
-                  width: '100%',
-                  fontSize: '18px',
-                  fontWeight: '700',
-                  color: C.text,
-                  border: '1px solid transparent',
-                  borderRadius: '4px',
-                  padding: '4px 6px',
-                  outline: 'none',
-                  background: 'transparent'
-                }}
-                onFocus={e => { e.target.style.background = '#ffffff'; e.target.style.borderColor = 'var(--ds-brand)'; }}
-                onBlur={e => { e.target.style.background = 'transparent'; e.target.style.borderColor = 'transparent'; }}
-              />
+              <h2 style={{
+                margin: 0,
+                fontSize: '18px',
+                fontWeight: '700',
+                color: C.text,
+                lineHeight: '1.3',
+                wordBreak: 'break-word'
+              }}>
+                {formData.name || 'Untitled Rule'}
+              </h2>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
               <code style={{ fontSize: '12px', color: 'var(--ds-brand)', background: 'rgba(230,0,0,0.06)', border: '1px solid rgba(230,0,0,0.2)', padding: '3px 8px', borderRadius: '4px', fontFamily: 'var(--ds-font-mono)', fontWeight: '700' }}>
                 {formData.id}
               </code>
@@ -533,24 +736,6 @@ export default function RuleDetailDrawer({
                 {copiedId ? '✓ Copied' : 'Copy ID'}
               </button>
             </div>
-          </div>
-
-          {/* Live Natural Language Rule Summary Banner */}
-          <div style={{
-            background: '#ffffff',
-            border: '1px solid var(--ds-border)',
-            borderLeft: '4px solid var(--ds-brand)',
-            borderRadius: '6px',
-            padding: '8px 12px',
-            fontSize: '12px',
-            color: 'var(--ds-text)',
-            lineHeight: 1.5,
-            boxShadow: '0 1px 2px rgba(0,0,0,0.03)'
-          }}>
-            <div style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--ds-brand)', fontWeight: '700', marginBottom: '2px' }}>
-              Live Natural-Language Rule Summary
-            </div>
-            <div>{naturalLanguageSummary}</div>
           </div>
         </div>
 
@@ -664,6 +849,279 @@ export default function RuleDetailDrawer({
                   </div>
                 </div>
               )}
+
+              {/* ════ SECTION 0: BUSINESS DEFINITION & COMMERCIAL INTENT ════ */}
+              <div style={{
+                background: '#ffffff',
+                border: `1px solid ${C.border}`,
+                borderRadius: '8px',
+                padding: '16px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '14px',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
+              }}>
+                {/* Header */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: `1px solid ${C.border}`, paddingBottom: '10px', flexWrap: 'wrap', gap: '8px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ background: 'var(--ds-brand)', color: '#fff', fontSize: '11px', fontWeight: '800', padding: '2px 7px', borderRadius: '4px' }}>
+                      0. BUSINESS DEFINITION
+                    </span>
+                    <span style={{ fontSize: '13px', fontWeight: '700', color: C.text }}>
+                      Commercial Definition & Plain-Language Intent
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                    {currentReferenceDef?.policyTag && (
+                      <span style={{
+                        fontSize: '10px',
+                        fontWeight: '700',
+                        color: '#2563eb',
+                        background: '#eff6ff',
+                        border: '1px solid #bfdbfe',
+                        padding: '2px 8px',
+                        borderRadius: '4px'
+                      }}>
+                        📋 Policy: {currentReferenceDef.policyTag}
+                      </span>
+                    )}
+                    {currentReferenceDef?.regulatoryRef && (
+                      <span style={{
+                        fontSize: '10px',
+                        color: C.muted,
+                        background: 'var(--ds-surface-subtle)',
+                        border: `1px solid ${C.border}`,
+                        padding: '2px 8px',
+                        borderRadius: '4px'
+                      }}>
+                        ⚖️ {currentReferenceDef.regulatoryRef}
+                      </span>
+                    )}
+                    <span style={{
+                      fontSize: '10px',
+                      color: 'var(--ds-ok)',
+                      background: 'rgba(16,185,129,0.06)',
+                      border: '1px solid rgba(16,185,129,0.2)',
+                      padding: '2px 8px',
+                      borderRadius: '4px'
+                    }}>
+                      {currentReferenceDef?.userOverridden ? '✍️ User Curated' : '🤖 LLM Generated Reference'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Referenced Catalog Categories Interactive Links */}
+                {allReferencedCategories && allReferencedCategories.length > 0 && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', background: 'var(--ds-surface-subtle)', padding: '8px 12px', borderRadius: '6px', border: `1px solid ${C.border}` }}>
+                    <span style={{ fontSize: '11px', fontWeight: '700', color: C.muted, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                      Referenced Categories:
+                    </span>
+                    {allReferencedCategories.map(cat => (
+                      <button
+                        key={cat.id}
+                        type="button"
+                        onClick={() => handleOpenEntity({ id: cat.id, name: cat.name, entityType: 'Category' })}
+                        style={{
+                          fontSize: '11px',
+                          fontWeight: '600',
+                          color: '#b45309',
+                          background: '#fffbeb',
+                          border: '1px solid #fde68a',
+                          padding: '3px 8px',
+                          borderRadius: '4px',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          cursor: 'pointer',
+                          transition: 'all 0.15s ease'
+                        }}
+                        onMouseEnter={e => {
+                          e.currentTarget.style.background = '#fef3c7';
+                          e.currentTarget.style.borderColor = '#d97706';
+                        }}
+                        onMouseLeave={e => {
+                          e.currentTarget.style.background = '#fffbeb';
+                          e.currentTarget.style.borderColor = '#fde68a';
+                        }}
+                        title={`Click to open Category Detail View for ${cat.id} (${cat.name})`}
+                      >
+                        <Icon name="folder" size={12} />
+                        <span><strong>{cat.id}</strong>: {cat.name}</span>
+                        <span style={{ fontSize: '10px', opacity: 0.7 }}>↗</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* 1. Live Plain-Language Logic Translation Card */}
+                <div style={{
+                  background: 'var(--ds-surface-subtle)',
+                  border: '1px solid var(--ds-border)',
+                  borderLeft: '4px solid var(--ds-brand)',
+                  borderRadius: '6px',
+                  padding: '12px 14px',
+                  fontSize: '12px',
+                  color: 'var(--ds-text)',
+                  lineHeight: '1.5'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', flexWrap: 'wrap', gap: '6px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span style={{ fontSize: '13px' }}>💡</span>
+                      <span style={{ fontSize: '11px', fontWeight: '800', color: 'var(--ds-brand)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                        Plain-Language Operational Intent
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <button
+                        type="button"
+                        onClick={handleCopySummary}
+                        style={{
+                          background: '#ffffff',
+                          border: `1px solid ${C.border}`,
+                          color: copiedSummary ? 'var(--ds-ok)' : C.text,
+                          padding: '3px 8px',
+                          borderRadius: '4px',
+                          fontSize: '11px',
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          fontWeight: '600'
+                        }}
+                        title="Copy plain-language translation to clipboard"
+                      >
+                        <span>{copiedSummary ? '✓ Copied' : '📋 Copy Intent'}</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleUseSummaryAsDefinition}
+                        style={{
+                          background: 'rgba(230,0,0,0.06)',
+                          border: '1px solid rgba(230,0,0,0.2)',
+                          color: 'var(--ds-brand)',
+                          padding: '3px 8px',
+                          borderRadius: '4px',
+                          fontSize: '11px',
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          fontWeight: '600'
+                        }}
+                        title="Copy live logic into the editable Commercial Rationale box below"
+                      >
+                        <span>✏️ Use as Definition</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <pre style={{
+                    margin: 0,
+                    fontFamily: 'inherit',
+                    whiteSpace: 'pre-wrap',
+                    fontSize: '12px',
+                    color: 'var(--ds-text)',
+                    lineHeight: '1.5'
+                  }}>
+                    {humanRuleSummary}
+                  </pre>
+                </div>
+
+                {/* 2. Editable Commercial Definition & Policy Rationale Textarea */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+                    <label style={{ fontSize: '11px', fontWeight: '700', color: C.text, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span>✍️ Commercial Definition & Policy Rationale</span>
+                      <span style={{ fontSize: '10px', color: C.muted, fontWeight: 'normal' }}>(Preserved in CR_BusinessDefinitions.json reference dataset)</span>
+                    </label>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ fontSize: '10px', color: C.muted }}>
+                        {(charsData.description || '').length} chars
+                      </span>
+                      <button
+                        type="button"
+                        onClick={handleSaveReferenceDefinition}
+                        disabled={isSavingReference}
+                        style={{
+                          background: savedReferenceFeedback ? 'rgba(16,185,129,0.1)' : '#ffffff',
+                          border: `1px solid ${savedReferenceFeedback ? 'var(--ds-ok)' : 'var(--ds-border-strong)'}`,
+                          color: savedReferenceFeedback ? 'var(--ds-ok)' : 'var(--ds-text)',
+                          padding: '3px 8px',
+                          borderRadius: '4px',
+                          fontSize: '11px',
+                          cursor: isSavingReference ? 'not-allowed' : 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          fontWeight: '600'
+                        }}
+                        title="Persist this commercial definition into the official CR_BusinessDefinitions.json reference data"
+                      >
+                        <span>{savedReferenceFeedback ? '✓ Saved to Reference!' : isSavingReference ? 'Saving…' : '💾 Save to Reference'}</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Quick-insert Tag Chips */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: '10px', color: C.muted, fontWeight: '600' }}>Quick Tags:</span>
+                    {[
+                      { label: '+ 🛡️ Wechselgarantie Policy', tag: '[Policy: Wechselgarantie Guarantee]' },
+                      { label: '+ ⚖️ TKG §54 Compliance', tag: '[Regulatory: TKG §54 Consumer Protection]' },
+                      { label: '+ 📦 Mandatory Attachment', tag: '[Requirement: Mandatory Hardware Attachment]' },
+                      { label: '+ 🎁 Promotional Waiver (PWP)', tag: '[Promotion: Subsidized Device / Fee Waiver]' },
+                      { label: '+ 🏷️ Jira OREF-', tag: '[Jira: OREF-]' }
+                    ].map(t => (
+                      <button
+                        key={t.tag}
+                        type="button"
+                        onClick={() => handleInsertTag(t.tag)}
+                        style={{
+                          background: 'var(--ds-surface-subtle)',
+                          border: `1px solid ${C.border}`,
+                          color: 'var(--ds-text)',
+                          padding: '2px 7px',
+                          borderRadius: '4px',
+                          fontSize: '10px',
+                          fontWeight: '600',
+                          cursor: 'pointer',
+                          transition: 'all 0.1s'
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--ds-brand)'; }}
+                        onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; }}
+                      >
+                        {t.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  <textarea
+                    value={charsData.description}
+                    onChange={e => setCharsData(prev => ({
+                      ...prev,
+                      description: e.target.value,
+                      business_intent: e.target.value
+                    }))}
+                    placeholder="Document the commercial purpose, target customer experience, regulatory rationale, or campaign details for this rule..."
+                    rows={3}
+                    style={{
+                      width: '100%',
+                      padding: '8px 10px',
+                      borderRadius: '6px',
+                      border: `1px solid ${C.border}`,
+                      fontSize: '12px',
+                      lineHeight: '1.45',
+                      color: C.text,
+                      background: '#ffffff',
+                      resize: 'vertical',
+                      outline: 'none',
+                      boxSizing: 'border-box'
+                    }}
+                    onFocus={e => { e.target.style.borderColor = 'var(--ds-brand)'; }}
+                    onBlur={e => { e.target.style.borderColor = C.border; }}
+                  />
+                </div>
+              </div>
 
               {/* ════ SECTION 1: WHEN (Context & Applicability) ════ */}
               <div style={{ background: '#ffffff', border: `1px solid ${C.border}`, borderRadius: '8px', padding: '16px' }}>
@@ -900,32 +1358,56 @@ export default function RuleDetailDrawer({
                                 <span>Multi-clause condition. Edit clauses cleanly on separate lines.</span>
                               </div>
                             )}
+
+                            {/* In-Context Catalog Category Decoders */}
+                            {(() => {
+                              const refCats = extractCategoriesFromText(condStr);
+                              if (refCats.length === 0) return null;
+                              return (
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', marginTop: '4px' }}>
+                                  <span style={{ fontSize: '10px', color: C.muted, fontWeight: '700' }}>Referenced:</span>
+                                  {refCats.map(cat => (
+                                    <button
+                                      key={cat.id}
+                                      type="button"
+                                      onClick={() => handleOpenEntity({ id: cat.id, name: cat.name, entityType: 'Category' })}
+                                      title={`Click to open category detail view: ${cat.fullLabel || cat.id}`}
+                                      style={{
+                                        fontSize: '10px',
+                                        fontWeight: '600',
+                                        color: 'var(--ds-brand)',
+                                        background: 'rgba(230,0,0,0.06)',
+                                        border: '1px solid rgba(230,0,0,0.2)',
+                                        padding: '2px 7px',
+                                        borderRadius: '4px',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '4px',
+                                        cursor: 'pointer',
+                                        transition: 'all 0.15s ease'
+                                      }}
+                                      onMouseEnter={e => {
+                                        e.currentTarget.style.background = 'var(--ds-brand)';
+                                        e.currentTarget.style.color = '#ffffff';
+                                      }}
+                                      onMouseLeave={e => {
+                                        e.currentTarget.style.background = 'rgba(230,0,0,0.06)';
+                                        e.currentTarget.style.color = 'var(--ds-brand)';
+                                      }}
+                                    >
+                                      <span>🏷️</span>
+                                      <span>{cat.id}: <strong>{cat.name}</strong></span>
+                                      {cat.parentName && <span style={{ opacity: 0.7 }}>({cat.parentName})</span>}
+                                      <span style={{ fontSize: '9px', opacity: 0.7 }}>↗</span>
+                                    </button>
+                                  ))}
+                                </div>
+                              );
+                            })()}
                           </div>
 
                           {/* Row Action Controls */}
                           <div style={{ display: 'flex', alignItems: 'center', gap: '4px', paddingTop: isMultiline ? '2px' : '0' }}>
-                            {/* Pretty Format button if has || or && */}
-                            {hasLogicalOps && !condStr.includes('\n') && (
-                              <button
-                                type="button"
-                                onClick={() => formatConditionMultiline(cIdx)}
-                                style={{
-                                  background: 'rgba(124,58,237,0.06)',
-                                  border: '1px solid rgba(124,58,237,0.25)',
-                                  color: 'var(--ds-spec)',
-                                  fontSize: '11px',
-                                  fontWeight: '600',
-                                  padding: '3px 7px',
-                                  borderRadius: '4px',
-                                  cursor: 'pointer',
-                                  whiteSpace: 'nowrap'
-                                }}
-                                title="Auto-format and split clauses across multiple lines"
-                              >
-                                ⚡ Format
-                              </button>
-                            )}
-
                             {/* Flatten button if currently formatted multiline */}
                             {condStr.includes('\n') && (
                               <button
@@ -1073,6 +1555,170 @@ export default function RuleDetailDrawer({
                   </div>
                 </div>
 
+                {/* ════ RESOLVED OUTCOME & TARGET ALLOWED SCOPE CALLOUT ════ */}
+                {(() => {
+                  const catCondition = targetsData.conditions?.find(c =>
+                    c.type === 'Category' ||
+                    c.type === 'catalog.getProductsInCategory' ||
+                    c.params?.categoryID ||
+                    c.params?.categoryId
+                  );
+                  const catId = catCondition?.params?.categoryID || catCondition?.params?.categoryId || targetsData?.categoryId;
+                  const resolvedCat = lookupCatalogCategory(catId);
+
+                  const prodCondition = targetsData.conditions?.find(c => c.type === 'Product' || c.params?.SKU || c.params?.sku);
+                  const targetSku = prodCondition?.params?.SKU || prodCondition?.params?.sku;
+
+                  const isAllowed = charsData.operation_value === 'Allowed';
+                  const isObligated = charsData.operation_value === 'Defaulted-Obligated';
+                  const isDefaulted = charsData.operation_value === 'Defaulted';
+                  const isNotRemovable = charsData.operation_value === 'Removal Not Allowed';
+
+                  const badgeColor = isAllowed ? 'var(--ds-ok)' : isObligated ? 'var(--ds-brand)' : isNotRemovable ? 'var(--ds-warn)' : 'var(--ds-info)';
+                  const badgeBg = isAllowed ? 'rgba(16,185,129,0.06)' : isObligated ? 'rgba(230,0,0,0.05)' : isNotRemovable ? 'rgba(245,158,11,0.06)' : 'rgba(2,132,199,0.06)';
+                  const badgeBorder = isAllowed ? 'rgba(16,185,129,0.3)' : isObligated ? 'rgba(230,0,0,0.25)' : isNotRemovable ? 'rgba(245,158,11,0.3)' : 'rgba(2,132,199,0.25)';
+
+                  return (
+                    <div style={{
+                      background: badgeBg,
+                      border: `1px solid ${badgeBorder}`,
+                      borderLeft: `4px solid ${badgeColor}`,
+                      borderRadius: '8px',
+                      padding: '12px 16px',
+                      marginBottom: '16px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: '12px',
+                      flexWrap: 'wrap'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <span style={{ fontSize: '20px' }}>
+                          {isAllowed ? '✅' : isObligated ? '🔒' : isDefaulted ? '📦' : '🛡️'}
+                        </span>
+                        <div>
+                          <div style={{ fontSize: '11px', textTransform: 'uppercase', fontWeight: '800', letterSpacing: '0.04em', color: badgeColor }}>
+                            {isAllowed ? 'Allowed Target Scope' : 'Target Outcome & Scope'}
+                          </div>
+                          <div style={{ fontSize: '13px', fontWeight: '700', color: C.text, display: 'flex', alignItems: 'center', gap: '8px', marginTop: '2px', flexWrap: 'wrap' }}>
+                            <span>Outcome: <strong style={{ color: badgeColor }}>{charsData.operation_value || 'Allowed'}</strong></span>
+                            <span style={{ color: C.muted }}>→</span>
+                            {resolvedCat ? (
+                              <button
+                                type="button"
+                                onClick={() => handleOpenEntity({ id: resolvedCat.id, name: resolvedCat.name, entityType: 'Category' })}
+                                style={{
+                                  background: '#ffffff',
+                                  color: 'var(--ds-ok)',
+                                  border: '1px solid rgba(16,185,129,0.4)',
+                                  padding: '4px 12px',
+                                  borderRadius: '6px',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '6px',
+                                  fontWeight: '700',
+                                  cursor: 'pointer',
+                                  boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+                                  transition: 'all 0.15s ease'
+                                }}
+                                onMouseEnter={e => {
+                                  e.currentTarget.style.background = 'var(--ds-ok)';
+                                  e.currentTarget.style.color = '#ffffff';
+                                }}
+                                onMouseLeave={e => {
+                                  e.currentTarget.style.background = '#ffffff';
+                                  e.currentTarget.style.color = 'var(--ds-ok)';
+                                }}
+                                title={`Click to open Detail View for Category ${resolvedCat.id} (${resolvedCat.name})`}
+                              >
+                                <Icon name="folder" size={14} />
+                                <span>Allowed Category: <strong>{resolvedCat.id} — {resolvedCat.name}</strong></span>
+                                {resolvedCat.parentName && (
+                                  <span style={{ fontSize: '11px', opacity: 0.85, fontWeight: 'normal' }}>
+                                    ({resolvedCat.parentName})
+                                  </span>
+                                )}
+                                <span style={{ fontSize: '11px', marginLeft: '4px' }}>↗</span>
+                              </button>
+                            ) : catId ? (
+                              <button
+                                type="button"
+                                onClick={() => handleOpenEntity({ id: catId, name: catId, entityType: 'Category' })}
+                                style={{
+                                  background: '#ffffff',
+                                  color: 'var(--ds-ok)',
+                                  border: '1px solid rgba(16,185,129,0.4)',
+                                  padding: '4px 12px',
+                                  borderRadius: '6px',
+                                  fontWeight: '700',
+                                  cursor: 'pointer',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '6px',
+                                  transition: 'all 0.15s ease'
+                                }}
+                                onMouseEnter={e => {
+                                  e.currentTarget.style.background = 'var(--ds-ok)';
+                                  e.currentTarget.style.color = '#ffffff';
+                                }}
+                                onMouseLeave={e => {
+                                  e.currentTarget.style.background = '#ffffff';
+                                  e.currentTarget.style.color = 'var(--ds-ok)';
+                                }}
+                                title={`Click to open Detail View for Category ${catId}`}
+                              >
+                                <span>Allowed Category: <strong>{catId}</strong></span>
+                                <span style={{ fontSize: '11px' }}>↗</span>
+                              </button>
+                            ) : targetSku ? (
+                              <button
+                                type="button"
+                                onClick={() => handleOpenEntity({ id: targetSku, name: targetSku, entityType: 'ProductOffering' })}
+                                style={{
+                                  background: '#ffffff',
+                                  color: 'var(--ds-info)',
+                                  border: '1px solid rgba(2,132,199,0.4)',
+                                  padding: '4px 12px',
+                                  borderRadius: '6px',
+                                  fontWeight: '700',
+                                  cursor: 'pointer',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '6px',
+                                  transition: 'all 0.15s ease'
+                                }}
+                                onMouseEnter={e => {
+                                  e.currentTarget.style.background = 'var(--ds-info)';
+                                  e.currentTarget.style.color = '#ffffff';
+                                }}
+                                onMouseLeave={e => {
+                                  e.currentTarget.style.background = '#ffffff';
+                                  e.currentTarget.style.color = 'var(--ds-info)';
+                                }}
+                                title={`Click to open Detail View for Product SKU: ${targetSku}`}
+                              >
+                                <Icon name="package" size={14} />
+                                <span>Target SKU: <strong>{targetSku}</strong></span>
+                                <span style={{ fontSize: '11px' }}>↗</span>
+                              </button>
+                            ) : (
+                              <span style={{ color: C.muted, fontStyle: 'italic' }}>
+                                {targetsData.groupName || 'No specific target category assigned'}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {resolvedCat && (
+                        <div style={{ fontSize: '11px', color: C.muted, fontFamily: 'var(--ds-font-mono)' }}>
+                          ID: {resolvedCat.id}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
+
                 {/* Target Conditions List */}
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
@@ -1120,34 +1766,85 @@ export default function RuleDetailDrawer({
                               next[tcIdx] = {
                                 ...next[tcIdx],
                                 type: val,
-                                params: val === 'Product' ? { SKU: 'GS_Glas_PWP' } : { categoryID: 'FN0548' }
+                                params: val === 'Product'
+                                  ? { SKU: 'GS_Glas_PWP' }
+                                  : (val === 'catalog.getTariffsWithContractValue' ? { Operation: '<=' } : { categoryID: tc.params?.categoryID || tc.params?.categoryId || 'FN36' })
                               };
                               return { ...prev, conditions: next };
                             });
                           }}
                           style={{ padding: '4px 6px', borderRadius: '4px', border: `1px solid ${C.border}`, fontSize: '11px', fontWeight: '600' }}
                         >
+                          <option value="Category">Category (TMF Standard)</option>
                           <option value="catalog.getProductsInCategory">Products In Category (catalog.getProductsInCategory)</option>
                           <option value="catalog.getTariffsWithContractValue">Tariffs With Contract Value</option>
                           <option value="Product">Specific Product SKU</option>
                         </select>
 
                         {/* Parameter Fields */}
-                        {tc.type === 'catalog.getProductsInCategory' && (
-                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                            <span style={{ fontSize: '11px', color: C.muted }}>categoryID:</span>
-                            <input
-                              type="text"
-                              value={tc.params?.categoryID || ''}
-                              onChange={e => updateTargetParam(tcIdx, 'categoryID', e.target.value)}
-                              placeholder="e.g. FN0548"
-                              style={{ width: '100px', padding: '3px 6px', borderRadius: '4px', border: `1px solid ${C.border}`, fontSize: '11px' }}
-                            />
+                        {(tc.type === 'Category' || tc.type === 'catalog.getProductsInCategory') && (
+                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                              <span style={{ fontSize: '11px', color: C.muted }}>categoryID:</span>
+                              <input
+                                list="catalog-category-datalist"
+                                type="text"
+                                value={tc.params?.categoryID || tc.params?.categoryId || ''}
+                                onChange={e => {
+                                  const val = e.target.value;
+                                  const match = val.match(/^(FN[0-9]+)/);
+                                  const catId = match ? match[1] : val.trim();
+                                  updateTargetParam(tcIdx, 'categoryID', catId);
+                                }}
+                                placeholder="Search category ID or name…"
+                                style={{ width: '130px', padding: '3px 6px', borderRadius: '4px', border: `1px solid ${C.border}`, fontSize: '11px' }}
+                              />
+                            </div>
+
+                            {/* Resolved Category Name Badge Link */}
+                            {(() => {
+                              const catId = tc.params?.categoryID || tc.params?.categoryId;
+                              const resolvedCat = lookupCatalogCategory(catId);
+                              if (!resolvedCat) return null;
+                              return (
+                                <button
+                                  type="button"
+                                  onClick={() => handleOpenEntity({ id: resolvedCat.id, name: resolvedCat.name, entityType: 'Category' })}
+                                  style={{
+                                    fontSize: '11px',
+                                    fontWeight: '600',
+                                    color: 'var(--ds-ok)',
+                                    background: 'rgba(16,185,129,0.08)',
+                                    border: '1px solid rgba(16,185,129,0.3)',
+                                    padding: '2px 8px',
+                                    borderRadius: '4px',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '5px',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.15s ease'
+                                  }}
+                                  onMouseEnter={e => {
+                                    e.currentTarget.style.background = 'var(--ds-ok)';
+                                    e.currentTarget.style.color = '#ffffff';
+                                  }}
+                                  onMouseLeave={e => {
+                                    e.currentTarget.style.background = 'rgba(16,185,129,0.08)';
+                                    e.currentTarget.style.color = 'var(--ds-ok)';
+                                  }}
+                                  title={`Click to open Detail View: ${resolvedCat.fullLabel}`}
+                                >
+                                  <Icon name="folder" size={12} />
+                                  <span>{resolvedCat.name} ({resolvedCat.id})</span>
+                                  <span style={{ fontSize: '10px' }}>↗</span>
+                                </button>
+                              );
+                            })()}
                           </div>
                         )}
 
                         {tc.type === 'Product' && (
-                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
                             <span style={{ fontSize: '11px', color: C.muted }}>SKU:</span>
                             <input
                               type="text"
@@ -1156,6 +1853,38 @@ export default function RuleDetailDrawer({
                               placeholder="e.g. GS_Glas_PWP_IP532"
                               style={{ width: '160px', padding: '3px 6px', borderRadius: '4px', border: `1px solid ${C.border}`, fontSize: '11px' }}
                             />
+                            {(tc.params?.SKU || tc.params?.sku) && (
+                              <button
+                                type="button"
+                                onClick={() => handleOpenEntity({ id: tc.params?.SKU || tc.params?.sku, entityType: 'ProductOffering' })}
+                                style={{
+                                  fontSize: '11px',
+                                  fontWeight: '600',
+                                  color: 'var(--ds-info)',
+                                  background: 'rgba(2,132,199,0.08)',
+                                  border: '1px solid rgba(2,132,199,0.3)',
+                                  padding: '2px 8px',
+                                  borderRadius: '4px',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                  cursor: 'pointer',
+                                  transition: 'all 0.15s ease'
+                                }}
+                                onMouseEnter={e => {
+                                  e.currentTarget.style.background = 'var(--ds-info)';
+                                  e.currentTarget.style.color = '#ffffff';
+                                }}
+                                onMouseLeave={e => {
+                                  e.currentTarget.style.background = 'rgba(2,132,199,0.08)';
+                                  e.currentTarget.style.color = 'var(--ds-info)';
+                                }}
+                                title={`Click to open Detail View for SKU: ${tc.params?.SKU || tc.params?.sku}`}
+                              >
+                                <Icon name="package" size={12} />
+                                <span>View Product ↗</span>
+                              </button>
+                            )}
                           </div>
                         )}
 
@@ -1266,7 +1995,24 @@ export default function RuleDetailDrawer({
             </button>
           </div>
         </div>
+
+        {/* Global Catalog Categories Datalist for autocomplete */}
+        <datalist id="catalog-category-datalist">
+          {allCatalogCategories.map(cat => (
+            <option key={cat.id} value={`${cat.id} — ${cat.name}`} />
+          ))}
+        </datalist>
       </div>
+
+      {/* ─── Detail View Drawer for Referred Entities (Categories, Product Offerings) ─── */}
+      {inspectedEntity && (
+        <DnextEntityDrawer
+          item={inspectedEntity}
+          isOpen={Boolean(inspectedEntity)}
+          onClose={() => setInspectedEntity(null)}
+          zIndex={1400}
+        />
+      )}
     </div>
   );
 }
