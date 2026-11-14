@@ -55,7 +55,7 @@ export default function RuleDetailDrawer({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [activeTab, setActiveTab] = useState('visual'); // 'visual' | 'json'
   const [copiedId, setCopiedId] = useState(false);
-  const [copiedSummary, setCopiedSummary] = useState(false);
+
   const [showCategoryHelp, setShowCategoryHelp] = useState(false);
   const [expandedConditions, setExpandedConditions] = useState({});
   const [allConditionsMultiline, setAllConditionsMultiline] = useState(false);
@@ -218,19 +218,7 @@ export default function RuleDetailDrawer({
     setTimeout(() => setCopiedId(false), 2000);
   };
 
-  const handleCopySummary = () => {
-    navigator.clipboard.writeText(humanRuleSummary);
-    setCopiedSummary(true);
-    setTimeout(() => setCopiedSummary(false), 2000);
-  };
 
-  const handleUseSummaryAsDefinition = () => {
-    setCharsData(prev => ({
-      ...prev,
-      description: humanRuleSummary,
-      business_intent: humanRuleSummary
-    }));
-  };
 
   const handleSaveReferenceDefinition = async () => {
     if (!formData?.id) return;
@@ -953,81 +941,7 @@ export default function RuleDetailDrawer({
                   </div>
                 )}
 
-                {/* 1. Live Plain-Language Logic Translation Card */}
-                <div style={{
-                  background: 'var(--ds-surface-subtle)',
-                  border: '1px solid var(--ds-border)',
-                  borderLeft: '4px solid var(--ds-brand)',
-                  borderRadius: '6px',
-                  padding: '12px 14px',
-                  fontSize: '12px',
-                  color: 'var(--ds-text)',
-                  lineHeight: '1.5'
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', flexWrap: 'wrap', gap: '6px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <span style={{ fontSize: '13px' }}>💡</span>
-                      <span style={{ fontSize: '11px', fontWeight: '800', color: 'var(--ds-brand)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                        Plain-Language Operational Intent
-                      </span>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <button
-                        type="button"
-                        onClick={handleCopySummary}
-                        style={{
-                          background: '#ffffff',
-                          border: `1px solid ${C.border}`,
-                          color: copiedSummary ? 'var(--ds-ok)' : C.text,
-                          padding: '3px 8px',
-                          borderRadius: '4px',
-                          fontSize: '11px',
-                          cursor: 'pointer',
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '4px',
-                          fontWeight: '600'
-                        }}
-                        title="Copy plain-language translation to clipboard"
-                      >
-                        <span>{copiedSummary ? '✓ Copied' : '📋 Copy Intent'}</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleUseSummaryAsDefinition}
-                        style={{
-                          background: 'rgba(230,0,0,0.06)',
-                          border: '1px solid rgba(230,0,0,0.2)',
-                          color: 'var(--ds-brand)',
-                          padding: '3px 8px',
-                          borderRadius: '4px',
-                          fontSize: '11px',
-                          cursor: 'pointer',
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '4px',
-                          fontWeight: '600'
-                        }}
-                        title="Copy live logic into the editable Commercial Rationale box below"
-                      >
-                        <span>✏️ Use as Definition</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  <pre style={{
-                    margin: 0,
-                    fontFamily: 'inherit',
-                    whiteSpace: 'pre-wrap',
-                    fontSize: '12px',
-                    color: 'var(--ds-text)',
-                    lineHeight: '1.5'
-                  }}>
-                    {humanRuleSummary}
-                  </pre>
-                </div>
-
-                {/* 2. Editable Commercial Definition & Policy Rationale Textarea */}
+                {/* Editable Commercial Definition & Policy Rationale Textarea */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
                     <label style={{ fontSize: '11px', fontWeight: '700', color: C.text, display: 'flex', alignItems: 'center', gap: '6px' }}>
