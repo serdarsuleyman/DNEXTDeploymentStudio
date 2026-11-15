@@ -244,6 +244,26 @@ export default function DnextEntityDrawer({ item, isOpen, onClose, onPurge, allE
           }
         })
         .catch(() => {});
+    } else if (entityType === 'ProductSpecification' && (!nextEntity.raw || !nextEntity.raw.productSpecCharacteristic)) {
+      fetch(`/api/dnext/product-specifications/${encodeURIComponent(targetId)}`)
+        .then(res => res.ok ? res.json() : null)
+        .then(specData => {
+          if (specData && specData.id) {
+            setActiveItem(prev => {
+              if (prev && String(prev.id).toLowerCase() === String(targetId).toLowerCase()) {
+                return {
+                  ...prev,
+                  name: specData.name || prev.name,
+                  version: specData.version !== undefined ? String(specData.version) : prev.version,
+                  lifecycleStatus: specData.lifecycleStatus || prev.lifecycleStatus,
+                  raw: specData
+                };
+              }
+              return prev;
+            });
+          }
+        })
+        .catch(() => {});
     }
   };
 
@@ -259,6 +279,22 @@ export default function DnextEntityDrawer({ item, isOpen, onClose, onPurge, allE
     const target = navHistory[index];
     setNavHistory(prev => prev.slice(0, index));
     setActiveItem(target);
+  };
+
+  const handleUpdateCurrentItem = (updated) => {
+    setActiveItem(prev => {
+      const mergedRaw = {
+        ...(prev?.raw || {}),
+        ...(updated?.raw || updated)
+      };
+      return {
+        ...prev,
+        ...updated,
+        name: updated.name !== undefined ? updated.name : prev?.name,
+        lifecycleStatus: updated.lifecycleStatus !== undefined ? updated.lifecycleStatus : prev?.lifecycleStatus,
+        raw: mergedRaw
+      };
+    });
   };
 
   if (!isOpen || !currentItem) return null;
@@ -664,6 +700,7 @@ export default function DnextEntityDrawer({ item, isOpen, onClose, onPurge, allE
                   onNavigateToCategory={(cat) => handleNavigateToEntity(cat, 'Category')}
                   copyToClipboard={copyToClipboard}
                   copiedKey={copiedKey}
+                  onUpdateItem={handleUpdateCurrentItem}
                 />
               )}
               {selectedTemplateId === 'bundle_composition' && (
@@ -673,6 +710,7 @@ export default function DnextEntityDrawer({ item, isOpen, onClose, onPurge, allE
                   onNavigateToEntity={(entity, explicitType) => handleNavigateToEntity(entity, explicitType || 'ProductOffering')}
                   copyToClipboard={copyToClipboard}
                   copiedKey={copiedKey}
+                  onUpdateItem={handleUpdateCurrentItem}
                 />
               )}
               {selectedTemplateId === 'price_model' && (
@@ -682,6 +720,7 @@ export default function DnextEntityDrawer({ item, isOpen, onClose, onPurge, allE
                   onNavigateToEntity={(entity, explicitType) => handleNavigateToEntity(entity, explicitType || 'ProductOfferingPrice')}
                   copyToClipboard={copyToClipboard}
                   copiedKey={copiedKey}
+                  onUpdateItem={handleUpdateCurrentItem}
                 />
               )}
               {selectedTemplateId === 'specification' && (
@@ -689,6 +728,7 @@ export default function DnextEntityDrawer({ item, isOpen, onClose, onPurge, allE
                   item={currentItem}
                   copyToClipboard={copyToClipboard}
                   copiedKey={copiedKey}
+                  onUpdateItem={handleUpdateCurrentItem}
                 />
               )}
               {selectedTemplateId === 'category' && (
@@ -700,6 +740,7 @@ export default function DnextEntityDrawer({ item, isOpen, onClose, onPurge, allE
                   onNavigateToEntity={(entity, explicitType) => handleNavigateToEntity(entity, explicitType || (entity?.isBundle ? 'ProductOffering' : 'Category'))}
                   copyToClipboard={copyToClipboard}
                   copiedKey={copiedKey}
+                  onUpdateItem={handleUpdateCurrentItem}
                 />
               )}
               {(selectedTemplateId === 'standard_offering' || selectedTemplateId === 'option_offering' || selectedTemplateId === 'hardware') && (
@@ -713,6 +754,7 @@ export default function DnextEntityDrawer({ item, isOpen, onClose, onPurge, allE
                   onNavigateToEntity={(entity, explicitType) => handleNavigateToEntity(entity, explicitType || 'ProductOffering')}
                   copyToClipboard={copyToClipboard}
                   copiedKey={copiedKey}
+                  onUpdateItem={handleUpdateCurrentItem}
                 />
               )}
             </DrawerErrorBoundary>

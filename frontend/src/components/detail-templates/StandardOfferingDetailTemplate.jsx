@@ -1,7 +1,9 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import Icon from '../ui/Icon';
+import SearchableSpecSelect from '../ui/SearchableSpecSelect';
 import { LifecyclePill, VersionCell } from '../list-views/cellRenderers';
 import { isOptionSpec, isHardwareSpec } from './viewTemplateRegistry';
+import { lookupCatalogCategory, getAllCatalogCategories } from '../../utils/categoryResolver';
 
 const C = {
   bg: '#ffffff',
@@ -210,17 +212,370 @@ export default function StandardOfferingDetailTemplate({
   copyToClipboard,
   copiedKey,
   isOptionView = false,
-  isHardwareView = false
+  isHardwareView = false,
+  onUpdateItem
 }) {
   const raw = item?.raw || {};
   const pops = Array.isArray(raw.productOfferingPrice) ? raw.productOfferingPrice : [];
   const spec = raw.productSpecification || item?.productSpecification;
-  const specObj = typeof spec === 'object' && spec !== null ? spec : (spec ? { id: spec, name: spec } : null);
+  const specObj = useMemo(() => {
+    if (!spec) return null;
+    const base = typeof spec === 'object' && spec !== null ? { ...spec } : { id: spec, name: spec };
+    if (base.version === undefined && Array.isArray(allEntities)) {
+      const match = allEntities.find(e =>
+        e.entityType === 'ProductSpecification' &&
+        (e.id === base.id || e.raw?.id === base.id)
+      );
+      if (match) {
+        base.version = match.version !== undefined ? match.version : (match.raw?.version || '0');
+        if (!base.name) base.name = match.name;
+        base.raw = match.raw || match;
+      }
+    }
+    if (base.version === undefined) {
+      base.version = '0';
+    }
+    return base;
+  }, [spec, allEntities]);
   const terms = Array.isArray(raw.productOfferingTerm) ? raw.productOfferingTerm : [];
   const bundledOffers = Array.isArray(raw.bundledProductOffering) ? raw.bundledProductOffering : [];
 
   const isHardware = isHardwareView || isHardwareSpec(item);
   const isOption = !isHardware && (isOptionView || isOptionSpec(item));
+
+  // ─── Edit Mode State ───
+  const [isEditing, setIsEditing] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
+  const [saveFeedback, setSaveFeedback] = useState(null);
+
+  // Quick inputs in edit mode
+  const [newCharName, setNewCharName] = useState('');
+  const [newCharVal, setNewCharVal] = useState('');
+  const [selectedCatToAdd, setSelectedCatToAdd] = useState('');
+
+  // ─── Specifications Catalog (for Option edit mode specification selection) ───
+  const [availableSpecs, setAvailableSpecs] = useState([]);
+
+  useEffect(() => {
+    let isMounted = true;
+    const specMap = new Map();
+    if (Array.isArray(allEntities)) {
+      allEntities.forEach(e => {
+        if (e.entityType === 'ProductSpecification' || e.raw?.['@type'] === 'ProductSpecification') {
+          const rawE = e.raw || e;
+          const id = e.id || rawE.id;
+          const ver = String(rawE.version !== undefined ? rawE.version : (e.version || '0'));
+          const key = `${id}:::${ver}`;
+          specMap.set(key, {
+            id,
+            name: e.name || rawE.name || id,
+            version: ver,
+            raw: rawE
+          });
+        }
+      });
+    }
+
+    fetch('/api/dnext/product-specifications?limit=1000')
+      .then(res => res.ok ? res.json() : [])
+      .then(data => {
+        if (!isMounted) return;
+        const list = Array.isArray(data) ? data : data?.data || data?.items || [];
+        list.forEach(s => {
+          const id = s.id;
+          const ver = String(s.version !== undefined ? s.version : '0');
+          const key = `${id}:::${ver}`;
+          specMap.set(key, {
+            id,
+            name: s.name || id,
+            version: ver,
+            raw: s
+          });
+        });
+        setAvailableSpecs(Array.from(specMap.values()).sort((a, b) => {
+          const nameCmp = (a.name || '').localeCompare(b.name || '');
+          if (nameCmp !== 0) return nameCmp;
+          return String(b.version).localeCompare(String(a.version), undefined, { numeric: true });
+        }));
+      })
+      .catch(err => {
+        console.warn('Failed to load specifications for option edit:', err);
+        if (isMounted && specMap.size > 0) {
+          setAvailableSpecs(Array.from(specMap.values()));
+        }
+      });
+
+    return () => { isMounted = false; };
+  }, [allEntities]);
+
+  const allDropdownSpecs = useMemo(() => {
+    const map = new Map();
+    if (specObj?.id) {
+      const currentVer = String(specObj.version !== undefined ? specObj.version : '0');
+      const currentKey = `${specObj.id}:::${currentVer}`;
+      map.set(currentKey, {
+        id: specObj.id,
+        name: specObj.name || specObj.id,
+        version: currentVer,
+        raw: specObj.raw || specObj
+      });
+    }
+    availableSpecs.forEach(s => {
+      const key = `${s.id}:::${s.version}`;
+      map.set(key, s);
+    });
+    return Array.from(map.values()).sort((a, b) => {
+      const nameCmp = (a.name || '').localeCompare(b.name || '');
+      if (nameCmp !== 0) return nameCmp;
+      return String(b.version).localeCompare(String(a.version), undefined, { numeric: true });
+    });
+  }, [availableSpecs, specObj]);
+
+  // Working copy of data during edit
+  // Note: Name and ID fields are strictly unique and immutable in DNEXT Product Catalog (agent.md)
+  const [formData, setFormData] = useState({
+    description: raw.description || '',
+    lifecycleStatus: item?.lifecycleStatus || 'Launched',
+    startDate: raw.validFor?.startDateTime ? raw.validFor.startDateTime.split('T')[0] : '',
+    endDate: raw.validFor?.endDateTime ? raw.validFor.endDateTime.split('T')[0] : '',
+    categories: Array.isArray(raw.category) ? raw.category : [],
+    chars: Array.isArray(raw.prodSpecCharValueUse) ? raw.prodSpecCharValueUse : (Array.isArray(raw.productSpecCharacteristic) ? raw.productSpecCharacteristic : []),
+    pops: Array.isArray(raw.productOfferingPrice) ? raw.productOfferingPrice : [],
+    spec: specObj ? {
+      id: specObj.id,
+      name: specObj.name || specObj.id,
+      version: specObj.version !== undefined ? String(specObj.version) : '0',
+      href: specObj.href || `/api/productCatalogManagement/v4/productSpecification/${specObj.id}:(version=${specObj.version || '0'})`,
+      '@referredType': 'ProductSpecification'
+    } : null
+  });
+
+  useEffect(() => {
+    setFormData({
+      description: raw.description || '',
+      lifecycleStatus: item?.lifecycleStatus || 'Launched',
+      startDate: raw.validFor?.startDateTime ? raw.validFor.startDateTime.split('T')[0] : '',
+      endDate: raw.validFor?.endDateTime ? raw.validFor.endDateTime.split('T')[0] : '',
+      categories: Array.isArray(raw.category) ? raw.category : [],
+      chars: Array.isArray(raw.prodSpecCharValueUse) ? raw.prodSpecCharValueUse : (Array.isArray(raw.productSpecCharacteristic) ? raw.productSpecCharacteristic : []),
+      pops: Array.isArray(raw.productOfferingPrice) ? raw.productOfferingPrice : [],
+      spec: specObj ? {
+        id: specObj.id,
+        name: specObj.name || specObj.id,
+        version: specObj.version !== undefined ? String(specObj.version) : '0',
+        href: specObj.href || `/api/productCatalogManagement/v4/productSpecification/${specObj.id}:(version=${specObj.version || '0'})`,
+        '@referredType': 'ProductSpecification'
+      } : null
+    });
+    setIsEditing(false);
+    setIsDirty(false);
+  }, [item?.id, item?.version, specObj]);
+
+  const handleStartEdit = () => {
+    setIsEditing(true);
+    setIsDirty(false);
+    setSaveFeedback(null);
+  };
+
+  const handleCancelEdit = () => {
+    setFormData({
+      description: raw.description || '',
+      lifecycleStatus: item?.lifecycleStatus || 'Launched',
+      startDate: raw.validFor?.startDateTime ? raw.validFor.startDateTime.split('T')[0] : '',
+      endDate: raw.validFor?.endDateTime ? raw.validFor.endDateTime.split('T')[0] : '',
+      categories: Array.isArray(raw.category) ? raw.category : [],
+      chars: Array.isArray(raw.prodSpecCharValueUse) ? raw.prodSpecCharValueUse : (Array.isArray(raw.productSpecCharacteristic) ? raw.productSpecCharacteristic : []),
+      pops: Array.isArray(raw.productOfferingPrice) ? raw.productOfferingPrice : [],
+      spec: specObj ? {
+        id: specObj.id,
+        name: specObj.name || specObj.id,
+        version: specObj.version !== undefined ? String(specObj.version) : '0',
+        href: specObj.href || `/api/productCatalogManagement/v4/productSpecification/${specObj.id}:(version=${specObj.version || '0'})`,
+        '@referredType': 'ProductSpecification'
+      } : null
+    });
+    setIsEditing(false);
+    setIsDirty(false);
+  };
+
+  const handleSpecChange = (selectedSpecObj) => {
+    if (!selectedSpecObj) return;
+    const newSpecEntry = {
+      id: selectedSpecObj.id,
+      name: selectedSpecObj.name || selectedSpecObj.id,
+      version: String(selectedSpecObj.version !== undefined ? selectedSpecObj.version : '0'),
+      href: selectedSpecObj.raw?.href || `/api/productCatalogManagement/v4/productSpecification/${selectedSpecObj.id}:(version=${selectedSpecObj.version || '0'})`,
+      '@referredType': 'ProductSpecification'
+    };
+    setFormData(prev => ({
+      ...prev,
+      spec: newSpecEntry
+    }));
+    setIsDirty(true);
+  };
+
+  const activeSpec = (isEditing && isOption && formData.spec) ? formData.spec : specObj;
+
+  const handleFieldChange = (field, val) => {
+    setFormData(prev => ({ ...prev, [field]: val }));
+    setIsDirty(true);
+  };
+
+  const handleCharValChange = (charIndex, val) => {
+    setFormData(prev => {
+      const nextChars = [...prev.chars];
+      const char = { ...nextChars[charIndex] };
+      if (Array.isArray(char.productSpecCharacteristicValue)) {
+        char.productSpecCharacteristicValue = [{ value: val }];
+      } else if (Array.isArray(char.value)) {
+        char.value = [val];
+      } else {
+        char.value = val;
+      }
+      nextChars[charIndex] = char;
+      return { ...prev, chars: nextChars };
+    });
+    setIsDirty(true);
+  };
+
+  const handleAddChar = () => {
+    if (!newCharName.trim()) return;
+    setFormData(prev => ({
+      ...prev,
+      chars: [
+        ...prev.chars,
+        {
+          name: newCharName.trim(),
+          valueType: 'String',
+          productSpecCharacteristicValue: [{ value: newCharVal.trim() }]
+        }
+      ]
+    }));
+    setNewCharName('');
+    setNewCharVal('');
+    setIsDirty(true);
+  };
+
+  const handleRemoveChar = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      chars: prev.chars.filter((_, idx) => idx !== index)
+    }));
+    setIsDirty(true);
+  };
+
+  const handleAddCategory = (catId) => {
+    if (!catId) return;
+    const catObj = lookupCatalogCategory(catId) || allEntities.find(e => e.id === catId);
+    const catEntry = {
+      id: catId,
+      name: catObj?.name || catId,
+      href: `/api/productCatalogManagement/v4/category/${catId}`,
+      '@referredType': 'Category'
+    };
+    setFormData(prev => {
+      if (prev.categories.some(c => (c?.id || c) === catId)) return prev;
+      return {
+        ...prev,
+        categories: [...prev.categories, catEntry]
+      };
+    });
+    setSelectedCatToAdd('');
+    setIsDirty(true);
+  };
+
+  const handleRemoveCategory = (catId) => {
+    setFormData(prev => ({
+      ...prev,
+      categories: prev.categories.filter(c => (c?.id || c) !== catId)
+    }));
+    setIsDirty(true);
+  };
+
+  const handleAddPop = () => {
+    const newPopId = `pop_${item?.id || 'option'}_rc_${Date.now().toString(36)}`;
+    const newPop = {
+      id: newPopId,
+      name: `POP_${formData.name || item?.id}_RC`,
+      priceType: 'Recurring charge',
+      price: { value: 0, unit: 'EUR' },
+      recurringChargePeriodType: 'monthly',
+      '@referredType': 'ProductOfferingPrice'
+    };
+    setFormData(prev => ({
+      ...prev,
+      pops: [...prev.pops, newPop]
+    }));
+    setIsDirty(true);
+  };
+
+  const handleRemovePop = (popIndex) => {
+    setFormData(prev => ({
+      ...prev,
+      pops: prev.pops.filter((_, idx) => idx !== popIndex)
+    }));
+    setIsDirty(true);
+  };
+
+  const handlePopFieldChange = (popIndex, field, val) => {
+    setFormData(prev => {
+      const nextPops = [...prev.pops];
+      const p = { ...nextPops[popIndex] };
+      if (field === 'priceValue') {
+        const num = parseFloat(val);
+        p.price = { ...(p.price || {}), value: isNaN(num) ? 0 : num, unit: p.price?.unit || 'EUR' };
+      } else if (field === 'priceType') {
+        p.priceType = val;
+      } else if (field === 'period') {
+        p.recurringChargePeriodType = val;
+      }
+      nextPops[popIndex] = p;
+      return { ...prev, pops: nextPops };
+    });
+    setIsDirty(true);
+  };
+
+  const handleSave = () => {
+    // Note: Name and ID fields are strictly unique and immutable in DNEXT Product Catalog (agent.md)
+    const updatedRaw = {
+      ...raw,
+      description: (formData.description || '').trim(),
+      lifecycleStatus: formData.lifecycleStatus,
+      validFor: {
+        ...(raw.validFor || {}),
+        startDateTime: formData.startDate ? new Date(formData.startDate).toISOString() : raw.validFor?.startDateTime,
+        endDateTime: formData.endDate ? new Date(formData.endDate).toISOString() : undefined
+      },
+      productSpecification: (isOption && formData.spec) ? formData.spec : (raw.productSpecification || specObj),
+      category: formData.categories,
+      prodSpecCharValueUse: formData.chars,
+      productOfferingPrice: formData.pops
+    };
+
+    const updatedItem = {
+      ...item,
+      lifecycleStatus: formData.lifecycleStatus,
+      productSpecification: (isOption && formData.spec) ? formData.spec : (item?.productSpecification || specObj),
+      raw: updatedRaw
+    };
+
+    if (onUpdateItem) {
+      onUpdateItem(updatedItem);
+    }
+
+    setIsEditing(false);
+    setIsDirty(false);
+    setSaveFeedback({
+      type: 'success',
+      message: `Option "${item?.name || item?.id}" updated in local state (ready for release management persistence).`
+    });
+    setTimeout(() => setSaveFeedback(null), 4500);
+  };
+
+  // Catalog category catalog list for searchable dropdowns
+  const allCatalogCategories = useMemo(() => {
+    return getAllCatalogCategories();
+  }, []);
 
   // Tab state within the template
   const [activeSubTab, setActiveSubTab] = useState('overview');
@@ -315,8 +670,9 @@ export default function StandardOfferingDetailTemplate({
   }, [raw]);
 
   const directCategories = useMemo(() => {
-    return Array.isArray(raw.category) ? raw.category : [];
-  }, [raw]);
+    const list = isEditing ? formData.categories : (Array.isArray(raw.category) ? raw.category : []);
+    return Array.isArray(list) ? list : [];
+  }, [raw, isEditing, formData.categories]);
 
   // Tree of category groupings
   const treeGroups = useMemo(() => {
@@ -471,18 +827,101 @@ export default function StandardOfferingDetailTemplate({
     return results;
   }, [isOption, item?.id, popMap, allOfferings]);
 
-  // Header metric: Primary Price
-  const hasBundlePop = resolvedPops.some(p => p.isBundlePop);
+  // Detailed pricing resolution for the header metric & price type display
+  const pricingDetails = useMemo(() => {
+    if (!resolvedPops || resolvedPops.length === 0) {
+      return null;
+    }
+
+    // Sort to prioritize recurring charges or defined prices if multiple POPs exist
+    const sorted = [...resolvedPops].sort((a, b) => {
+      const typeA = (a.pop?.priceType || '').toLowerCase();
+      const typeB = (b.pop?.priceType || '').toLowerCase();
+      if (typeA.includes('recurring') && !typeB.includes('recurring')) return -1;
+      if (!typeA.includes('recurring') && typeB.includes('recurring')) return 1;
+      const valA = Number(a.pop?.price?.value || 0);
+      const valB = Number(b.pop?.price?.value || 0);
+      return valB - valA;
+    });
+
+    for (const item of sorted) {
+      const p = item.pop;
+      if (!p) continue;
+
+      let val = null;
+      let unit = 'EUR';
+      if (p.price?.value !== undefined && p.price?.value !== null && p.price?.value !== '') {
+        val = p.price.value;
+        unit = p.price.unit || 'EUR';
+      } else if (typeof p.price === 'number') {
+        val = p.price;
+        unit = 'EUR';
+      } else if (p.price?.taxIncludedAmount?.value !== undefined) {
+        val = p.price.taxIncludedAmount.value;
+        unit = p.price.taxIncludedAmount.unit || 'EUR';
+      } else if (p.price?.dutyFreeAmount?.value !== undefined) {
+        val = p.price.dutyFreeAmount.value;
+        unit = p.price.dutyFreeAmount.unit || 'EUR';
+      }
+
+      const hasNumericVal = val !== null && !isNaN(Number(val));
+      const priceType = p.priceType || p.price_type || null;
+      const period = p.recurringChargePeriodType || p.recurringChargePeriod || null;
+
+      // Pricing is considered defined if either numeric price or explicit priceType is provided
+      if (hasNumericVal || priceType) {
+        let displayPrice = 'Dynamic';
+        if (hasNumericVal) {
+          const num = Number(val);
+          displayPrice = `${!isNaN(num) ? num.toFixed(2).replace(/\.00$/, '') : val} ${unit}`;
+        }
+
+        const isRecurring = Boolean(
+          (priceType && priceType.toLowerCase().includes('recurring')) ||
+          (period && String(period).toLowerCase().includes('month'))
+        );
+
+        return {
+          hasPrice: true,
+          hasNumericVal,
+          val: hasNumericVal ? Number(val) : null,
+          unit,
+          displayPrice,
+          priceType: priceType || (item.isBundlePop ? 'Bundle Price' : 'Standard Charge'),
+          period,
+          isRecurring,
+          isBundlePop: item.isBundlePop,
+          popId: p.id
+        };
+      }
+    }
+
+    return null;
+  }, [resolvedPops]);
+
+  // Primary price string fallback
   const primaryPriceStr = useMemo(() => {
+    if (pricingDetails) {
+      return pricingDetails.displayPrice;
+    }
     if (resolvedPops.length === 0) {
       return isOption ? 'Catalog Option' : 'Dynamic';
     }
-    const first = resolvedPops[0].pop;
+    const first = resolvedPops[0]?.pop;
     if (first?.price?.value !== undefined) {
       return `${first.price.value} ${first.price.unit || 'EUR'}`;
     }
     return 'Dynamic';
-  }, [resolvedPops, isOption]);
+  }, [pricingDetails, resolvedPops, isOption]);
+
+  // Header metric: Primary Price
+  const hasBundlePop = resolvedPops.some(p => p.isBundlePop);
+
+  // Price box visibility in hero header:
+  // - Hardware view: always hidden
+  // - Option view: ONLY shown if there is a pricing defined under the option
+  // - Other views (standard offer, bundle): shown if pricing is defined or dynamic
+  const showPriceBox = !isHardware && (isOption ? Boolean(pricingDetails) : true);
 
   // Header metric: Option Badge Text
   const optionBadgeText = useMemo(() => {
@@ -499,29 +938,33 @@ export default function StandardOfferingDetailTemplate({
     return 'Option Offering';
   }, [isHardware, isOption, raw.isBundle, item?.id, item?.name]);
 
+  const activeChars = isEditing ? formData.chars : chars;
+  const activePopsCount = isEditing ? formData.pops.length : resolvedPops.length;
+  const activeCategoriesCount = isEditing ? formData.categories.length : totalCategoriesCount;
+
   // Sub-tabs list aligned with Sales Package detail view
   const subTabs = useMemo(() => [
     { id: 'overview', label: 'Overview', icon: 'chart' },
-    { id: 'pricing', label: `Pricing (${resolvedPops.length})`, icon: 'tag' },
-    { id: 'characteristics', label: `Characteristics (${chars.length})`, icon: 'sliders' },
-    { id: 'categories', label: `Categories (${totalCategoriesCount})`, icon: 'folder' },
+    { id: 'pricing', label: `Pricing (${activePopsCount})`, icon: 'tag' },
+    { id: 'characteristics', label: `Characteristics (${activeChars.length})`, icon: 'sliders' },
+    { id: 'categories', label: `Categories (${activeCategoriesCount})`, icon: 'folder' },
     ...(terms.length > 0 ? [{ id: 'terms', label: `Contract Terms (${terms.length})`, icon: 'edit' }] : [])
-  ], [resolvedPops.length, chars.length, totalCategoriesCount, terms.length]);
+  ], [activePopsCount, activeChars.length, activeCategoriesCount, terms.length]);
 
   // Filtered characteristics for Characteristics tab
   const filteredChars = useMemo(() => {
-    if (!charSearch.trim()) return chars;
+    if (!charSearch.trim()) return activeChars;
     const q = charSearch.toLowerCase();
-    return chars.filter(c => {
+    return activeChars.filter(c => {
       const nameMatch = (c.name || '').toLowerCase().includes(q);
       const valMatch = (
         Array.isArray(c.productSpecCharacteristicValue)
           ? c.productSpecCharacteristicValue.map(v => (v?.value !== undefined ? v.value : v))
-          : [c.value]
+          : (Array.isArray(c.value) ? c.value : [c.value])
       ).some(v => String(v || '').toLowerCase().includes(q));
       return nameMatch || valMatch;
     });
-  }, [chars, charSearch]);
+  }, [activeChars, charSearch]);
 
   // Filtered tree groups for Categories tab
   const filteredTreeGroups = useMemo(() => {
@@ -556,22 +999,140 @@ export default function StandardOfferingDetailTemplate({
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', position: 'relative' }}>
+      {/* ─── Save Feedback Notice ─── */}
+      {saveFeedback && (
+        <div style={{
+          background: 'rgba(16,185,129,0.1)',
+          border: '1px solid rgba(16,185,129,0.3)',
+          color: 'var(--ds-ok)',
+          padding: '10px 16px',
+          borderRadius: '8px',
+          fontSize: '12px',
+          fontWeight: '600',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '8px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span>✓</span>
+            <span>{saveFeedback.message}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setSaveFeedback(null)}
+            style={{ background: 'none', border: 'none', color: 'var(--ds-ok)', cursor: 'pointer', fontSize: '12px' }}
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
+      {/* ─── Edit Mode Active Banner ─── */}
+      {isEditing && (
+        <div style={{
+          background: 'rgba(245,158,11,0.08)',
+          border: '1px solid rgba(245,158,11,0.3)',
+          borderRadius: '8px',
+          padding: '10px 16px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '10px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '15px' }}>✍️</span>
+            <div>
+              <span style={{ fontSize: '12px', fontWeight: '800', color: 'var(--ds-warn)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                Editing Option Offering
+              </span>
+              <span style={{ fontSize: '12px', color: C.muted, marginLeft: '8px' }}>
+                ID: <code>{item.id}</code>
+              </span>
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {isDirty && (
+              <span style={{ fontSize: '11px', color: 'var(--ds-warn)', fontWeight: '700', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                <span>●</span> Unsaved Changes
+              </span>
+            )}
+            <button
+              type="button"
+              onClick={handleCancelEdit}
+              style={{
+                background: '#ffffff',
+                border: `1px solid ${C.cardBorder}`,
+                color: C.text,
+                padding: '4px 10px',
+                borderRadius: '5px',
+                fontSize: '11px',
+                fontWeight: '600',
+                cursor: 'pointer'
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleSave}
+              style={{
+                background: 'var(--ds-brand)',
+                border: '1px solid var(--ds-brand)',
+                color: '#ffffff',
+                padding: '4px 14px',
+                borderRadius: '5px',
+                fontSize: '11px',
+                fontWeight: '700',
+                cursor: 'pointer',
+                boxShadow: '0 1px 2px rgba(230,0,0,0.2)'
+              }}
+            >
+              Save Changes
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* ─── Hero Header Banner (Aligned with Sales Package Detail View) ─── */}
       <div style={{
         background: '#ffffff',
-        border: `1px solid ${C.cardBorder}`,
+        border: `1px solid ${isEditing ? 'rgba(230,0,0,0.3)' : C.cardBorder}`,
         borderRadius: '12px',
         padding: '22px 24px',
         position: 'relative',
         overflow: 'hidden',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
+        boxShadow: isEditing ? '0 0 0 2px rgba(230,0,0,0.06)' : '0 1px 3px rgba(0,0,0,0.04)'
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
           <div style={{ flex: 1, minWidth: '260px' }}>
-            <h1 style={{ margin: '0 0 6px 0', fontSize: '24px', fontWeight: '800', color: C.text, letterSpacing: '-0.02em' }}>
-              {item.name || item.id}
-            </h1>
+            {/* Option Name (Strictly non-editable per agent.md - ID and Name are unique in DNEXT Product Catalog) */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', flexWrap: 'wrap' }}>
+              <h1 style={{ margin: 0, fontSize: '24px', fontWeight: '800', color: C.text, letterSpacing: '-0.02em' }}>
+                {item?.name || item?.id}
+              </h1>
+              {isEditing && (
+                <span
+                  style={{
+                    fontSize: '11px',
+                    color: C.muted,
+                    background: 'var(--ds-surface-2)',
+                    border: '1px solid var(--ds-border)',
+                    padding: '2px 6px',
+                    borderRadius: '4px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}
+                  title="Name field is unique and immutable in DNEXT Product Catalog"
+                >
+                  <span>🔒</span>
+                  <span>Locked</span>
+                </span>
+              )}
+            </div>
 
             {/* Offer ID, Copy ID, Spec ID & Role Badge inside hero box */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px', flexWrap: 'wrap' }}>
@@ -579,6 +1140,9 @@ export default function StandardOfferingDetailTemplate({
               <code style={{ fontSize: '12px', color: 'var(--ds-warn)', background: 'var(--ds-surface-2)', border: '1px solid var(--ds-border)', padding: '2px 6px', borderRadius: '4px', fontFamily: 'var(--ds-font-mono)' }}>
                 {item.id}
               </code>
+              {isEditing && (
+                <span style={{ fontSize: '10.5px', color: C.muted }} title="ID field is unique and immutable">🔒</span>
+              )}
               {copyToClipboard && (
                 <button
                   type="button"
@@ -598,16 +1162,85 @@ export default function StandardOfferingDetailTemplate({
                 </button>
               )}
 
-              {/* Spec ID next to Copy ID button */}
-              {specObj?.id && (
+              {/* Spec ID or Specification Selector / Link (Option View shows Spec with Version & pull-down in edit mode) */}
+              {activeSpec?.id && (
                 <>
                   <span style={{ color: 'var(--ds-border-strong)' }}>•</span>
-                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                    <span style={{ fontSize: '11px', color: C.muted }}>Spec ID:</span>
-                    <code style={{ fontSize: '12px', color: 'var(--ds-spec)', background: 'rgba(124,58,237,0.06)', border: '1px solid rgba(124,58,237,0.2)', padding: '2px 6px', borderRadius: '4px', fontFamily: 'var(--ds-font-mono)' }}>
-                      {specObj.id}
-                    </code>
-                  </div>
+                  {isOption ? (
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                      <span style={{ fontSize: '11px', color: C.muted }}>Specification:</span>
+                      {isEditing ? (
+                        <SearchableSpecSelect
+                          specs={allDropdownSpecs}
+                          selectedSpec={activeSpec}
+                          onChange={handleSpecChange}
+                          compact={true}
+                          placeholder="Type to search spec..."
+                        />
+                      ) : (
+                        onNavigateToEntity ? (
+                          <button
+                            type="button"
+                            onClick={() => onNavigateToEntity(activeSpec, 'ProductSpecification')}
+                            title={`Navigate to Product Specification: ${activeSpec.name || activeSpec.id} (v${activeSpec.version})`}
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '5px',
+                              background: 'rgba(124,58,237,0.08)',
+                              border: '1px solid rgba(124,58,237,0.3)',
+                              borderRadius: '4px',
+                              padding: '2px 8px',
+                              cursor: 'pointer',
+                              color: 'var(--ds-spec)',
+                              fontSize: '11.5px',
+                              fontWeight: '600',
+                              textDecoration: 'none',
+                              transition: 'all 0.15s ease'
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background = 'rgba(124,58,237,0.16)';
+                              e.currentTarget.style.borderColor = 'var(--ds-spec)';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = 'rgba(124,58,237,0.08)';
+                              e.currentTarget.style.borderColor = 'rgba(124,58,237,0.3)';
+                            }}
+                          >
+                            <Icon name="clipboard" size={12} />
+                            <span style={{ fontFamily: 'var(--ds-font-mono)' }}>{activeSpec.name || activeSpec.id}</span>
+                            <span style={{
+                              fontSize: '10px',
+                              background: 'rgba(124,58,237,0.18)',
+                              color: 'var(--ds-spec)',
+                              padding: '1px 5px',
+                              borderRadius: '3px',
+                              fontWeight: '700'
+                            }}>
+                              v{activeSpec.version}
+                            </span>
+                            <span style={{ fontSize: '11px', lineHeight: 1 }}>→</span>
+                          </button>
+                        ) : (
+                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                            <code style={{ fontSize: '12px', color: 'var(--ds-spec)', background: 'rgba(124,58,237,0.06)', border: '1px solid rgba(124,58,237,0.2)', padding: '2px 6px', borderRadius: '4px', fontFamily: 'var(--ds-font-mono)' }}>
+                              {activeSpec.name || activeSpec.id}
+                            </code>
+                            <span style={{ fontSize: '10px', background: 'rgba(124,58,237,0.12)', color: 'var(--ds-spec)', padding: '1px 5px', borderRadius: '3px', fontWeight: '700' }}>
+                              v{activeSpec.version}
+                            </span>
+                          </div>
+                        )
+                      )}
+                    </div>
+                  ) : (
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                      <span style={{ fontSize: '11px', color: C.muted }}>Spec ID:</span>
+                      <code style={{ fontSize: '12px', color: 'var(--ds-spec)', background: 'rgba(124,58,237,0.06)', border: '1px solid rgba(124,58,237,0.2)', padding: '2px 6px', borderRadius: '4px', fontFamily: 'var(--ds-font-mono)' }}>
+                        {specObj.id}
+                      </code>
+                    </div>
+                  )}
                 </>
               )}
 
@@ -624,15 +1257,91 @@ export default function StandardOfferingDetailTemplate({
               }}>
                 {optionBadgeText}
               </span>
+
+              {/* Price Type Badge in header metadata row if pricing is defined on option */}
+              {isOption && pricingDetails?.priceType && (
+                <>
+                  <span style={{ color: 'var(--ds-border-strong)' }}>•</span>
+                  <span style={{
+                    fontSize: '11px',
+                    fontWeight: '700',
+                    color: pricingDetails.isRecurring ? 'var(--ds-info)' : 'var(--ds-spec)',
+                    background: pricingDetails.isRecurring ? 'rgba(2,132,199,0.08)' : 'rgba(124,58,237,0.08)',
+                    border: `1px solid ${pricingDetails.isRecurring ? 'rgba(2,132,199,0.25)' : 'rgba(124,58,237,0.25)'}`,
+                    padding: '2px 8px',
+                    borderRadius: '4px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}>
+                    <Icon name="tag" size={11} />
+                    <span>{pricingDetails.priceType}</span>
+                    {pricingDetails.period && <span style={{ opacity: 0.85 }}>({pricingDetails.period})</span>}
+                  </span>
+                </>
+              )}
+
+              {/* Edit Option Button */}
+              {isOption && !isEditing && (
+                <button
+                  type="button"
+                  onClick={handleStartEdit}
+                  style={{
+                    background: 'rgba(230,0,0,0.06)',
+                    border: '1px solid var(--ds-brand)',
+                    color: 'var(--ds-brand)',
+                    padding: '3px 10px',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontSize: '11px',
+                    fontWeight: '700',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                    marginLeft: '8px',
+                    transition: 'all 0.15s ease'
+                  }}
+                  title="Edit details of this Option Offering"
+                >
+                  <Icon name="edit" size={12} />
+                  <span>Edit Option</span>
+                </button>
+              )}
             </div>
 
-            <p style={{ margin: 0, fontSize: '13px', color: C.muted, maxWidth: '620px', lineHeight: '1.5' }}>
-              {raw.description || (isHardware
-                ? 'Commercial hardware product offering configured with technical specifications and device attributes.'
-                : isOption
-                ? 'Commercial component option for broadband access, speed tiering, or voice services.'
-                : 'Commercial broadband product offering configured with commercial terms and pricing models.')}
-            </p>
+            {isEditing ? (
+              <div style={{ marginTop: '8px' }}>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: C.muted, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '4px' }}>
+                  Description
+                </label>
+                <textarea
+                  value={formData.description}
+                  onChange={e => handleFieldChange('description', e.target.value)}
+                  rows={2}
+                  placeholder="Commercial description of this option offering..."
+                  style={{
+                    width: '100%',
+                    maxWidth: '620px',
+                    padding: '6px 10px',
+                    borderRadius: '6px',
+                    border: `1px solid ${C.cardBorder}`,
+                    outline: 'none',
+                    fontSize: '12px',
+                    lineHeight: '1.4',
+                    background: '#ffffff',
+                    color: C.text
+                  }}
+                />
+              </div>
+            ) : (
+              <p style={{ margin: 0, fontSize: '13px', color: C.muted, maxWidth: '620px', lineHeight: '1.5' }}>
+                {formData.description || raw.description || (isHardware
+                  ? 'Commercial hardware product offering configured with technical specifications and device attributes.'
+                  : isOption
+                  ? 'Commercial component option for broadband access, speed tiering, or voice services.'
+                  : 'Commercial broadband product offering configured with commercial terms and pricing models.')}
+              </p>
+            )}
           </div>
 
           {/* Speed Dial / Hero Metrics */}
@@ -675,23 +1384,54 @@ export default function StandardOfferingDetailTemplate({
               </>
             )}
 
-            {/* Price Metric (Hidden for Hardware detail view) */}
-            {!isHardware && (
+            {/* Price Metric (Hidden for Hardware, and hidden for Options if no price defined) */}
+            {showPriceBox && (
               <div style={{
                 background: '#ffffff',
                 border: `1px solid ${C.cardBorder}`,
                 borderRadius: '10px',
                 padding: '12px 18px',
-                minWidth: '115px',
+                minWidth: '120px',
                 textAlign: 'center',
                 boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
               }}>
                 <div style={{ fontSize: '11px', color: C.muted, textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.05em' }}>
-                  {hasBundlePop ? 'Bundle Price' : 'Price'}
+                  {pricingDetails?.isBundlePop || hasBundlePop ? 'Bundle Price' : 'Price'}
                 </div>
-                <div style={{ fontSize: '18px', fontWeight: '800', color: hasBundlePop ? 'var(--ds-spec)' : 'var(--ds-warn)', marginTop: '2px' }}>
-                  {primaryPriceStr}
+                <div style={{
+                  fontSize: '18px',
+                  fontWeight: '800',
+                  color: (pricingDetails?.isBundlePop || hasBundlePop) ? 'var(--ds-spec)' : 'var(--ds-warn)',
+                  marginTop: '2px'
+                }}>
+                  {pricingDetails ? pricingDetails.displayPrice : primaryPriceStr}
                 </div>
+                {/* Price Type badge in option/offering header */}
+                {pricingDetails?.priceType && (
+                  <div style={{ marginTop: '4px' }}>
+                    <span
+                      style={{
+                        fontSize: '10px',
+                        fontWeight: '700',
+                        color: pricingDetails.isRecurring ? 'var(--ds-info)' : 'var(--ds-spec)',
+                        background: pricingDetails.isRecurring ? 'rgba(2,132,199,0.08)' : 'rgba(124,58,237,0.08)',
+                        border: `1px solid ${pricingDetails.isRecurring ? 'rgba(2,132,199,0.25)' : 'rgba(124,58,237,0.25)'}`,
+                        padding: '2px 7px',
+                        borderRadius: '4px',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '3px',
+                        whiteSpace: 'nowrap'
+                      }}
+                      title={`Price Type: ${pricingDetails.priceType}${pricingDetails.period ? ` (${pricingDetails.period})` : ''}`}
+                    >
+                      <span>{pricingDetails.priceType}</span>
+                      {pricingDetails.period && (
+                        <span style={{ opacity: 0.85 }}>({pricingDetails.period})</span>
+                      )}
+                    </span>
+                  </div>
+                )}
               </div>
             )}
 
@@ -709,7 +1449,29 @@ export default function StandardOfferingDetailTemplate({
                 Status
               </div>
               <div style={{ marginTop: '4px' }}>
-                <LifecyclePill status={item.lifecycleStatus} />
+                {isEditing ? (
+                  <select
+                    value={formData.lifecycleStatus}
+                    onChange={e => handleFieldChange('lifecycleStatus', e.target.value)}
+                    style={{
+                      padding: '4px 6px',
+                      borderRadius: '4px',
+                      border: `1px solid ${C.cardBorder}`,
+                      fontSize: '11px',
+                      fontWeight: '700',
+                      color: C.text,
+                      cursor: 'pointer',
+                      background: '#ffffff'
+                    }}
+                  >
+                    <option value="Launched">Launched</option>
+                    <option value="In test">In test</option>
+                    <option value="In study">In study</option>
+                    <option value="Retired">Retired</option>
+                  </select>
+                ) : (
+                  <LifecyclePill status={formData.lifecycleStatus || item.lifecycleStatus} />
+                )}
               </div>
             </div>
           </div>
@@ -752,20 +1514,50 @@ export default function StandardOfferingDetailTemplate({
           {/* Attributes & Lifecycle */}
           <div style={{ background: C.panel, border: `1px solid ${C.cardBorder}`, borderRadius: '10px', padding: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
             <h3 style={{ margin: '0 0 14px 0', fontSize: '13.5px', fontWeight: '700', color: C.text, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              Attributes & Lifecycle
+              Attributes & Lifecycle {isEditing && <span style={{ fontSize: '11px', color: 'var(--ds-warn)', fontWeight: 'bold' }}>(Editable Mode)</span>}
             </h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px' }}>
               <div>
                 <span style={{ fontSize: '11px', color: C.muted }}>Entity Type</span>
-                <div style={{ fontSize: '13px', fontWeight: '600', color: 'var(--ds-brand-dark)', marginTop: '2px' }}>{item.entityType}</div>
+                <div style={{ fontSize: '13px', fontWeight: '600', color: 'var(--ds-brand-dark)', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <span>{item.entityType}</span>
+                  {isEditing && <span style={{ fontSize: '10px', color: C.muted }} title="Immutable TMF Type">🔒</span>}
+                </div>
               </div>
               <div>
                 <span style={{ fontSize: '11px', color: C.muted }}>Version</span>
-                <div style={{ marginTop: '4px' }}><VersionCell version={item.version} /></div>
+                <div style={{ marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <VersionCell version={item.version} />
+                  {isEditing && <span style={{ fontSize: '10px', color: C.muted }} title="Version managed by release lifecycle">🔒</span>}
+                </div>
               </div>
               <div>
                 <span style={{ fontSize: '11px', color: C.muted }}>Lifecycle Status</span>
-                <div style={{ marginTop: '4px' }}><LifecyclePill status={item.lifecycleStatus} /></div>
+                <div style={{ marginTop: '4px' }}>
+                  {isEditing ? (
+                    <select
+                      value={formData.lifecycleStatus}
+                      onChange={e => handleFieldChange('lifecycleStatus', e.target.value)}
+                      style={{
+                        padding: '4px 8px',
+                        borderRadius: '4px',
+                        border: `1px solid ${C.cardBorder}`,
+                        fontSize: '12px',
+                        fontWeight: '700',
+                        color: C.text,
+                        cursor: 'pointer',
+                        background: '#ffffff'
+                      }}
+                    >
+                      <option value="Launched">Launched</option>
+                      <option value="In test">In test</option>
+                      <option value="In study">In study</option>
+                      <option value="Retired">Retired</option>
+                    </select>
+                  ) : (
+                    <LifecyclePill status={formData.lifecycleStatus || item.lifecycleStatus} />
+                  )}
+                </div>
               </div>
               <div>
                 <span style={{ fontSize: '11px', color: C.muted }}>Bundle Offering?</span>
@@ -775,14 +1567,36 @@ export default function StandardOfferingDetailTemplate({
               </div>
               <div>
                 <span style={{ fontSize: '11px', color: C.muted }}>Valid From</span>
-                <div style={{ fontSize: '12px', color: C.text, marginTop: '2px', fontFamily: 'var(--ds-font-mono)' }}>
-                  {raw.validFor?.startDateTime ? new Date(raw.validFor.startDateTime).toLocaleDateString() : '-'}
+                <div style={{ fontSize: '12px', color: C.text, marginTop: '2px' }}>
+                  {isEditing ? (
+                    <input
+                      type="date"
+                      value={formData.startDate}
+                      onChange={e => handleFieldChange('startDate', e.target.value)}
+                      style={{ padding: '3px 6px', borderRadius: '4px', border: `1px solid ${C.cardBorder}`, fontSize: '11px' }}
+                    />
+                  ) : (
+                    <span style={{ fontFamily: 'var(--ds-font-mono)' }}>
+                      {formData.startDate || (raw.validFor?.startDateTime ? new Date(raw.validFor.startDateTime).toLocaleDateString() : '-')}
+                    </span>
+                  )}
                 </div>
               </div>
               <div>
                 <span style={{ fontSize: '11px', color: C.muted }}>Valid To</span>
-                <div style={{ fontSize: '12px', color: C.text, marginTop: '2px', fontFamily: 'var(--ds-font-mono)' }}>
-                  {raw.validFor?.endDateTime ? new Date(raw.validFor.endDateTime).toLocaleDateString() : 'Indefinite (Open)'}
+                <div style={{ fontSize: '12px', color: C.text, marginTop: '2px' }}>
+                  {isEditing ? (
+                    <input
+                      type="date"
+                      value={formData.endDate}
+                      onChange={e => handleFieldChange('endDate', e.target.value)}
+                      style={{ padding: '3px 6px', borderRadius: '4px', border: `1px solid ${C.cardBorder}`, fontSize: '11px' }}
+                    />
+                  ) : (
+                    <span style={{ fontFamily: 'var(--ds-font-mono)' }}>
+                      {formData.endDate || (raw.validFor?.endDateTime ? new Date(raw.validFor.endDateTime).toLocaleDateString() : 'Indefinite (Open)')}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -798,36 +1612,169 @@ export default function StandardOfferingDetailTemplate({
           </div>
 
           {/* Product Specification Linkage */}
-          {spec && (
+          {(spec || activeSpec) && (
             <div style={{ background: C.panel, border: `1px solid ${C.cardBorder}`, borderRadius: '10px', padding: '18px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-              <h3 style={{ margin: '0 0 10px 0', fontSize: '13.5px', fontWeight: '700', color: C.text, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span><Icon name="clipboard" size={14} /> Associated Product Specification</span>
-              </h3>
-              <div style={{
-                background: 'rgba(124,58,237,0.06)',
-                border: '1px solid rgba(124,58,237,0.2)',
-                borderRadius: '8px',
-                padding: '12px 16px',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                flexWrap: 'wrap',
-                gap: '10px'
-              }}>
-                <div>
-                  <div style={{ fontSize: '13px', fontWeight: '700', color: 'var(--ds-spec)' }}>
-                    {specObj?.name || specObj?.id}
-                  </div>
-                  <div style={{ fontSize: '11px', color: C.muted, fontFamily: 'var(--ds-font-mono)', marginTop: '2px' }}>
-                    ID: {specObj?.id}
-                  </div>
-                </div>
-                {specObj?.version && (
-                  <span style={{ fontSize: '11px', background: 'rgba(124,58,237,0.12)', color: 'var(--ds-spec)', padding: '2px 8px', borderRadius: '4px', fontWeight: '600' }}>
-                    v{specObj.version}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
+                <h3 style={{ margin: 0, fontSize: '13.5px', fontWeight: '700', color: C.text, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span><Icon name="clipboard" size={14} /> Associated Product Specification</span>
+                </h3>
+                {isEditing && isOption && (
+                  <span style={{ fontSize: '11px', color: 'var(--ds-spec)', background: 'rgba(124,58,237,0.1)', padding: '2px 8px', borderRadius: '4px', fontWeight: '700' }}>
+                    Editable in Option Mode
                   </span>
                 )}
               </div>
+
+              {isEditing && isOption ? (
+                /* Searchable Specification Selector when editing Option */
+                <div style={{
+                  background: 'rgba(124,58,237,0.04)',
+                  border: '1px solid rgba(124,58,237,0.25)',
+                  borderRadius: '8px',
+                  padding: '14px 16px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px'
+                }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: 'var(--ds-spec)', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '6px' }}>
+                      Change Product Specification (Searchable as typed in with keystrokes) *
+                    </label>
+                    <SearchableSpecSelect
+                      specs={allDropdownSpecs}
+                      selectedSpec={activeSpec}
+                      onChange={handleSpecChange}
+                      compact={false}
+                      placeholder="Type keystrokes to search by name, version (e.g. v1) or ID..."
+                    />
+                  </div>
+
+                  {activeSpec && (
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      background: '#ffffff',
+                      border: '1px solid rgba(124,58,237,0.2)',
+                      padding: '10px 14px',
+                      borderRadius: '6px',
+                      flexWrap: 'wrap',
+                      gap: '8px'
+                    }}>
+                      <div>
+                        <div style={{ fontSize: '13px', fontWeight: '700', color: 'var(--ds-spec)' }}>
+                          {activeSpec.name || activeSpec.id}
+                        </div>
+                        <div style={{ fontSize: '11px', color: C.muted, fontFamily: 'var(--ds-font-mono)', marginTop: '2px' }}>
+                          ID: {activeSpec.id}
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '11px', background: 'rgba(124,58,237,0.14)', color: 'var(--ds-spec)', padding: '2px 8px', borderRadius: '4px', fontWeight: '700' }}>
+                          v{activeSpec.version !== undefined ? activeSpec.version : '0'}
+                        </span>
+                        {onNavigateToEntity && (
+                          <button
+                            type="button"
+                            onClick={() => onNavigateToEntity(activeSpec, 'ProductSpecification')}
+                            style={{
+                              background: 'none',
+                              border: '1px solid rgba(124,58,237,0.3)',
+                              color: 'var(--ds-spec)',
+                              padding: '3px 8px',
+                              borderRadius: '4px',
+                              fontSize: '11px',
+                              fontWeight: '600',
+                              cursor: 'pointer'
+                            }}
+                            title="Preview Specification Detail View"
+                          >
+                            Preview Spec →
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div style={{
+                  background: 'rgba(124,58,237,0.06)',
+                  border: '1px solid rgba(124,58,237,0.2)',
+                  borderRadius: '8px',
+                  padding: '12px 16px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  flexWrap: 'wrap',
+                  gap: '10px'
+                }}>
+                  <div>
+                    {isOption && onNavigateToEntity ? (
+                      <button
+                        type="button"
+                        onClick={() => onNavigateToEntity(activeSpec || specObj, 'ProductSpecification')}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          padding: 0,
+                          margin: 0,
+                          fontSize: '13px',
+                          fontWeight: '700',
+                          color: 'var(--ds-spec)',
+                          cursor: 'pointer',
+                          textAlign: 'left',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          textDecoration: 'underline'
+                        }}
+                        title="Navigate to Product Specification Detail View"
+                      >
+                        <span>{activeSpec?.name || activeSpec?.id || specObj?.name || specObj?.id}</span>
+                        <span style={{ fontSize: '11px', textDecoration: 'none' }}>↗</span>
+                      </button>
+                    ) : (
+                      <div style={{ fontSize: '13px', fontWeight: '700', color: 'var(--ds-spec)' }}>
+                        {activeSpec?.name || activeSpec?.id || specObj?.name || specObj?.id}
+                      </div>
+                    )}
+                    <div style={{ fontSize: '11px', color: C.muted, fontFamily: 'var(--ds-font-mono)', marginTop: '2px' }}>
+                      ID: {activeSpec?.id || specObj?.id}
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '11px', background: 'rgba(124,58,237,0.12)', color: 'var(--ds-spec)', padding: '2px 8px', borderRadius: '4px', fontWeight: '600' }}>
+                      v{(activeSpec?.version !== undefined ? activeSpec.version : specObj?.version) !== undefined ? (activeSpec?.version !== undefined ? activeSpec.version : specObj?.version) : '0'}
+                    </span>
+                    {isOption && onNavigateToEntity && (
+                      <button
+                        type="button"
+                        onClick={() => onNavigateToEntity(activeSpec || specObj, 'ProductSpecification')}
+                        style={{
+                          background: 'var(--ds-spec)',
+                          color: '#ffffff',
+                          border: 'none',
+                          padding: '4px 10px',
+                          borderRadius: '5px',
+                          fontSize: '11.5px',
+                          fontWeight: '600',
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '5px',
+                          boxShadow: '0 1px 3px rgba(124,58,237,0.3)',
+                          transition: 'opacity 0.15s ease'
+                        }}
+                        title="Navigate to Product Specification Detail View"
+                      >
+                        <span>View Specification</span>
+                        <span>→</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -1045,6 +1992,138 @@ export default function StandardOfferingDetailTemplate({
       {/* ══════════════════════════════════════════════════════ */}
       {activeSubTab === 'pricing' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {/* Edit Mode: Direct Option Pricing Manager */}
+          {isEditing && (
+            <div style={{
+              background: 'rgba(124,58,237,0.06)',
+              border: '1px solid rgba(124,58,237,0.25)',
+              borderRadius: '10px',
+              padding: '16px 20px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '12px'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--ds-spec)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span><Icon name="tag" size={14} /> Direct Option Pricing (POPs)</span>
+                  <span style={{ fontSize: '11px', background: 'rgba(124,58,237,0.15)', padding: '2px 8px', borderRadius: '10px', fontWeight: '700' }}>
+                    {formData.pops.length} Components
+                  </span>
+                </span>
+                <button
+                  type="button"
+                  onClick={handleAddPop}
+                  style={{
+                    background: 'var(--ds-spec)',
+                    border: 'none',
+                    color: '#ffffff',
+                    padding: '6px 14px',
+                    borderRadius: '5px',
+                    fontSize: '11px',
+                    fontWeight: '700',
+                    cursor: 'pointer'
+                  }}
+                >
+                  + Add Price Component
+                </button>
+              </div>
+
+              {formData.pops.length === 0 ? (
+                <div style={{ padding: '16px', background: '#ffffff', borderRadius: '6px', textAlign: 'center', color: C.muted, fontSize: '12px' }}>
+                  No price components currently defined under this option. Click "+ Add Price Component" above to define one.
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {formData.pops.map((p, pIdx) => {
+                    const popObj = typeof p === 'object' ? p : (popMap.get(p) || { id: p });
+                    const val = popObj.price?.value !== undefined ? popObj.price.value : (typeof popObj.price === 'number' ? popObj.price : 0);
+                    const pType = popObj.priceType || 'Recurring charge';
+                    const period = popObj.recurringChargePeriodType || 'monthly';
+
+                    return (
+                      <div
+                        key={pIdx}
+                        style={{
+                          background: '#ffffff',
+                          border: `1px solid ${C.cardBorder}`,
+                          borderRadius: '8px',
+                          padding: '12px 14px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          flexWrap: 'wrap',
+                          gap: '12px'
+                        }}
+                      >
+                        <div style={{ minWidth: '160px' }}>
+                          <div style={{ fontSize: '12px', fontWeight: '700', color: C.text }}>
+                            {popObj.name || popObj.id}
+                          </div>
+                          <code style={{ fontSize: '10px', color: C.muted }}>{popObj.id}</code>
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                          <div>
+                            <span style={{ display: 'block', fontSize: '10px', color: C.muted }}>Amount (€):</span>
+                            <input
+                              type="number"
+                              step="0.01"
+                              value={val}
+                              onChange={e => handlePopFieldChange(pIdx, 'priceValue', e.target.value)}
+                              style={{ width: '85px', padding: '4px 6px', borderRadius: '4px', border: `1px solid ${C.cardBorder}`, fontSize: '12px', fontWeight: '700' }}
+                            />
+                          </div>
+
+                          <div>
+                            <span style={{ display: 'block', fontSize: '10px', color: C.muted }}>Price Type:</span>
+                            <select
+                              value={pType}
+                              onChange={e => handlePopFieldChange(pIdx, 'priceType', e.target.value)}
+                              style={{ padding: '4px 6px', borderRadius: '4px', border: `1px solid ${C.cardBorder}`, fontSize: '11px', fontWeight: '600' }}
+                            >
+                              <option value="Recurring charge">Recurring charge</option>
+                              <option value="One time charge">One time charge</option>
+                              <option value="Usage charge">Usage charge</option>
+                            </select>
+                          </div>
+
+                          <div>
+                            <span style={{ display: 'block', fontSize: '10px', color: C.muted }}>Cycle:</span>
+                            <select
+                              value={period}
+                              onChange={e => handlePopFieldChange(pIdx, 'period', e.target.value)}
+                              style={{ padding: '4px 6px', borderRadius: '4px', border: `1px solid ${C.cardBorder}`, fontSize: '11px' }}
+                            >
+                              <option value="monthly">monthly</option>
+                              <option value="yearly">yearly</option>
+                              <option value="weekly">weekly</option>
+                            </select>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => handleRemovePop(pIdx)}
+                            style={{
+                              background: 'rgba(230,0,0,0.06)',
+                              border: '1px solid rgba(230,0,0,0.2)',
+                              color: 'var(--ds-brand)',
+                              padding: '5px 8px',
+                              borderRadius: '4px',
+                              cursor: 'pointer',
+                              marginTop: '12px'
+                            }}
+                            title="Remove price component"
+                          >
+                            <Icon name="trash" size={13} />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
           <div style={{ background: C.panel, border: `1px solid ${C.cardBorder}`, borderRadius: '10px', padding: '18px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap', gap: '8px' }}>
               <h3 style={{ margin: 0, fontSize: '14px', fontWeight: '700', color: C.text, display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -1377,8 +2456,68 @@ export default function StandardOfferingDetailTemplate({
       {/* ══════════════════════════════════════════════════════ */}
       {activeSubTab === 'characteristics' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {/* In Edit Mode: Add Characteristic Bar */}
+          {isEditing && (
+            <div style={{
+              background: 'rgba(2,132,199,0.06)',
+              border: '1px solid rgba(2,132,199,0.25)',
+              borderRadius: '10px',
+              padding: '14px 18px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: '12px'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '15px' }}>⚡</span>
+                <div>
+                  <div style={{ fontSize: '12.5px', fontWeight: '700', color: 'var(--ds-info)' }}>
+                    Add / Override Characteristic
+                  </div>
+                  <div style={{ fontSize: '11px', color: C.muted }}>
+                    Define or adjust technical parameters on this option
+                  </div>
+                </div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                <input
+                  type="text"
+                  placeholder="Name (e.g. bandwidth, service_code)"
+                  value={newCharName}
+                  onChange={e => setNewCharName(e.target.value)}
+                  style={{ padding: '6px 10px', borderRadius: '5px', border: `1px solid ${C.cardBorder}`, fontSize: '12px', minWidth: '180px' }}
+                />
+                <input
+                  type="text"
+                  placeholder="Value (e.g. 500, IP532)"
+                  value={newCharVal}
+                  onChange={e => setNewCharVal(e.target.value)}
+                  style={{ padding: '6px 10px', borderRadius: '5px', border: `1px solid ${C.cardBorder}`, fontSize: '12px', minWidth: '150px' }}
+                />
+                <button
+                  type="button"
+                  onClick={handleAddChar}
+                  disabled={!newCharName.trim()}
+                  style={{
+                    background: newCharName.trim() ? 'var(--ds-info)' : 'var(--ds-surface-2)',
+                    border: 'none',
+                    color: newCharName.trim() ? '#ffffff' : C.muted,
+                    padding: '6px 14px',
+                    borderRadius: '5px',
+                    fontSize: '11px',
+                    fontWeight: '700',
+                    cursor: newCharName.trim() ? 'pointer' : 'default'
+                  }}
+                >
+                  + Add Characteristic
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Associated Product Specification Linkage Card */}
-          {specObj && (
+          {(specObj || activeSpec) && (
             <div style={{ background: C.panel, border: `1px solid ${C.cardBorder}`, borderRadius: '10px', padding: '18px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
               <h3 style={{ margin: '0 0 10px 0', fontSize: '13.5px', fontWeight: '700', color: C.text, display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span><Icon name="clipboard" size={14} /> Associated Product Specification</span>
@@ -1395,18 +2534,70 @@ export default function StandardOfferingDetailTemplate({
                 gap: '10px'
               }}>
                 <div>
-                  <div style={{ fontSize: '13px', fontWeight: '700', color: 'var(--ds-spec)' }}>
-                    {specObj.name || specObj.id}
-                  </div>
+                  {isOption && onNavigateToEntity ? (
+                    <button
+                      type="button"
+                      onClick={() => onNavigateToEntity(activeSpec || specObj, 'ProductSpecification')}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        padding: 0,
+                        margin: 0,
+                        fontSize: '13px',
+                        fontWeight: '700',
+                        color: 'var(--ds-spec)',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        textDecoration: 'underline'
+                      }}
+                      title="Navigate to Product Specification Detail View"
+                    >
+                      <span>{activeSpec?.name || activeSpec?.id || specObj?.name || specObj?.id}</span>
+                      <span style={{ fontSize: '11px', textDecoration: 'none' }}>↗</span>
+                    </button>
+                  ) : (
+                    <div style={{ fontSize: '13px', fontWeight: '700', color: 'var(--ds-spec)' }}>
+                      {activeSpec?.name || activeSpec?.id || specObj?.name || specObj?.id}
+                    </div>
+                  )}
                   <div style={{ fontSize: '11px', color: C.muted, fontFamily: 'var(--ds-font-mono)', marginTop: '2px' }}>
-                    ID: {specObj.id}
+                    ID: {activeSpec?.id || specObj?.id}
                   </div>
                 </div>
-                {specObj.version && (
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span style={{ fontSize: '11px', background: 'rgba(124,58,237,0.12)', color: 'var(--ds-spec)', padding: '2px 8px', borderRadius: '4px', fontWeight: '600' }}>
-                    v{specObj.version}
+                    v{(activeSpec?.version !== undefined ? activeSpec.version : specObj?.version) !== undefined ? (activeSpec?.version !== undefined ? activeSpec.version : specObj?.version) : '0'}
                   </span>
-                )}
+                  {isOption && onNavigateToEntity && (
+                    <button
+                      type="button"
+                      onClick={() => onNavigateToEntity(activeSpec || specObj, 'ProductSpecification')}
+                      style={{
+                        background: 'var(--ds-spec)',
+                        color: '#ffffff',
+                        border: 'none',
+                        padding: '4px 10px',
+                        borderRadius: '5px',
+                        fontSize: '11.5px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '5px',
+                        boxShadow: '0 1px 3px rgba(124,58,237,0.3)',
+                        transition: 'opacity 0.15s ease'
+                      }}
+                      title="Navigate to Product Specification Detail View"
+                    >
+                      <span>View Specification</span>
+                      <span>→</span>
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           )}
@@ -1418,7 +2609,7 @@ export default function StandardOfferingDetailTemplate({
                 <h3 style={{ margin: '0 0 4px 0', fontSize: '14px', fontWeight: '700', color: C.text, display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span><Icon name="sliders" size={16} /> Product Offering Characteristics</span>
                   <span style={{ fontSize: '11px', background: 'rgba(2,132,199,0.1)', color: 'var(--ds-info)', padding: '2px 8px', borderRadius: '10px', fontWeight: '700' }}>
-                    {filteredChars.length} / {chars.length}
+                    {filteredChars.length} / {activeChars.length}
                   </span>
                 </h3>
                 <p style={{ margin: 0, fontSize: '12px', color: C.muted }}>
@@ -1499,29 +2690,64 @@ export default function StandardOfferingDetailTemplate({
                         )}
                       </div>
 
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '4px' }}>
-                        {cleanVals.length === 0 ? (
-                          <span style={{ fontSize: '11px', color: C.muted, fontStyle: 'italic' }}>-</span>
-                        ) : (
-                          cleanVals.map((v, vIdx) => (
-                            <span
-                              key={vIdx}
-                              style={{
-                                fontSize: '11px',
-                                color: 'var(--ds-info)',
-                                background: 'rgba(2,132,199,0.08)',
-                                border: '1px solid rgba(2,132,199,0.2)',
-                                padding: '2px 8px',
-                                borderRadius: '4px',
-                                fontFamily: 'var(--ds-font-mono)',
-                                wordBreak: 'break-all'
-                              }}
-                            >
-                              {String(v)}
-                            </span>
-                          ))
-                        )}
-                      </div>
+                      {isEditing ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '6px' }}>
+                          <input
+                            type="text"
+                            value={cleanVals.length > 0 ? String(cleanVals[0]) : ''}
+                            onChange={e => handleCharValChange(i, e.target.value)}
+                            style={{
+                              flex: 1,
+                              padding: '5px 8px',
+                              borderRadius: '4px',
+                              border: `1px solid ${C.cardBorder}`,
+                              fontSize: '12px',
+                              fontFamily: 'var(--ds-font-mono)',
+                              background: '#ffffff',
+                              color: C.text
+                            }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveChar(i)}
+                            style={{
+                              background: 'rgba(230,0,0,0.06)',
+                              border: '1px solid rgba(230,0,0,0.2)',
+                              color: 'var(--ds-brand)',
+                              padding: '5px 8px',
+                              borderRadius: '4px',
+                              cursor: 'pointer'
+                            }}
+                            title="Delete characteristic"
+                          >
+                            <Icon name="trash" size={13} />
+                          </button>
+                        </div>
+                      ) : (
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '4px' }}>
+                          {cleanVals.length === 0 ? (
+                            <span style={{ fontSize: '11px', color: C.muted, fontStyle: 'italic' }}>-</span>
+                          ) : (
+                            cleanVals.map((v, vIdx) => (
+                              <span
+                                key={vIdx}
+                                style={{
+                                  fontSize: '11px',
+                                  color: 'var(--ds-info)',
+                                  background: 'rgba(2,132,199,0.08)',
+                                  border: '1px solid rgba(2,132,199,0.2)',
+                                  padding: '2px 8px',
+                                  borderRadius: '4px',
+                                  fontFamily: 'var(--ds-font-mono)',
+                                  wordBreak: 'break-all'
+                                }}
+                              >
+                                {String(v)}
+                              </span>
+                            ))
+                          )}
+                        </div>
+                      )}
                     </div>
                   );
                 })}
@@ -1536,6 +2762,145 @@ export default function StandardOfferingDetailTemplate({
       {/* ══════════════════════════════════════════════════════ */}
       {activeSubTab === 'categories' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {/* ─── EDIT MODE: CATEGORY ASSIGNMENTS ─── */}
+          {isEditing && (
+            <div style={{
+              background: '#ffffff',
+              border: '1px solid rgba(230,0,0,0.3)',
+              borderRadius: '10px',
+              padding: '16px 18px',
+              boxShadow: '0 2px 8px rgba(230,0,0,0.06)'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
+                <div>
+                  <div style={{ fontSize: '13px', fontWeight: '700', color: 'var(--ds-brand-dark)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <Icon name="folder" size={14} /> Direct Category Assignments ({formData.categories.length})
+                  </div>
+                  <div style={{ fontSize: '11.5px', color: C.muted, marginTop: '2px' }}>
+                    Assign or remove standard catalog categories for this option. Categories determine catalog placement and rule-engine targeting.
+                  </div>
+                </div>
+              </div>
+
+              {/* Current Categories Tags */}
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '14px' }}>
+                {formData.categories.length === 0 ? (
+                  <div style={{ fontSize: '12px', color: C.muted, fontStyle: 'italic' }}>
+                    No direct categories assigned. Select a catalog category below to assign one.
+                  </div>
+                ) : (
+                  formData.categories.map((cat, idx) => {
+                    const catId = typeof cat === 'string' ? cat : (cat?.id || cat?.name);
+                    const catMeta = lookupCatalogCategory(catId) || (typeof cat === 'object' ? cat : null);
+                    const catLabel = catMeta?.name || catId;
+                    return (
+                      <div
+                        key={idx}
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          background: 'rgba(230,0,0,0.06)',
+                          border: '1px solid rgba(230,0,0,0.2)',
+                          padding: '5px 10px',
+                          borderRadius: '6px',
+                          fontSize: '12px',
+                          color: C.text
+                        }}
+                      >
+                        <Icon name="folder" size={12} />
+                        <span style={{ fontWeight: '600' }}>{catLabel}</span>
+                        <span style={{ fontSize: '10.5px', color: C.muted, fontFamily: 'var(--ds-font-mono)' }}>({catId})</span>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveCategory(catId)}
+                          title={`Remove ${catLabel}`}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: 'var(--ds-brand-dark)',
+                            cursor: 'pointer',
+                            fontSize: '13px',
+                            fontWeight: '700',
+                            padding: '0 0 0 4px',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            lineHeight: 1
+                          }}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+
+              {/* Add Category Selector Bar */}
+              <div style={{
+                display: 'flex',
+                gap: '10px',
+                alignItems: 'center',
+                paddingTop: '12px',
+                borderTop: `1px solid ${C.cardBorder}`,
+                flexWrap: 'wrap'
+              }}>
+                <div style={{ flex: '1 1 280px' }}>
+                  <select
+                    value={selectedCatToAdd}
+                    onChange={(e) => setSelectedCatToAdd(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '7px 10px',
+                      fontSize: '12px',
+                      borderRadius: '6px',
+                      border: `1px solid ${C.cardBorder}`,
+                      background: '#ffffff',
+                      color: C.text,
+                      outline: 'none'
+                    }}
+                  >
+                    <option value="">Select a catalog category to assign...</option>
+                    {allCatalogCategories
+                      .filter(cat => !formData.categories.some(c => (c?.id || c) === cat.id))
+                      .map(cat => (
+                        <option key={cat.id} value={cat.id}>
+                          {cat.id} — {cat.name} {cat.parentId ? `(under ${cat.parentId})` : ''}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (selectedCatToAdd) {
+                      handleAddCategory(selectedCatToAdd);
+                    }
+                  }}
+                  disabled={!selectedCatToAdd}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    background: selectedCatToAdd ? 'var(--ds-brand)' : 'var(--ds-surface-subtle)',
+                    color: selectedCatToAdd ? '#ffffff' : C.muted,
+                    border: 'none',
+                    padding: '7px 14px',
+                    borderRadius: '6px',
+                    fontSize: '12px',
+                    fontWeight: '600',
+                    cursor: selectedCatToAdd ? 'pointer' : 'not-allowed',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  <Icon name="plus" size={13} />
+                  Assign Category
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Header Card with Stats & Controls */}
           <div style={{
             background: C.panel,
@@ -1806,6 +3171,90 @@ export default function StandardOfferingDetailTemplate({
                 )}
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════════ */}
+      {/* ─── STICKY BOTTOM ACTION BAR (EDIT MODE) ─── */}
+      {/* ══════════════════════════════════════════════════════ */}
+      {isEditing && (
+        <div style={{
+          position: 'sticky',
+          bottom: '0',
+          left: 0,
+          right: 0,
+          zIndex: 100,
+          background: 'rgba(255, 255, 255, 0.96)',
+          backdropFilter: 'blur(8px)',
+          border: '1px solid rgba(230,0,0,0.3)',
+          borderRadius: '10px',
+          padding: '12px 18px',
+          boxShadow: '0 -4px 16px rgba(0,0,0,0.08)',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          gap: '12px',
+          flexWrap: 'wrap',
+          marginTop: '10px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{
+              width: '8px',
+              height: '8px',
+              borderRadius: '50%',
+              backgroundColor: isDirty ? 'var(--ds-warn)' : 'var(--ds-ok)',
+              display: 'inline-block'
+            }} />
+            <span style={{ fontSize: '12px', fontWeight: '600', color: C.text }}>
+              {isDirty ? 'Unsaved changes in local buffer' : 'Edit mode active (no changes yet)'}
+            </span>
+            <span style={{ fontSize: '11px', color: C.muted }}>
+              &bull; Changes stay in-memory until Release Management persistence
+            </span>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <button
+              type="button"
+              onClick={handleCancelEdit}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                background: '#ffffff',
+                border: `1px solid ${C.cardBorder}`,
+                color: C.text,
+                padding: '7px 14px',
+                borderRadius: '6px',
+                fontSize: '12px',
+                fontWeight: '600',
+                cursor: 'pointer'
+              }}
+            >
+              Cancel / Discard
+            </button>
+            <button
+              type="button"
+              onClick={handleSave}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                background: 'var(--ds-brand)',
+                border: 'none',
+                color: '#ffffff',
+                padding: '7px 16px',
+                borderRadius: '6px',
+                fontSize: '12px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                boxShadow: '0 1px 3px rgba(230,0,0,0.3)'
+              }}
+            >
+              <Icon name="check" size={13} />
+              Save Option Changes
+            </button>
           </div>
         </div>
       )}
