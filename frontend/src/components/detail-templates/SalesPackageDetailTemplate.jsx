@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import Icon from '../ui/Icon';
 import { LifecyclePill, VersionCell, CodeChip } from '../list-views/cellRenderers';
 import { C } from '../../styles/theme';
+import BandwidthSkuDetailModal from './BandwidthSkuDetailModal';
 import {
   extractPsmStructure,
   detectTechnology,
@@ -16,9 +17,11 @@ export default function SalesPackageDetailTemplate({
   allEntities = [],
   onNavigateToPrice,
   onNavigateToCategory,
+  onNavigateToEntity,
   copyToClipboard,
   copiedKey
 }) {
+  const [inspectedBandwidth, setInspectedBandwidth] = useState(null);
   const raw = item?.raw || {};
   const spec = raw.productSpecification || item?.productSpecification || null;
   const specObj = typeof spec === 'object' && spec !== null ? spec : (spec ? { id: spec, name: spec } : null);
@@ -30,13 +33,26 @@ export default function SalesPackageDetailTemplate({
 
   const isFTTH = specId.includes('ftth') || specName.includes('ftth') || itemId.includes('ftth') || itemName.includes('ftth');
 
-  // Extract speed from ID / Name (e.g., po_ftth_1000 -> 1000 Mbps, po_dsl_50 -> 50 Mbps)
+  // Direct characteristic extraction for broadband bandwidth
+  const rawDownCharObj = (Array.isArray(raw.prodSpecCharValueUse) ? raw.prodSpecCharValueUse : []).find(c =>
+    ['default_bandwidth', 'downstream_bandwidth', 'bandwidth', 'bandwidth_downstream_max', 'speed_download'].includes((c.name || '').toLowerCase())
+  );
+  const downCharVal = rawDownCharObj?.productSpecCharacteristicValue?.[0]?.value || rawDownCharObj?.value;
+
+  const rawUpCharObj = (Array.isArray(raw.prodSpecCharValueUse) ? raw.prodSpecCharValueUse : []).find(c =>
+    ['upstream_bandwidth', 'bandwidth_upstream_max', 'upload_speed', 'speed_upload', 'bandwidth_up'].includes((c.name || '').toLowerCase())
+  );
+  const upCharVal = rawUpCharObj?.productSpecCharacteristicValue?.[0]?.value || rawUpCharObj?.value;
+
+  // Extract speed from ID / Name as secondary for download
   const speedMatch = (itemId + ' ' + itemName).match(/\b(1000|600|300|250|150|100|50|16)\b/);
-  const speedVal = speedMatch ? parseInt(speedMatch[1], 10) : (isFTTH ? 1000 : 100);
+  const speedVal = downCharVal ? parseInt(downCharVal, 10) : (speedMatch ? parseInt(speedMatch[1], 10) : (isFTTH ? 1000 : 100));
   const downloadSpeedStr = speedVal >= 1000 ? `${speedVal / 1000} Gbps` : `${speedVal} Mbps`;
-  const uploadSpeedStr = isFTTH
-    ? (speedVal >= 1000 ? '500 Mbps' : `${Math.round(speedVal * 0.5)} Mbps`)
-    : `${Math.min(40, Math.round(speedVal * 0.25))} Mbps`;
+
+  // Direct characteristic solution: if not exist leave empty
+  const uploadSpeedStr = upCharVal
+    ? (String(upCharVal).includes('bps') ? String(upCharVal) : `${upCharVal} Mbps`)
+    : '';
 
   const pops = (Array.isArray(raw.productOfferingPrice) && raw.productOfferingPrice.length > 0)
     ? raw.productOfferingPrice
@@ -65,6 +81,7 @@ export default function SalesPackageDetailTemplate({
 
   const [activeSubTab, setActiveSubTab] = useState('overview');
   const [categoryFilter, setCategoryFilter] = useState('');
+  const [charSearch, setCharSearch] = useState('');
   const [expandedGroupIds, setExpandedGroupIds] = useState({});
   const [expandedPricingPops, setExpandedPricingPops] = useState({});
   const [activeSelectedPopId, setActiveSelectedPopId] = useState(null);
@@ -224,6 +241,21 @@ export default function SalesPackageDetailTemplate({
     { id: 'terms', label: `Contract Terms (${effectiveTerms.length})`, icon: 'edit' }
   ];
 
+  // Filtered characteristics for Specification & Overrides tab
+  const filteredChars = useMemo(() => {
+    if (!charSearch.trim()) return chars;
+    const q = charSearch.toLowerCase().trim();
+    return chars.filter(c => {
+      const nameMatch = (c.name || '').toLowerCase().includes(q);
+      const valMatch = (
+        Array.isArray(c.productSpecCharacteristicValue)
+          ? c.productSpecCharacteristicValue.map(v => (v?.value !== undefined ? v.value : v))
+          : (Array.isArray(c.value) ? c.value : [c.value])
+      ).some(v => String(v || '').toLowerCase().includes(q));
+      return nameMatch || valMatch;
+    });
+  }, [chars, charSearch]);
+
   const getCharValues = (charName) => {
     const target = (chars || []).find(c => (c.name || '').toLowerCase() === charName.toLowerCase());
     if (!target) return [];
@@ -298,21 +330,32 @@ export default function SalesPackageDetailTemplate({
           termSkuValues = [fallbackSku];
         }
 
-        const termName = t.name || (durationAmount !== undefined ? `${durationAmount} ${durationUnits} Commitment` : `Contract Term #${termIdx + 1}`);
-        const durationLabel = durationAmount !== undefined ? `${durationAmount} ${durationUnits}` : (t.name?.match(/\d+\s*(?:month|monat|jahr|year)/i)?.[0] || 'Standard Duration');
-        const isFlex = durationAmount === 0 || termName.toLowerCase().includes('flex') || termName.toLowerCase().includes('ohne');
+        let durVal = durationAmount;
+        if (durVal === undefined || durVal === null) {
+          const matchNum = String(t.name || '').match(/(\d+)/);
+          if (matchNum) durVal = parseInt(matchNum[1], 10);
+          else durVal = 24;
+        }
+
+        const formattedUnits = String(durationUnits).toLowerCase().startsWith('month')
+          ? (durVal === 1 ? 'Month' : 'Months')
+          : (durVal === 1 ? durationUnits : `${durationUnits}s`);
+
+        const durationText = `${durVal} ${formattedUnits}`;
+        const titleText = `Contract Duration: ${durationText}`;
+        const isFlex = durVal === 0 || String(t.name || '').toLowerCase().includes('flex') || String(t.name || '').toLowerCase().includes('ohne');
         const noticePeriod = t.cancellationPeriod || extractChar(t, 'cancellation_period') || extractChar(t, 'notice_period') || '1 Month notice';
 
         termSkuValues.forEach((skuVal, skuIdx) => {
           list.push({
             id: t.id ? `${t.id}_${skuVal}` : `term-${termIdx}-${skuIdx}`,
-            name: termSkuValues.length > 1 ? `${termName} (${skuVal})` : termName,
-            durationAmount,
+            name: titleText,
+            durationAmount: durVal,
             durationUnits,
-            durationLabel,
+            durationLabel: durationText,
             isFlex,
             sku: skuVal,
-            description: t.description || (isFlex ? 'Monthly cancellable flex contract with zero minimum commitment' : (durationAmount ? `${durationAmount}-${durationUnits.toLowerCase()} minimum contract commitment` : 'Standard contract commitment term')),
+            description: t.description || null,
             validFor: t.validFor,
             cancellationPeriod: noticePeriod,
             raw: t
@@ -328,15 +371,17 @@ export default function SalesPackageDetailTemplate({
         if (!existingSkus.has(skuVal)) {
           const durMatch = String(skuVal).match(/-(\d+)$/);
           const durAmount = durMatch ? parseInt(durMatch[1], 10) : 24;
+          const formattedUnits = durAmount === 1 ? 'Month' : 'Months';
+          const durationText = `${durAmount} ${formattedUnits}`;
           list.push({
             id: `sku-extra-${sIdx}`,
-            name: `${durAmount} Months Commitment (${skuVal})`,
+            name: `Contract Duration: ${durationText}`,
             durationAmount: durAmount,
             durationUnits: 'Month',
-            durationLabel: `${durAmount} Months Commitment`,
+            durationLabel: durationText,
             isFlex: durAmount === 0,
             sku: skuVal,
-            description: 'Standard DBSS commercial selling contract term',
+            description: null,
             cancellationPeriod: '1 Month notice',
             raw: null
           });
@@ -374,29 +419,34 @@ export default function SalesPackageDetailTemplate({
 
       if (isBandwidthSpec && id) {
         const spds = detectSpeeds(rawE);
+        const skuVal = extractChar(rawE, 'sku') || extractChar(rawE, 'CFS_Specification_Code') || '';
+        const svcCode = extractChar(rawE, 'service_code') || '';
         map.set(id, {
           id,
           name: entity.name || rawE.name || id,
-          sku: extractChar(rawE, 'sku') || extractChar(rawE, 'CFS_Specification_Code') || '',
-          speeds: spds
+          sku: skuVal,
+          serviceCode: svcCode,
+          realBandwidth: svcCode || skuVal,
+          speeds: spds,
+          raw: rawE
         });
       }
     });
 
     if (map.size === 0) {
       const fallbacks = [
-        { id: 'po_IG006_FN_Options_Bandwidth', name: 'Glasfaser Bandbreite 1000 Mbit/s', sku: 'IG006', speeds: { down: 1000, up: 200 } },
-        { id: 'po_IG019_FN_Options_Bandwidth', name: 'Glasfaser Bandbreite 600 Mbit/s', sku: 'IG019', speeds: { down: 600, up: 100 } },
-        { id: 'po_IG018_FN_Options_Bandwidth', name: 'Glasfaser Bandbreite 300 Mbit/s', sku: 'IG018', speeds: { down: 300, up: 50 } },
-        { id: 'po_V018V_FN_Options_Bandwidth', name: 'DSL Bandbreite 250 Mbit/s', sku: 'IP077V018VIB', speeds: { down: 250, up: 40 } },
-        { id: 'po_V018U_FN_Options_Bandwidth', name: 'DSL Bandbreite 175 Mbit/s', sku: 'IP077V018UIB', speeds: { down: 175, up: 40 } },
-        { id: 'po_V018N_FN_Options_Bandwidth', name: 'DSL Bandbreite 100 Mbit/s', sku: 'IP076V018NIB', speeds: { down: 100, up: 40 } },
-        { id: 'po_V0185_FN_Options_Bandwidth', name: 'DSL Bandbreite 50 Mbit/s', sku: 'IP074V0185IB', speeds: { down: 50, up: 10 } },
-        { id: 'po_V018E_FN_Options_Bandwidth', name: 'DSL Bandbreite 16 Mbit/s', sku: 'IP073V018EIB', speeds: { down: 16, up: 2.4 } },
-        { id: 'po_V0178_FN_Options_Bandwidth', name: 'DSL Bandbreite 6 Mbit/s', sku: 'IP073V0178IB', speeds: { down: 6, up: 1 } },
-        { id: 'po_V0175_FN_Options_Bandwidth', name: 'DSL Bandbreite 3 Mbit/s', sku: 'IP073V0175IB', speeds: { down: 3, up: 0.5 } },
-        { id: 'po_V0174_FN_Options_Bandwidth', name: 'DSL Bandbreite 2 Mbit/s', sku: 'IP073V0174IB', speeds: { down: 2, up: 0.5 } },
-        { id: 'po_V0118_FN_Options_Bandwidth', name: 'DSL Bandbreite 1 Mbit/s', sku: 'IP073V0118IB', speeds: { down: 1, up: 0.25 } }
+        { id: 'po_IG006_FN_Options_Bandwidth', name: 'Glasfaser Bandbreite 1000 Mbit/s', sku: 'IG006', serviceCode: 'IG006', realBandwidth: 'IG006', speeds: { down: 1000, up: 200 } },
+        { id: 'po_IG019_FN_Options_Bandwidth', name: 'Glasfaser Bandbreite 600 Mbit/s', sku: 'IG019', serviceCode: 'IG019', realBandwidth: 'IG019', speeds: { down: 600, up: 100 } },
+        { id: 'po_IG018_FN_Options_Bandwidth', name: 'Glasfaser Bandbreite 300 Mbit/s', sku: 'IG018', serviceCode: 'IG018', realBandwidth: 'IG018', speeds: { down: 300, up: 50 } },
+        { id: 'po_V018V_FN_Options_Bandwidth', name: 'DSL Bandbreite 250 Mbit/s', sku: 'IP077V018VIB', serviceCode: 'V018V', realBandwidth: 'V018V', speeds: { down: 250, up: 40 } },
+        { id: 'po_V018U_FN_Options_Bandwidth', name: 'DSL Bandbreite 175 Mbit/s', sku: 'IP077V018UIB', serviceCode: 'V018U', realBandwidth: 'V018U', speeds: { down: 175, up: 40 } },
+        { id: 'po_V018N_FN_Options_Bandwidth', name: 'DSL Bandbreite 100 Mbit/s', sku: 'IP076V018NIB', serviceCode: 'V018N', realBandwidth: 'V018N', speeds: { down: 100, up: 40 } },
+        { id: 'po_V018H_FN_Options_Bandwidth', name: 'DSL Bandbreite 50 Mbit/s', sku: 'IP074V018HIB', serviceCode: 'V018H', realBandwidth: 'V018H', speeds: { down: 50, up: 10 } },
+        { id: 'po_V018C_FN_Options_Bandwidth', name: 'DSL Bandbreite 16 Mbit/s', sku: 'IP073V018CIB', serviceCode: 'V018C', realBandwidth: 'V018C', speeds: { down: 16, up: 2.4 } },
+        { id: 'po_V0178_FN_Options_Bandwidth', name: 'DSL Bandbreite 6 Mbit/s', sku: 'IP073V0178IB', serviceCode: 'V0178', realBandwidth: 'V0178', speeds: { down: 6, up: 1 } },
+        { id: 'po_V0175_FN_Options_Bandwidth', name: 'DSL Bandbreite 3 Mbit/s', sku: 'IP073V0175IB', serviceCode: 'V0175', realBandwidth: 'V0175', speeds: { down: 3, up: 0.5 } },
+        { id: 'po_V0174_FN_Options_Bandwidth', name: 'DSL Bandbreite 2 Mbit/s', sku: 'IP073V0174IB', serviceCode: 'V0174', realBandwidth: 'V0174', speeds: { down: 2, up: 0.5 } },
+        { id: 'po_V0118_FN_Options_Bandwidth', name: 'DSL Bandbreite 1 Mbit/s', sku: 'IP073V0118IB', serviceCode: 'V0118', realBandwidth: 'V0118', speeds: { down: 1, up: 0.25 } }
       ];
       fallbacks.forEach(f => map.set(f.id, f));
     }
@@ -407,7 +457,8 @@ export default function SalesPackageDetailTemplate({
   // Technology & Speeds resolution
   const resolvedTechnology = psmStructure?.technology || detectTechnology(item?.raw || item) || 'DSL';
   const resolvedDownSpeed = psmStructure?.speeds?.down || Number(getCharValues('default_bandwidth')[0]) || Number(getCharValues('downstream_bandwidth')[0]) || speedVal || 100;
-  const resolvedUpSpeed = psmStructure?.speeds?.up || Number(getCharValues('upstream_bandwidth')[0]) || (resolvedDownSpeed >= 250 ? 50 : resolvedDownSpeed >= 100 ? 40 : resolvedDownSpeed >= 50 ? 10 : 2.4);
+  const rawUpSpeedChar = getCharValues('upstream_bandwidth')[0] || getCharValues('bandwidth_upstream_max')[0] || getCharValues('upload_speed')[0] || getCharValues('speed_upload')[0] || getCharValues('bandwidth_up')[0];
+  const resolvedUpSpeed = rawUpSpeedChar ? Number(rawUpSpeedChar) : (psmStructure?.speeds?.up || null);
 
   // Fallback bandwidths: characteristic values or standard fallbacks
   const rawFallbackVals = (getCharValues('fallback_bandwidth') || []).map(v => parseInt(v, 10)).filter(n => !isNaN(n) && n > 0);
@@ -871,8 +922,8 @@ export default function SalesPackageDetailTemplate({
               <div style={{ fontSize: '11px', color: C.muted, textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.05em' }}>
                 Upload
               </div>
-              <div style={{ fontSize: '22px', fontWeight: '800', color: C.text, marginTop: '2px' }}>
-                ↑ {uploadSpeedStr}
+              <div style={{ fontSize: '22px', fontWeight: '800', color: uploadSpeedStr ? C.text : C.muted, marginTop: '2px' }}>
+                {uploadSpeedStr ? `↑ ${uploadSpeedStr}` : '—'}
               </div>
             </div>
           </div>
@@ -962,7 +1013,7 @@ export default function SalesPackageDetailTemplate({
                 <div>
                   <h3 style={{ margin: 0, fontSize: '13.5px', fontWeight: '700', color: C.text, textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <Icon name="tag" size={15} />
-                    <span>Contract Commitment & Selling SKUs</span>
+                    <span>PSM Codes & SKUs</span>
                   </h3>
                   <div style={{ fontSize: '12px', color: C.muted, marginTop: '2px' }}>
                     Commercial selling SKU codes associated with contract commitment variants and orderable fulfillment terms.
@@ -990,14 +1041,9 @@ export default function SalesPackageDetailTemplate({
                   >
                     <div>
                       {/* Header: Term Name & Status */}
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px', marginBottom: '8px' }}>
-                        <div>
-                          <div style={{ fontSize: '13px', fontWeight: '700', color: C.text }}>
-                            {ct.name}
-                          </div>
-                          <div style={{ fontSize: '11px', color: ct.isFlex ? 'var(--ds-info)' : 'var(--ds-ok)', fontWeight: '600', marginTop: '2px' }}>
-                            Duration: {ct.durationLabel}
-                          </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                        <div style={{ fontSize: '13.5px', fontWeight: '700', color: C.text }}>
+                          {ct.name}
                         </div>
                         <span style={{
                           fontSize: '10.5px',
@@ -1066,19 +1112,20 @@ export default function SalesPackageDetailTemplate({
                         </div>
                       </div>
 
-                      {/* Description */}
-                      <div style={{ fontSize: '11.5px', color: C.muted, lineHeight: '1.4', marginBottom: '6px' }}>
-                        {ct.description}
-                      </div>
-                    </div>
-
-                    {/* Footer: Notice & Validity */}
-                    <div style={{ borderTop: `1px solid ${C.cardBorder}`, paddingTop: '8px', marginTop: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11px', color: 'var(--ds-text-3)' }}>
-                      <span>Notice period: <strong>{ct.cancellationPeriod}</strong></span>
-                      {ct.raw?.validFor?.startDateTime && (
-                        <span>Valid: {new Date(ct.raw.validFor.startDateTime).toLocaleDateString()}</span>
+                      {/* Description (if present and not redundant commitment text) */}
+                      {ct.description && !ct.description.toLowerCase().includes('minimum contract commitment') && !ct.description.toLowerCase().includes('commitment') && (
+                        <div style={{ fontSize: '11.5px', color: C.muted, lineHeight: '1.4', marginBottom: '6px' }}>
+                          {ct.description}
+                        </div>
                       )}
                     </div>
+
+                    {/* Footer: Validity */}
+                    {ct.raw?.validFor?.startDateTime && (
+                      <div style={{ borderTop: `1px solid ${C.cardBorder}`, paddingTop: '8px', marginTop: '8px', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', fontSize: '11px', color: 'var(--ds-text-3)' }}>
+                        <span>Valid: {new Date(ct.raw.validFor.startDateTime).toLocaleDateString()}</span>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -1118,7 +1165,7 @@ export default function SalesPackageDetailTemplate({
                   <span>Technology & Bandwidth Configuration</span>
                 </h3>
                 <p style={{ margin: 0, fontSize: '12px', color: C.muted }}>
-                  Primary access technology, network carrier infrastructure (Vodafone NGN / Telekom Bitstream), nominal bandwidth option, and certified DSL fallback profiles.
+                  Primary access technology, network carrier infrastructure (Vodafone NGN / Telekom Bitstream), and certified DSL fallback profiles.
                 </p>
               </div>
 
@@ -1144,7 +1191,7 @@ export default function SalesPackageDetailTemplate({
                   borderRadius: '20px',
                   border: '1px solid rgba(2,132,199,0.2)'
                 }}>
-                  {resolvedDownSpeed} / {resolvedUpSpeed} Mbps
+                  {resolvedUpSpeed ? `${resolvedDownSpeed} / ${resolvedUpSpeed} Mbps` : `${resolvedDownSpeed} Mbps`}
                 </span>
                 <span style={{
                   fontSize: '11px',
@@ -1267,119 +1314,7 @@ export default function SalesPackageDetailTemplate({
               </div>
             </div>
 
-            {/* 2. Bandwidth Option & Nominal Speeds */}
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '14px',
-              paddingTop: '20px',
-              borderTop: `1px solid ${C.cardBorder}`
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '10px' }}>
-                <div>
-                  <h4 style={{ margin: '0 0 4px 0', fontSize: '13px', fontWeight: '700', color: C.text, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                    Bandwidth Option & Nominal Speeds
-                  </h4>
-                  <p style={{ margin: 0, fontSize: '12px', color: C.muted }}>
-                    Associated bandwidth offering element resolving nominal line speed and technology access tier.
-                  </p>
-                </div>
-
-                {matchingBwOffer && (
-                  <span style={{
-                    fontSize: '11px',
-                    fontWeight: '600',
-                    color: 'var(--ds-text-2)',
-                    background: 'var(--ds-surface-2)',
-                    border: '1px solid var(--ds-border)',
-                    padding: '2px 8px',
-                    borderRadius: '4px',
-                    fontFamily: 'var(--ds-font-mono)'
-                  }}>
-                    {matchingBwOffer.id}
-                  </span>
-                )}
-              </div>
-
-              {/* Bandwidth Details Cards */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
-                {/* Nominal Downstream */}
-                <div style={{
-                  background: 'var(--ds-surface-subtle)',
-                  border: `1px solid ${C.cardBorder}`,
-                  borderRadius: '8px',
-                  padding: '14px 16px'
-                }}>
-                  <div style={{ fontSize: '11px', fontWeight: '600', color: C.muted, textTransform: 'uppercase' }}>
-                    Nominal Downstream
-                  </div>
-                  <div style={{ fontSize: '24px', fontWeight: '800', color: 'var(--ds-text)', marginTop: '4px', display: 'flex', alignItems: 'baseline', gap: '6px' }}>
-                    <span>{resolvedDownSpeed}</span>
-                    <span style={{ fontSize: '13px', fontWeight: '600', color: C.muted }}>Mbit/s</span>
-                  </div>
-                  <div style={{ fontSize: '11px', color: 'var(--ds-ok)', fontWeight: '600', marginTop: '4px' }}>
-                    Max Download Rate
-                  </div>
-                </div>
-
-                {/* Nominal Upstream */}
-                <div style={{
-                  background: 'var(--ds-surface-subtle)',
-                  border: `1px solid ${C.cardBorder}`,
-                  borderRadius: '8px',
-                  padding: '14px 16px'
-                }}>
-                  <div style={{ fontSize: '11px', fontWeight: '600', color: C.muted, textTransform: 'uppercase' }}>
-                    Nominal Upstream
-                  </div>
-                  <div style={{ fontSize: '24px', fontWeight: '800', color: 'var(--ds-text)', marginTop: '4px', display: 'flex', alignItems: 'baseline', gap: '6px' }}>
-                    <span>{resolvedUpSpeed}</span>
-                    <span style={{ fontSize: '13px', fontWeight: '600', color: C.muted }}>Mbit/s</span>
-                  </div>
-                  <div style={{ fontSize: '11px', color: 'var(--ds-info)', fontWeight: '600', marginTop: '4px' }}>
-                    Max Upload Rate
-                  </div>
-                </div>
-
-                {/* Technology Access Type */}
-                <div style={{
-                  background: 'var(--ds-surface-subtle)',
-                  border: `1px solid ${C.cardBorder}`,
-                  borderRadius: '8px',
-                  padding: '14px 16px'
-                }}>
-                  <div style={{ fontSize: '11px', fontWeight: '600', color: C.muted, textTransform: 'uppercase' }}>
-                    Access Standard / Profile
-                  </div>
-                  <div style={{ fontSize: '14px', fontWeight: '700', color: 'var(--ds-text)', marginTop: '8px' }}>
-                    {accessTypeDescription}
-                  </div>
-                  <div style={{ fontSize: '11px', color: C.muted, marginTop: '4px' }}>
-                    Carrier Transport Layer
-                  </div>
-                </div>
-
-                {/* Bandwidth Option Reference */}
-                <div style={{
-                  background: 'var(--ds-surface-subtle)',
-                  border: `1px solid ${C.cardBorder}`,
-                  borderRadius: '8px',
-                  padding: '14px 16px'
-                }}>
-                  <div style={{ fontSize: '11px', fontWeight: '600', color: C.muted, textTransform: 'uppercase' }}>
-                    Bandwidth Option Offer
-                  </div>
-                  <div style={{ fontSize: '13px', fontWeight: '700', color: 'var(--ds-text)', marginTop: '6px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={matchingBwOffer?.name || 'DSL Bandbreite'}>
-                    {matchingBwOffer?.name || `${resolvedTechnology} Bandbreite ${resolvedDownSpeed} Mbit/s`}
-                  </div>
-                  <div style={{ fontSize: '11px', color: 'var(--ds-warn)', fontFamily: 'var(--ds-font-mono)', fontWeight: '600', marginTop: '4px' }}>
-                    SKU: {matchingBwOffer?.sku || '-'}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* 3. Fallback Bandwidths Selection (Copper DSL Line Profiles) */}
+            {/* 2. Fallback Bandwidths Configuration (Using Available Data Only) */}
             <div style={{
               display: 'flex',
               flexDirection: 'column',
@@ -1390,128 +1325,210 @@ export default function SalesPackageDetailTemplate({
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '10px' }}>
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <label style={{ fontSize: '13px', color: 'var(--ds-text)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                    <h4 style={{ margin: 0, fontSize: '13px', color: 'var(--ds-text)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                       Fallback Bandwidths (DSL Line Profiles)
-                    </label>
+                    </h4>
                     <span style={{
                       fontSize: '11px',
-                      fontWeight: '600',
-                      color: 'var(--ds-text-2)',
-                      background: 'var(--ds-surface-2)',
-                      border: '1px solid var(--ds-border)',
-                      padding: '1px 8px',
-                      borderRadius: '4px'
+                      fontWeight: '700',
+                      color: resolvedFallbackBandwidths.length > 0 ? 'var(--ds-ok)' : 'var(--ds-text-2)',
+                      background: resolvedFallbackBandwidths.length > 0 ? 'var(--ds-ok-soft)' : 'var(--ds-surface-2)',
+                      border: `1px solid ${resolvedFallbackBandwidths.length > 0 ? 'rgba(34,197,94,0.3)' : 'var(--ds-border)'}`,
+                      padding: '2px 8px',
+                      borderRadius: '12px'
                     }}>
-                      {resolvedFallbackBandwidths.length} active
+                      {resolvedFallbackBandwidths.length > 0 ? `${resolvedFallbackBandwidths.length} Configured` : 'None Configured'}
                     </span>
                   </div>
                   <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: C.muted }}>
-                    Certified lower-speed tiers matched by technology: I1204 NGN and I1203 Bitstream. (Note: 3 Mbit/s is exclusively an I1203 Bitstream fallback tier).
+                    Certified lower-speed profiles applicable if local line conditions cannot sustain the nominal bandwidth ({resolvedDownSpeed} Mbit/s).
                   </p>
                 </div>
-
-                {/* Fallback Summary Pills */}
-                {resolvedFallbackBandwidths.length > 0 ? (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-                    {resolvedFallbackBandwidths.map(spd => (
-                      <span key={spd} style={{
-                        fontSize: '11px',
-                        fontWeight: '700',
-                        color: 'var(--ds-ok)',
-                        background: 'var(--ds-ok-soft)',
-                        border: '1px solid rgba(34,197,94,0.3)',
-                        padding: '2px 8px',
-                        borderRadius: '4px'
-                      }}>
-                        {spd} Mbit/s
-                      </span>
-                    ))}
-                  </div>
-                ) : (
-                  <span style={{ fontSize: '11.5px', color: C.muted, fontStyle: 'italic' }}>
-                    No fallback profiles configured (Nominal Speed only)
-                  </span>
-                )}
               </div>
 
-              {/* Tiers Grid: Bandwidths matched together with Technology Type (I1204 NGN / I1203 Bitstream) */}
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
-                {VODAFONE_DSL_FALLBACK_TIERS.map(tier => {
-                  const isNominal = tier.speed === resolvedDownSpeed;
-                  const isFallback = resolvedFallbackBandwidths.includes(tier.speed);
+              {/* Display Configured Fallback Profiles Only */}
+              {resolvedFallbackBandwidths.length > 0 ? (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px' }}>
+                  {resolvedFallbackBandwidths.map(speed => {
+                    const tier = VODAFONE_DSL_FALLBACK_TIERS.find(t => t.speed === speed);
+                    const matchingOffer = (bandwidthOptionOffers || []).find(o => o.speeds?.down === speed || (tier?.svcBw && (o.serviceCode === tier.svcBw || o.realBandwidth === tier.svcBw)));
+                    const upSpeed = tier?.upload || (speed >= 100 ? 40 : speed >= 50 ? 10 : 2.4);
+                    const networkBadge = tier?.technologyBadge || tier?.technology || (tier?.isBitstreamOnly ? 'I1203 Bitstream Only' : 'I1204 NGN / I1203 Bitstream');
 
-                  return (
-                    <div
-                      key={tier.speed}
-                      style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        padding: '6px 12px',
-                        borderRadius: '6px',
-                        border: `1px solid ${isNominal ? 'var(--ds-brand)' : isFallback ? 'var(--ds-ok)' : (tier.isBitstreamOnly ? '#d8b4fe' : 'var(--ds-border)')}`,
-                        background: isNominal
-                          ? 'var(--ds-brand-soft)'
-                          : isFallback
-                            ? 'var(--ds-ok-soft)'
-                            : (tier.isBitstreamOnly ? '#faf5ff' : 'var(--ds-surface-subtle)'),
-                        color: isNominal
-                          ? 'var(--ds-brand)'
-                          : isFallback
-                            ? 'var(--ds-ok)'
-                            : 'var(--ds-text-2)',
-                        fontSize: '12px',
-                        fontWeight: (isNominal || isFallback) ? '700' : '500',
-                        boxShadow: (isNominal || isFallback) ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
-                      }}
-                      title={`${tier.name} — Down: ${tier.speed} Mbit/s, Up: ${tier.up} Mbit/s${tier.isBitstreamOnly ? ' (Telekom Bitstream Only)' : ''}`}
-                    >
-                      <span style={{ fontFamily: 'var(--ds-font-mono)', fontWeight: '700' }}>
-                        {tier.speed} M
-                      </span>
-                      <span style={{ fontSize: '11px', color: 'var(--ds-text-3)' }}>
-                        ({tier.name})
-                      </span>
-                      {isNominal && (
-                        <span style={{
-                          fontSize: '10px',
-                          background: 'var(--ds-brand)',
-                          color: '#ffffff',
-                          padding: '1px 6px',
-                          borderRadius: '3px',
-                          fontWeight: '700'
-                        }}>
-                          Nominal
-                        </span>
-                      )}
-                      {isFallback && !isNominal && (
-                        <span style={{
-                          fontSize: '10px',
-                          background: 'var(--ds-ok)',
-                          color: '#ffffff',
-                          padding: '1px 6px',
-                          borderRadius: '3px',
-                          fontWeight: '700'
-                        }}>
-                          Fallback
-                        </span>
-                      )}
-                      {tier.isBitstreamOnly && (
-                        <span style={{
-                          fontSize: '10px',
-                          background: '#f3e8ff',
-                          color: '#7e22ce',
-                          padding: '1px 5px',
-                          borderRadius: '3px',
-                          fontWeight: '600'
-                        }}>
-                          Bitstream only
-                        </span>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
+                    return (
+                      <div
+                        key={speed}
+                        style={{
+                          background: 'var(--ds-surface-subtle)',
+                          border: `1px solid ${C.cardBorder}`,
+                          borderRadius: '8px',
+                          padding: '14px 16px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '10px'
+                        }}
+                      >
+                        {/* Speed & Network Header */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                          <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+                            <span style={{ fontSize: '22px', fontWeight: '800', color: 'var(--ds-text)', fontFamily: 'var(--ds-font-mono)' }}>
+                              {speed}
+                            </span>
+                            <span style={{ fontSize: '13px', fontWeight: '600', color: C.muted }}>
+                              Mbit/s
+                            </span>
+                            <span style={{ fontSize: '11px', color: 'var(--ds-ok)', fontWeight: '600', marginLeft: '4px' }}>
+                              (↑ {upSpeed} Mbit/s)
+                            </span>
+                          </div>
+                          <span style={{
+                            fontSize: '10.5px',
+                            fontWeight: '700',
+                            padding: '2px 8px',
+                            borderRadius: '4px',
+                            background: tier?.isBitstreamOnly ? '#faf5ff' : 'var(--ds-ok-soft)',
+                            color: tier?.isBitstreamOnly ? '#7e22ce' : 'var(--ds-ok)',
+                            border: `1px solid ${tier?.isBitstreamOnly ? '#d8b4fe' : 'rgba(34,197,94,0.3)'}`
+                          }}>
+                            {networkBadge}
+                          </span>
+                        </div>
+
+                        {/* Profile & Code Details */}
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '11.5px', borderTop: `1px solid ${C.border}`, paddingTop: '8px' }}>
+                          {tier?.svcBw && (
+                            <div>
+                              <span style={{ color: C.muted, display: 'block', fontSize: '10.5px', fontWeight: '600' }}>Real Bandwidth:</span>
+                              <button
+                                type="button"
+                                onClick={() => setInspectedBandwidth({ tier, matchingOffer })}
+                                style={{
+                                  background: 'none',
+                                  border: 'none',
+                                  padding: 0,
+                                  margin: 0,
+                                  cursor: 'pointer',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '4px'
+                                }}
+                                title={`Click to view details for Real Bandwidth ${tier.svcBw}`}
+                              >
+                                <code style={{
+                                  fontWeight: '800',
+                                  color: 'var(--ds-brand)',
+                                  fontFamily: 'var(--ds-font-mono)',
+                                  fontSize: '12px',
+                                  textDecoration: 'underline',
+                                  textDecorationColor: 'rgba(230,0,0,0.35)',
+                                  textUnderlineOffset: '2px'
+                                }}>
+                                  {tier.svcBw}
+                                </code>
+                                <Icon name="arrowUpRight" size={11} style={{ color: 'var(--ds-brand)' }} />
+                              </button>
+                            </div>
+                          )}
+                          {tier?.sku && (
+                            <div>
+                              <span style={{ color: C.muted, display: 'block', fontSize: '10.5px', fontWeight: '600' }}>Offer SKU:</span>
+                              <button
+                                type="button"
+                                onClick={() => setInspectedBandwidth({ tier, matchingOffer })}
+                                style={{
+                                  background: 'none',
+                                  border: 'none',
+                                  padding: 0,
+                                  margin: 0,
+                                  cursor: 'pointer',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '4px'
+                                }}
+                                title={`Click to view details for Offer SKU ${tier.sku}`}
+                              >
+                                <code style={{
+                                  fontWeight: '700',
+                                  color: '#d97706',
+                                  fontFamily: 'var(--ds-font-mono)',
+                                  fontSize: '11.5px',
+                                  textDecoration: 'underline',
+                                  textDecorationColor: 'rgba(217, 119, 6, 0.4)',
+                                  textUnderlineOffset: '2px'
+                                }}>
+                                  {tier.sku}
+                                </code>
+                                <Icon name="arrowUpRight" size={11} style={{ color: '#d97706' }} />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+
+                        {tier?.desc && (
+                          <div style={{ fontSize: '11px', color: C.muted, lineHeight: '1.4' }}>
+                            {tier.desc}
+                          </div>
+                        )}
+
+                        {matchingOffer && (
+                          <div style={{
+                            fontSize: '11px',
+                            color: 'var(--ds-text-2)',
+                            background: '#ffffff',
+                            border: `1px solid ${C.border}`,
+                            borderRadius: '4px',
+                            padding: '5px 8px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            gap: '6px'
+                          }}>
+                            <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              <span style={{ color: C.muted }}>Option Offer: </span>
+                              <span style={{ fontWeight: '600' }}>{matchingOffer.name || matchingOffer.id}</span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => setInspectedBandwidth({ tier, matchingOffer })}
+                              style={{
+                                background: 'none',
+                                border: 'none',
+                                padding: '2px 4px',
+                                cursor: 'pointer',
+                                color: 'var(--ds-brand)',
+                                fontWeight: '700',
+                                fontSize: '10.5px',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '3px'
+                              }}
+                              title="Inspect Offering Details"
+                            >
+                              <span>Details</span>
+                              <Icon name="arrowUpRight" size={11} />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div style={{
+                  padding: '16px',
+                  background: 'var(--ds-surface-subtle)',
+                  border: `1px solid ${C.cardBorder}`,
+                  borderRadius: '8px',
+                  fontSize: '12px',
+                  color: C.muted,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}>
+                  <Icon name="info" size={15} color={C.muted} />
+                  <span>No fallback profiles configured for this package (operates at nominal speed of {resolvedDownSpeed} Mbit/s only).</span>
+                </div>
+              )}
 
               {/* Characteristic Values Summary Bar */}
               <div style={{
@@ -1527,7 +1544,7 @@ export default function SalesPackageDetailTemplate({
                 fontSize: '12px'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                  <span style={{ fontWeight: '600', color: 'var(--ds-text)' }}>Offering Characteristics:</span>
+                  <span style={{ fontWeight: '600', color: 'var(--ds-text)' }}>Offering Characteristic:</span>
                   <code style={{
                     background: 'var(--ds-surface)',
                     border: '1px solid var(--ds-border)',
@@ -1536,24 +1553,6 @@ export default function SalesPackageDetailTemplate({
                     fontFamily: 'var(--ds-font-mono)'
                   }}>
                     fallback_bandwidth = "{resolvedFallbackBandwidths.length > 0 ? resolvedFallbackBandwidths.join(', ') : 'none'}"
-                  </code>
-                  <code style={{
-                    background: 'var(--ds-surface)',
-                    border: '1px solid var(--ds-border)',
-                    padding: '2px 8px',
-                    borderRadius: '4px',
-                    fontFamily: 'var(--ds-font-mono)'
-                  }}>
-                    default_bandwidth = "{resolvedDownSpeed}"
-                  </code>
-                  <code style={{
-                    background: 'var(--ds-surface)',
-                    border: '1px solid var(--ds-border)',
-                    padding: '2px 8px',
-                    borderRadius: '4px',
-                    fontFamily: 'var(--ds-font-mono)'
-                  }}>
-                    upstream_bandwidth = "{resolvedUpSpeed}"
                   </code>
                 </div>
 
@@ -3699,17 +3698,74 @@ export default function SalesPackageDetailTemplate({
 
           {/* Characteristics Overrides Grid */}
           <div style={{ background: C.panel, border: `1px solid ${C.cardBorder}`, borderRadius: '10px', padding: '18px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-            <h3 style={{ margin: '0 0 14px 0', fontSize: '14px', fontWeight: '700', color: C.text, display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span><Icon name="settings" size={14} /> Spec Characteristic Overrides ({chars.length})</span>
-            </h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap', gap: '12px' }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '14px', fontWeight: '700', color: C.text, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span><Icon name="settings" size={14} /> Spec Characteristic Overrides</span>
+                  <span style={{ fontSize: '11px', background: 'rgba(2,132,199,0.1)', color: 'var(--ds-info)', padding: '2px 8px', borderRadius: '10px', fontWeight: '700' }}>
+                    {filteredChars.length} / {chars.length}
+                  </span>
+                </h3>
+                <p style={{ margin: '3px 0 0 0', fontSize: '12px', color: C.muted }}>
+                  Characteristic values and parameters configured on this sales package.
+                </p>
+              </div>
 
-            {chars.length === 0 ? (
-              <div style={{ fontSize: '12px', color: C.muted, fontStyle: 'italic', padding: '8px 0' }}>
-                No characteristic overrides present on this offering.
+              {/* Filter by Characteristic Name */}
+              {chars.length > 0 && (
+                <div style={{ position: 'relative', minWidth: '240px', maxWidth: '340px', width: '100%' }}>
+                  <input
+                    type="text"
+                    placeholder="Filter by characteristic name..."
+                    value={charSearch}
+                    onChange={(e) => setCharSearch(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '7px 28px 7px 30px',
+                      fontSize: '12px',
+                      borderRadius: '6px',
+                      border: `1px solid ${C.cardBorder}`,
+                      background: 'var(--ds-surface-subtle)',
+                      color: C.text,
+                      outline: 'none',
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                  <span style={{ position: 'absolute', left: '9px', top: '50%', transform: 'translateY(-50%)', color: C.muted, pointerEvents: 'none', display: 'flex', alignItems: 'center' }}>
+                    <Icon name="search" size={13} />
+                  </span>
+                  {charSearch && (
+                    <button
+                      onClick={() => setCharSearch('')}
+                      title="Clear filter"
+                      style={{
+                        position: 'absolute',
+                        right: '8px',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        background: 'none',
+                        border: 'none',
+                        color: C.muted,
+                        cursor: 'pointer',
+                        fontSize: '13px',
+                        padding: 0,
+                        lineHeight: 1
+                      }}
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {filteredChars.length === 0 ? (
+              <div style={{ padding: '20px', textAlign: 'center', color: C.muted, fontSize: '12px', fontStyle: 'italic', background: 'var(--ds-surface-subtle)', borderRadius: '8px' }}>
+                {charSearch ? `No characteristics matching "${charSearch}".` : 'No characteristic overrides present on this offering.'}
               </div>
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '8px' }}>
-                {chars.map((char, i) => (
+                {filteredChars.map((char, i) => (
                   <div key={i} style={{ background: 'var(--ds-surface-subtle)', border: `1px solid ${C.cardBorder}`, borderRadius: '6px', padding: '10px 12px' }}>
                     <div style={{ fontSize: '12px', fontWeight: '600', color: C.text }}>{char.name}</div>
                     <div style={{ fontSize: '11px', color: 'var(--ds-info)', marginTop: '2px', wordBreak: 'break-all' }}>
@@ -3771,6 +3827,18 @@ export default function SalesPackageDetailTemplate({
             </div>
           )}
         </div>
+      )}
+
+      {/* ─── Bandwidth SKU Detail Modal ─── */}
+      {inspectedBandwidth && (
+        <BandwidthSkuDetailModal
+          isOpen={Boolean(inspectedBandwidth)}
+          onClose={() => setInspectedBandwidth(null)}
+          tier={inspectedBandwidth.tier}
+          matchingOffer={inspectedBandwidth.matchingOffer}
+          allEntities={allEntities}
+          onNavigateToEntity={onNavigateToEntity}
+        />
       )}
     </div>
   );

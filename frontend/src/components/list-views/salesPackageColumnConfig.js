@@ -35,8 +35,8 @@ export function extractSpeedProfile(item) {
   if (downChar) {
     const downNum = parseInt(downChar, 10) || 0;
     const downStr = downChar.includes('bps') ? downChar : (downNum >= 1000 ? `${downNum / 1000} Gbps` : `${downChar} Mbps`);
-    const upStr = upChar ? (upChar.includes('bps') ? upChar : `${upChar} Mbps`) : `${Math.round(downNum * 0.5)} Mbps`;
-    const upNum = upChar ? (parseInt(upChar, 10) || 0) : Math.round(downNum * 0.5);
+    const upNum = upChar ? (parseFloat(upChar) || null) : null;
+    const upStr = upChar ? (upChar.includes('bps') ? upChar : `${upChar} Mbps`) : '';
     return {
       download: downStr,
       upload: upStr,
@@ -45,7 +45,7 @@ export function extractSpeedProfile(item) {
       tech: detectAccessTechnology(item),
       inferred: false,
       upInferred: false,
-      summary: `${downStr} ↓ / ${upStr} ↑`
+      summary: upStr ? `${downStr} ↓ / ${upStr} ↑` : `${downStr} ↓`
     };
   }
 
@@ -58,13 +58,8 @@ export function extractSpeedProfile(item) {
   const speedVal = match ? parseInt(match[1], 10) : (isFiber ? 1000 : 100);
 
   const downStr = speedVal >= 1000 ? `${speedVal / 1000} Gbps` : `${speedVal} Mbps`;
-  const upStr = isFiber
-    ? (speedVal >= 1000 ? '500 Mbps' : `${Math.round(speedVal * 0.5)} Mbps`)
-    : `${Math.min(40, Math.round(speedVal * 0.25))} Mbps`;
-
-  const upNum = isFiber
-    ? (speedVal >= 1000 ? 500 : Math.round(speedVal * 0.5))
-    : Math.min(40, Math.round(speedVal * 0.25));
+  const upNum = upChar ? (parseFloat(upChar) || null) : null;
+  const upStr = upChar ? (upChar.includes('bps') ? upChar : `${upChar} Mbps`) : '';
 
   return {
     download: downStr,
@@ -74,7 +69,7 @@ export function extractSpeedProfile(item) {
     tech: detectAccessTechnology(item),
     inferred: false,
     upInferred: false,
-    summary: `${downStr} ↓ / ${upStr} ↑`
+    summary: upStr ? `${downStr} ↓ / ${upStr} ↑` : `${downStr} ↓`
   };
 }
 
@@ -254,8 +249,8 @@ export const AVAILABLE_COLUMNS = [
   },
   {
     key: 'psm_code',
-    label: 'PSM Code',
-    description: 'PSM packet identifier extracted via JSONPath from psm_aaw_packet_id characteristic',
+    label: 'PKAT Id',
+    description: 'PKAT packet identifier extracted via JSONPath from psm_aaw_packet_id characteristic',
     jsonPath: '$.prodSpecCharValueUse[?(@.name=="psm_aaw_packet_id")].productSpecCharacteristicValue[*].value || $.prodSpecCharValueUse[?(@.name=="psmAawPacketId")].productSpecCharacteristicValue[*].value || $.prodSpecCharValueUse[?(@.name=="PSM_AAW_PACKET_ID")].productSpecCharacteristicValue[*].value || $.prodSpecCharValueUse[?(@.name=="psm_packet_id")].productSpecCharacteristicValue[*].value || $.prodSpecCharValueUse[?(@.name=="psm_code")].productSpecCharacteristicValue[*].value || $.psm_aaw_packet_id',
     width: '160px',
     minWidth: '140px',
@@ -263,13 +258,13 @@ export const AVAILABLE_COLUMNS = [
     sortable: true,
     filterable: true,
     filterType: 'text',
-    codeLabel: 'PSM',
+    codeLabel: 'PKAT',
     badgeStyle: { color: 'var(--ds-ok)', bg: 'rgba(16,185,129,0.1)', border: 'rgba(16,185,129,0.25)' }
   },
   {
     key: 'ngn_packet_codes',
-    label: 'NGN Packet Codes',
-    description: 'Vodafone NGN sales packet codes (e.g. PI216, PF340) resolved from structure and characteristics',
+    label: 'NGN PSM Code',
+    description: 'Vodafone NGN PSM sales packet codes (e.g. PI216, PF340) resolved from structure and characteristics',
     jsonPath: '$.prodSpecCharValueUse[?(@.name=="psm_sales_packet_code_internet_ngn")].productSpecCharacteristicValue[*].value || $.prodSpecCharValueUse[?(@.name=="psm_sales_packet_code_voice_ngn")].productSpecCharacteristicValue[*].value || $.prodSpecCharValueUse[?(@.name=="psm_sales_packet_code_ngn")].productSpecCharacteristicValue[*].value || $.prodSpecCharValueUse[?(@.name=="psm_sales_packet_code")].productSpecCharacteristicValue[*].value',
     accessor: (item) => extractNgnPacketCodes(item),
     width: '170px',
@@ -283,8 +278,8 @@ export const AVAILABLE_COLUMNS = [
   },
   {
     key: 'bitstream_packet_codes',
-    label: 'Bitstream Packet Codes',
-    description: 'Telekom Bitstream wholesale sales packet codes (e.g. PR403, PR411) resolved from structure and characteristics',
+    label: 'Bitstream PSM Code',
+    description: 'Telekom Bitstream wholesale PSM sales packet codes (e.g. PR403, PR411) resolved from structure and characteristics',
     jsonPath: '$.prodSpecCharValueUse[?(@.name=="psm_sales_packet_code_internet_bitstream")].productSpecCharacteristicValue[*].value || $.prodSpecCharValueUse[?(@.name=="psm_sales_packet_code_voice_bitstream")].productSpecCharacteristicValue[*].value || $.prodSpecCharValueUse[?(@.name=="psm_sales_packet_code_bitstream")].productSpecCharacteristicValue[*].value || $.prodSpecCharValueUse[?(@.name=="psm_sales_packet_code_internet_vpn")].productSpecCharacteristicValue[*].value || $.prodSpecCharValueUse[?(@.name=="psm_sales_packet_code")].productSpecCharacteristicValue[*].value',
     accessor: (item) => extractBitstreamPacketCodes(item),
     width: '180px',

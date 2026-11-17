@@ -690,6 +690,7 @@ export default function DnextEntityDrawer({ item, isOpen, onClose, onPurge, allE
                   onSuccessRefresh={onSuccessRefresh}
                   activeEnv={activeEnv}
                   token={token}
+                  onNavigateToEntity={(entity, explicitType) => handleNavigateToEntity(entity, explicitType || 'ProductOffering')}
                 />
               )}
               {selectedTemplateId === 'sales_package' && (
@@ -698,6 +699,7 @@ export default function DnextEntityDrawer({ item, isOpen, onClose, onPurge, allE
                   allEntities={allEntities}
                   onNavigateToPrice={(pop) => handleNavigateToEntity(pop, 'ProductOfferingPrice')}
                   onNavigateToCategory={(cat) => handleNavigateToEntity(cat, 'Category')}
+                  onNavigateToEntity={(entity, explicitType) => handleNavigateToEntity(entity, explicitType || 'ProductOffering')}
                   copyToClipboard={copyToClipboard}
                   copiedKey={copiedKey}
                   onUpdateItem={handleUpdateCurrentItem}

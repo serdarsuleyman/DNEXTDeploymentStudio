@@ -115,10 +115,13 @@ export function detectSpeeds(offering) {
     down = m ? parseInt(m[1], 10) : 100;
   }
 
-  let up = getDefaultUploadSpeed(down);
-  const upChar = extractChar(offering, 'upstream_bandwidth') || extractChar(offering, 'bandwidth_upstream_max');
-  const parsedUp = parseInt(upChar, 10);
-  if (!isNaN(parsedUp) && parsedUp > 0) up = parsedUp;
+  const upChar = extractChar(offering, 'upstream_bandwidth') ||
+    extractChar(offering, 'bandwidth_upstream_max') ||
+    extractChar(offering, 'upload_speed') ||
+    extractChar(offering, 'speed_upload') ||
+    extractChar(offering, 'bandwidth_up');
+  const parsedUp = upChar ? parseFloat(upChar) : null;
+  const up = (!isNaN(parsedUp) && parsedUp > 0) ? parsedUp : null;
 
   return { down, up };
 }
@@ -276,11 +279,17 @@ export function extractTermsAndSkus(offering, masterPacketId = null) {
 
         skuValues.forEach((skuVal, sIdx) => {
           const pkt = skuVal.includes('-') ? skuVal.split('-')[0] : mPacket;
+          const durUnits = String(units || 'Month').toLowerCase().startsWith('month')
+            ? (amount === 1 ? 'Month' : 'Months')
+            : (amount === 1 ? units : `${units}s`);
+          const cleanName = (t.name && !t.name.toLowerCase().includes('minimum_contract_duration') && !t.name.toLowerCase().includes('mminimum_contract_duration'))
+            ? t.name
+            : `Contract Duration: ${amount} ${durUnits}`;
           terms.push({
             id: t.id ? `${t.id}_${skuVal}` : `term_${amount}_${idx}_${sIdx}`,
             packetId: pkt,
-            name: t.name || 'minimum_contract_duration',
-            description: `${amount} ${units}s Commitment`,
+            name: cleanName,
+            description: t.description || null,
             duration: { amount, units },
             sku: skuVal,
             isDefault: amount === 24 && sIdx === 0
@@ -301,8 +310,8 @@ export function extractTermsAndSkus(offering, masterPacketId = null) {
       terms.push({
         id: `term_${amount}_${skuVal}`,
         packetId: pkt,
-        name: 'minimum_contract_duration',
-        description: `${amount} Months Commitment`,
+        name: `Contract Duration: ${amount} Months`,
+        description: null,
         duration: { amount, units: 'Month' },
         sku: skuVal,
         isDefault: amount === 24 && idx === 0
@@ -315,8 +324,8 @@ export function extractTermsAndSkus(offering, masterPacketId = null) {
     terms.push({
       id: 'term_24',
       packetId: mPacket,
-      name: 'minimum_contract_duration',
-      description: '24 Months Commitment',
+      name: 'Contract Duration: 24 Months',
+      description: null,
       duration: { amount: 24, units: 'Month' },
       sku: `${mPacket}-24`,
       isDefault: true

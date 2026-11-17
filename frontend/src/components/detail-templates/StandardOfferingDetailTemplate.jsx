@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import Icon from '../ui/Icon';
 import SearchableSpecSelect from '../ui/SearchableSpecSelect';
+import SearchableCategorySelect from '../ui/SearchableCategorySelect';
+import SearchableOfferingPriceSelect from '../ui/SearchableOfferingPriceSelect';
 import { LifecyclePill, VersionCell } from '../list-views/cellRenderers';
 import { isOptionSpec, isHardwareSpec } from './viewTemplateRegistry';
 import { lookupCatalogCategory, getAllCatalogCategories } from '../../utils/categoryResolver';
@@ -21,6 +23,21 @@ const C = {
   warning: 'var(--ds-warn)',
   danger: 'var(--ds-brand)'
 };
+
+/**
+ * Calculates the next version string for entity updates (e.g. "1" -> "2", "1.0" -> "2.0" or "1.1")
+ */
+export function calculateNextVersion(currentVersion) {
+  const v = String(currentVersion !== undefined && currentVersion !== null ? currentVersion : '1').trim();
+  if (/^\d+$/.test(v)) {
+    return String(parseInt(v, 10) + 1);
+  }
+  if (/^\d+\.\d+$/.test(v)) {
+    const parts = v.split('.');
+    return `${parts[0]}.${parseInt(parts[1], 10) + 1}`;
+  }
+  return `${v}.1`;
+}
 
 /**
  * Categorizes a child POP by role based on its ID and naming conventions:
@@ -333,13 +350,21 @@ export default function StandardOfferingDetailTemplate({
 
   // Working copy of data during edit
   // Note: Name and ID fields are strictly unique and immutable in DNEXT Product Catalog (agent.md)
+  const currentVersionStr = String(item?.version !== undefined ? item.version : (raw.version !== undefined ? raw.version : '1'));
+  const nextVersionStr = calculateNextVersion(currentVersionStr);
+
   const [formData, setFormData] = useState({
+    version: nextVersionStr,
     description: raw.description || '',
     lifecycleStatus: item?.lifecycleStatus || 'Launched',
     startDate: raw.validFor?.startDateTime ? raw.validFor.startDateTime.split('T')[0] : '',
     endDate: raw.validFor?.endDateTime ? raw.validFor.endDateTime.split('T')[0] : '',
     categories: Array.isArray(raw.category) ? raw.category : [],
-    chars: Array.isArray(raw.prodSpecCharValueUse) ? raw.prodSpecCharValueUse : (Array.isArray(raw.productSpecCharacteristic) ? raw.productSpecCharacteristic : []),
+    chars: (Array.isArray(raw.prodSpecCharValueUse) && raw.prodSpecCharValueUse.length > 0)
+      ? raw.prodSpecCharValueUse
+      : ((Array.isArray(raw.productSpecCharacteristic) && raw.productSpecCharacteristic.length > 0)
+        ? raw.productSpecCharacteristic
+        : (Array.isArray(raw.prodSpecCharUse) ? raw.prodSpecCharUse : [])),
     pops: Array.isArray(raw.productOfferingPrice) ? raw.productOfferingPrice : [],
     spec: specObj ? {
       id: specObj.id,
@@ -351,13 +376,20 @@ export default function StandardOfferingDetailTemplate({
   });
 
   useEffect(() => {
+    const currVer = String(item?.version !== undefined ? item.version : (raw.version !== undefined ? raw.version : '1'));
+    const nxtVer = calculateNextVersion(currVer);
     setFormData({
+      version: nxtVer,
       description: raw.description || '',
       lifecycleStatus: item?.lifecycleStatus || 'Launched',
       startDate: raw.validFor?.startDateTime ? raw.validFor.startDateTime.split('T')[0] : '',
       endDate: raw.validFor?.endDateTime ? raw.validFor.endDateTime.split('T')[0] : '',
       categories: Array.isArray(raw.category) ? raw.category : [],
-      chars: Array.isArray(raw.prodSpecCharValueUse) ? raw.prodSpecCharValueUse : (Array.isArray(raw.productSpecCharacteristic) ? raw.productSpecCharacteristic : []),
+      chars: (Array.isArray(raw.prodSpecCharValueUse) && raw.prodSpecCharValueUse.length > 0)
+        ? raw.prodSpecCharValueUse
+        : ((Array.isArray(raw.productSpecCharacteristic) && raw.productSpecCharacteristic.length > 0)
+          ? raw.productSpecCharacteristic
+          : (Array.isArray(raw.prodSpecCharUse) ? raw.prodSpecCharUse : [])),
       pops: Array.isArray(raw.productOfferingPrice) ? raw.productOfferingPrice : [],
       spec: specObj ? {
         id: specObj.id,
@@ -372,19 +404,32 @@ export default function StandardOfferingDetailTemplate({
   }, [item?.id, item?.version, specObj]);
 
   const handleStartEdit = () => {
+    const currVer = String(item?.version !== undefined ? item.version : (raw.version !== undefined ? raw.version : '1'));
+    const nxtVer = calculateNextVersion(currVer);
+    setFormData(prev => ({
+      ...prev,
+      version: nxtVer
+    }));
     setIsEditing(true);
     setIsDirty(false);
     setSaveFeedback(null);
   };
 
   const handleCancelEdit = () => {
+    const currVer = String(item?.version !== undefined ? item.version : (raw.version !== undefined ? raw.version : '1'));
+    const nxtVer = calculateNextVersion(currVer);
     setFormData({
+      version: nxtVer,
       description: raw.description || '',
       lifecycleStatus: item?.lifecycleStatus || 'Launched',
       startDate: raw.validFor?.startDateTime ? raw.validFor.startDateTime.split('T')[0] : '',
       endDate: raw.validFor?.endDateTime ? raw.validFor.endDateTime.split('T')[0] : '',
       categories: Array.isArray(raw.category) ? raw.category : [],
-      chars: Array.isArray(raw.prodSpecCharValueUse) ? raw.prodSpecCharValueUse : (Array.isArray(raw.productSpecCharacteristic) ? raw.productSpecCharacteristic : []),
+      chars: (Array.isArray(raw.prodSpecCharValueUse) && raw.prodSpecCharValueUse.length > 0)
+        ? raw.prodSpecCharValueUse
+        : ((Array.isArray(raw.productSpecCharacteristic) && raw.productSpecCharacteristic.length > 0)
+          ? raw.productSpecCharacteristic
+          : (Array.isArray(raw.prodSpecCharUse) ? raw.prodSpecCharUse : [])),
       pops: Array.isArray(raw.productOfferingPrice) ? raw.productOfferingPrice : [],
       spec: specObj ? {
         id: specObj.id,
@@ -426,7 +471,8 @@ export default function StandardOfferingDetailTemplate({
       const nextChars = [...prev.chars];
       const char = { ...nextChars[charIndex] };
       if (Array.isArray(char.productSpecCharacteristicValue)) {
-        char.productSpecCharacteristicValue = [{ value: val }];
+        const first = char.productSpecCharacteristicValue[0] || {};
+        char.productSpecCharacteristicValue = [{ ...first, value: val }];
       } else if (Array.isArray(char.value)) {
         char.value = [val];
       } else {
@@ -464,17 +510,18 @@ export default function StandardOfferingDetailTemplate({
     setIsDirty(true);
   };
 
-  const handleAddCategory = (catId) => {
-    if (!catId) return;
-    const catObj = lookupCatalogCategory(catId) || allEntities.find(e => e.id === catId);
+  const handleAddCategory = (catOrId) => {
+    if (!catOrId) return;
+    const catId = typeof catOrId === 'string' ? catOrId : (catOrId.id || catOrId.name);
+    const catObj = typeof catOrId === 'object' ? catOrId : (lookupCatalogCategory(catId) || allEntities.find(e => e.id === catId));
     const catEntry = {
       id: catId,
       name: catObj?.name || catId,
-      href: `/api/productCatalogManagement/v4/category/${catId}`,
+      href: catObj?.href || `/api/productCatalogManagement/v4/category/${catId}`,
       '@referredType': 'Category'
     };
     setFormData(prev => {
-      if (prev.categories.some(c => (c?.id || c) === catId)) return prev;
+      if (prev.categories.some(c => (c?.id || c) === catId || (c?.name && c.name === catEntry.name))) return prev;
       return {
         ...prev,
         categories: [...prev.categories, catEntry]
@@ -484,10 +531,16 @@ export default function StandardOfferingDetailTemplate({
     setIsDirty(true);
   };
 
-  const handleRemoveCategory = (catId) => {
+  const handleRemoveCategory = (catIdOrName) => {
+    if (!catIdOrName) return;
+    const targetStr = String(typeof catIdOrName === 'string' ? catIdOrName : (catIdOrName.id || catIdOrName.name)).toLowerCase();
     setFormData(prev => ({
       ...prev,
-      categories: prev.categories.filter(c => (c?.id || c) !== catId)
+      categories: prev.categories.filter(c => {
+        const cId = String(c?.id || c || '').toLowerCase();
+        const cName = String(c?.name || '').toLowerCase();
+        return cId !== targetStr && cName !== targetStr;
+      })
     }));
     setIsDirty(true);
   };
@@ -517,6 +570,39 @@ export default function StandardOfferingDetailTemplate({
     setIsDirty(true);
   };
 
+  const availableCatalogPops = useMemo(() => {
+    if (!Array.isArray(allEntities)) return [];
+    return allEntities
+      .filter(e => (e.entityType === 'ProductOfferingPrice' || e.raw?.['@type'] === 'ProductOfferingPrice') &&
+        !formData.pops.some(p => (typeof p === 'string' ? p : p?.id) === (e.id || e.raw?.id))
+      )
+      .map(e => e.raw || e);
+  }, [allEntities, formData.pops]);
+
+  const handleAssignCatalogPop = (popId) => {
+    if (!popId) return;
+    const popEntity = (allEntities || []).find(e => (e.id === popId || e.raw?.id === popId));
+    const popData = popEntity?.raw || popEntity || { id: popId };
+    const popEntry = {
+      id: popData.id || popId,
+      name: popData.name || popId,
+      priceType: popData.priceType || 'Recurring charge',
+      price: popData.price || { value: 0, unit: 'EUR' },
+      recurringChargePeriodType: popData.recurringChargePeriodType || 'monthly',
+      version: popData.version !== undefined ? String(popData.version) : '1',
+      href: popData.href || `/api/productCatalogManagement/v4/productOfferingPrice/${popData.id || popId}`,
+      '@referredType': 'ProductOfferingPrice'
+    };
+    setFormData(prev => {
+      if (prev.pops.some(p => (typeof p === 'string' ? p : p?.id) === popEntry.id)) return prev;
+      return {
+        ...prev,
+        pops: [...prev.pops, popEntry]
+      };
+    });
+    setIsDirty(true);
+  };
+
   const handlePopFieldChange = (popIndex, field, val) => {
     setFormData(prev => {
       const nextPops = [...prev.pops];
@@ -537,8 +623,10 @@ export default function StandardOfferingDetailTemplate({
 
   const handleSave = () => {
     // Note: Name and ID fields are strictly unique and immutable in DNEXT Product Catalog (agent.md)
+    const newVersion = formData.version || calculateNextVersion(item?.version !== undefined ? item.version : (raw.version || '1'));
     const updatedRaw = {
       ...raw,
+      version: newVersion,
       description: (formData.description || '').trim(),
       lifecycleStatus: formData.lifecycleStatus,
       validFor: {
@@ -554,6 +642,7 @@ export default function StandardOfferingDetailTemplate({
 
     const updatedItem = {
       ...item,
+      version: newVersion,
       lifecycleStatus: formData.lifecycleStatus,
       productSpecification: (isOption && formData.spec) ? formData.spec : (item?.productSpecification || specObj),
       raw: updatedRaw
@@ -567,7 +656,7 @@ export default function StandardOfferingDetailTemplate({
     setIsDirty(false);
     setSaveFeedback({
       type: 'success',
-      message: `Option "${item?.name || item?.id}" updated in local state (ready for release management persistence).`
+      message: `Option "${item?.name || item?.id}" updated to new version v${newVersion} in document JSON (in-memory).`
     });
     setTimeout(() => setSaveFeedback(null), 4500);
   };
@@ -620,9 +709,10 @@ export default function StandardOfferingDetailTemplate({
   const hasSpeeds = Boolean(speedVal && (itemId.includes('bandwidth') || itemName.includes('bandbreite') || itemId.includes('dsl') || itemId.includes('ftth') || itemName.includes('glasfaser')));
 
   const downloadSpeedStr = speedVal >= 1000 ? `${speedVal / 1000} Gbps` : `${speedVal} Mbps`;
-  const uploadSpeedStr = isFTTH
-    ? (speedVal >= 1000 ? '500 Mbps' : `${Math.round(speedVal * 0.5)} Mbps`)
-    : `${Math.min(40, Math.round(speedVal * 0.25))} Mbps`;
+  const rawUpChar = extractChar(raw, 'upstream_bandwidth') || extractChar(raw, 'bandwidth_upstream_max') || extractChar(raw, 'upload_speed') || extractChar(raw, 'speed_upload') || extractChar(raw, 'bandwidth_up');
+  const uploadSpeedStr = rawUpChar
+    ? (String(rawUpChar).includes('bps') ? String(rawUpChar) : `${rawUpChar} Mbps`)
+    : '';
 
   // ─── Category Resolution (Cached & Remote API) ───
   const [remoteCategories, setRemoteCategories] = useState({});
@@ -631,10 +721,13 @@ export default function StandardOfferingDetailTemplate({
     const map = {};
     if (Array.isArray(allEntities)) {
       allEntities.forEach(e => {
-        const id = e.id || e.raw?.id;
-        const name = e.name || e.raw?.name;
-        if (id && name) {
-          map[id] = e.raw || e;
+        const isCat = e.entityType === 'Category' || e.raw?.['@type'] === 'Category' || e['@type'] === 'Category';
+        if (isCat) {
+          const id = e.id || e.raw?.id;
+          const name = e.name || e.raw?.name;
+          if (id && name) {
+            map[id] = e.raw || e;
+          }
         }
       });
     }
@@ -659,6 +752,62 @@ export default function StandardOfferingDetailTemplate({
 
     return () => { isMounted = false; };
   }, [allEntities]);
+
+  // Unified list of all catalog categories for searchable selection (STRICTLY CATEGORIES ONLY)
+  const availableCategoriesList = useMemo(() => {
+    const map = new Map();
+    // 1. All catalog categories from resolver
+    allCatalogCategories.forEach(cat => {
+      if (cat?.id) {
+        map.set(cat.id, {
+          id: cat.id,
+          name: cat.name || cat.id,
+          parentId: cat.parentId || null,
+          parentName: lookupCatalogCategory(cat.id)?.parentName || null,
+          label: cat.label || `${cat.id} — ${cat.name}`
+        });
+      }
+    });
+    // 2. From allEntities (strictly Category entityType or @type === 'Category')
+    if (Array.isArray(allEntities)) {
+      allEntities.forEach(e => {
+        const isCat = e.entityType === 'Category' || e.raw?.['@type'] === 'Category' || e['@type'] === 'Category';
+        if (isCat) {
+          const rawE = e.raw || e;
+          const id = e.id || rawE.id;
+          if (id && !map.has(id)) {
+            map.set(id, {
+              id,
+              name: e.name || rawE.name || id,
+              parentId: rawE.parentId || null,
+              parentName: rawE.parentName || null,
+              label: `${id} — ${e.name || rawE.name || id}`
+            });
+          }
+        }
+      });
+    }
+    // 3. From remoteCategories (strictly Category only)
+    Object.entries(remoteCategories).forEach(([id, cat]) => {
+      const type = cat?.['@type'] || cat?.entityType;
+      const isNotOther = type !== 'ProductOffering' &&
+                         type !== 'ProductSpecification' &&
+                         type !== 'ProductOfferingPrice' &&
+                         type !== 'Rule';
+      const isCat = type === 'Category' || (!type && isNotOther);
+      if (id && isCat && isNotOther && !map.has(id)) {
+        map.set(id, {
+          id,
+          name: cat?.name || id,
+          parentId: cat?.parentId || null,
+          parentName: cat?.parentName || null,
+          label: `${id} — ${cat?.name || id}`
+        });
+      }
+    });
+
+    return Array.from(map.values()).sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true }));
+  }, [allCatalogCategories, allEntities, remoteCategories]);
 
   const categoryGroupings = useMemo(() => {
     const fromExt = raw.extensions?.categoryGroupings;
@@ -755,6 +904,97 @@ export default function StandardOfferingDetailTemplate({
     }
     return map;
   }, [allEntities]);
+
+  // Offerings list for Add Custom Price Component searchable pulldown
+  const availableOfferingsList = useMemo(() => {
+    if (!Array.isArray(allOfferings)) return [];
+    return allOfferings.map(o => {
+      const rawO = o.raw || o;
+      const ver = String(o.version !== undefined ? o.version : (rawO.version !== undefined ? rawO.version : '1'));
+      const rawPops = Array.isArray(rawO.productOfferingPrice) ? rawO.productOfferingPrice : [];
+      let resolvedPriceInfo = null;
+      if (rawPops.length > 0) {
+        const firstPopRef = rawPops[0];
+        const firstPopId = typeof firstPopRef === 'string' ? firstPopRef : firstPopRef.id;
+        const popEntity = popMap.get(firstPopId);
+        if (popEntity) {
+          const val = popEntity.price?.value !== undefined ? popEntity.price.value : (typeof popEntity.price === 'number' ? popEntity.price : null);
+          const unit = popEntity.price?.unit || 'EUR';
+          resolvedPriceInfo = {
+            id: popEntity.id,
+            name: popEntity.name || popEntity.id,
+            value: val,
+            unit,
+            priceType: popEntity.priceType || 'Recurring charge',
+            period: popEntity.recurringChargePeriodType || 'monthly',
+            count: rawPops.length
+          };
+        }
+      }
+
+      return {
+        id: o.id || rawO.id,
+        name: o.name || rawO.name || o.id,
+        version: ver,
+        raw: rawO,
+        rawPops,
+        resolvedPriceInfo
+      };
+    }).sort((a, b) => {
+      const nameCmp = (a.name || '').localeCompare(b.name || '');
+      if (nameCmp !== 0) return nameCmp;
+      return String(b.version).localeCompare(String(a.version), undefined, { numeric: true });
+    });
+  }, [allOfferings, popMap]);
+
+  const handleSelectOfferingForPop = (selectedOffering) => {
+    if (!selectedOffering) return;
+    const offeringName = selectedOffering.name || selectedOffering.id;
+    const offeringVer = selectedOffering.version || '1';
+
+    if (selectedOffering.rawPops && selectedOffering.rawPops.length > 0) {
+      const newPopsToAdd = [];
+      selectedOffering.rawPops.forEach(pRef => {
+        const pId = typeof pRef === 'string' ? pRef : pRef.id;
+        const popData = popMap.get(pId) || (typeof pRef === 'object' ? pRef : { id: pId });
+        const popEntry = {
+          id: popData.id || pId,
+          name: popData.name || `Price for ${offeringName} (v${offeringVer})`,
+          priceType: popData.priceType || 'Recurring charge',
+          price: popData.price || { value: 0, unit: 'EUR' },
+          recurringChargePeriodType: popData.recurringChargePeriodType || 'monthly',
+          version: popData.version !== undefined ? String(popData.version) : '1',
+          offeringName: offeringName,
+          offeringVersion: offeringVer,
+          '@referredType': 'ProductOfferingPrice'
+        };
+        newPopsToAdd.push(popEntry);
+      });
+
+      setFormData(prev => ({
+        ...prev,
+        pops: [...prev.pops, ...newPopsToAdd.filter(np => !prev.pops.some(ep => (typeof ep === 'string' ? ep : ep?.id) === np.id))]
+      }));
+    } else {
+      const newPopId = `pop_${selectedOffering.id}_v${offeringVer}_${Date.now().toString(36)}`;
+      const popEntry = {
+        id: newPopId,
+        name: `${offeringName} (v${offeringVer}) Price`,
+        priceType: 'Recurring charge',
+        price: { value: 0, unit: 'EUR' },
+        recurringChargePeriodType: 'monthly',
+        version: '1',
+        offeringName: offeringName,
+        offeringVersion: offeringVer,
+        '@referredType': 'ProductOfferingPrice'
+      };
+      setFormData(prev => ({
+        ...prev,
+        pops: [...prev.pops, popEntry]
+      }));
+    }
+    setIsDirty(true);
+  };
 
   // Resolve POPs attached to this offering with full cached payloads
   const resolvedPops = useMemo(() => {
@@ -1042,15 +1282,34 @@ export default function StandardOfferingDetailTemplate({
           flexWrap: 'wrap',
           gap: '10px'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
             <span style={{ fontSize: '15px' }}>✍️</span>
             <div>
-              <span style={{ fontSize: '12px', fontWeight: '800', color: 'var(--ds-warn)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                Editing Option Offering
-              </span>
-              <span style={{ fontSize: '12px', color: C.muted, marginLeft: '8px' }}>
-                ID: <code>{item.id}</code>
-              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                <span style={{ fontSize: '12px', fontWeight: '800', color: 'var(--ds-warn)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  Updating Option Offering
+                </span>
+                <span style={{
+                  fontSize: '11px',
+                  fontWeight: '700',
+                  color: 'var(--ds-ok)',
+                  background: 'rgba(16,185,129,0.12)',
+                  border: '1px solid rgba(16,185,129,0.3)',
+                  padding: '1px 8px',
+                  borderRadius: '4px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px'
+                }}>
+                  <span>★</span> New Version: v{formData.version}
+                </span>
+                <span style={{ fontSize: '11px', color: C.muted }}>
+                  (Base: v{item?.version !== undefined ? item.version : (raw.version || '1')})
+                </span>
+              </div>
+              <div style={{ fontSize: '11.5px', color: C.muted, marginTop: '2px' }}>
+                ID: <code>{item.id}</code> &bull; Name and ID are strictly immutable
+              </div>
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -1090,7 +1349,7 @@ export default function StandardOfferingDetailTemplate({
                 boxShadow: '0 1px 2px rgba(230,0,0,0.2)'
               }}
             >
-              Save Changes
+              Save New Version (JSON)
             </button>
           </div>
         </div>
@@ -1377,8 +1636,8 @@ export default function StandardOfferingDetailTemplate({
                   <div style={{ fontSize: '11px', color: C.muted, textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.05em' }}>
                     Upload
                   </div>
-                  <div style={{ fontSize: '20px', fontWeight: '800', color: C.text, marginTop: '2px' }}>
-                    ↑ {uploadSpeedStr}
+                  <div style={{ fontSize: '20px', fontWeight: '800', color: uploadSpeedStr ? C.text : C.muted, marginTop: '2px' }}>
+                    {uploadSpeedStr ? `↑ ${uploadSpeedStr}` : '—'}
                   </div>
                 </div>
               </>
@@ -1526,9 +1785,33 @@ export default function StandardOfferingDetailTemplate({
               </div>
               <div>
                 <span style={{ fontSize: '11px', color: C.muted }}>Version</span>
-                <div style={{ marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <VersionCell version={item.version} />
-                  {isEditing && <span style={{ fontSize: '10px', color: C.muted }} title="Version managed by release lifecycle">🔒</span>}
+                <div style={{ marginTop: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  {isEditing ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <input
+                        type="text"
+                        value={formData.version}
+                        onChange={e => handleFieldChange('version', e.target.value)}
+                        style={{
+                          width: '65px',
+                          padding: '3px 6px',
+                          borderRadius: '4px',
+                          border: '1px solid var(--ds-brand)',
+                          fontSize: '12px',
+                          fontWeight: '700',
+                          fontFamily: 'var(--ds-font-mono)',
+                          color: 'var(--ds-brand-dark)',
+                          background: 'rgba(230,0,0,0.04)'
+                        }}
+                        title="New Version of the Offer"
+                      />
+                      <span style={{ fontSize: '10.5px', color: C.muted }}>
+                        (base: v{item?.version !== undefined ? item.version : (raw.version || '1')})
+                      </span>
+                    </div>
+                  ) : (
+                    <VersionCell version={item.version} />
+                  )}
                 </div>
               </div>
               <div>
@@ -2014,18 +2297,53 @@ export default function StandardOfferingDetailTemplate({
                   type="button"
                   onClick={handleAddPop}
                   style={{
-                    background: 'var(--ds-spec)',
-                    border: 'none',
-                    color: '#ffffff',
-                    padding: '6px 14px',
+                    background: 'rgba(124,58,237,0.12)',
+                    border: '1px solid rgba(124,58,237,0.3)',
+                    color: 'var(--ds-spec)',
+                    padding: '5px 12px',
                     borderRadius: '5px',
                     fontSize: '11px',
                     fontWeight: '700',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px'
                   }}
+                  title="Add a new blank custom price component"
                 >
-                  + Add Price Component
+                  <span>+</span> New Blank POP
                 </button>
+              </div>
+
+              {/* Add Custom Price Component with Searchable Offering & Version Pulldown */}
+              <div style={{
+                background: '#ffffff',
+                border: '1px solid rgba(124,58,237,0.25)',
+                borderRadius: '8px',
+                padding: '12px 14px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px'
+              }}>
+                <label style={{
+                  fontSize: '11px',
+                  fontWeight: '700',
+                  color: 'var(--ds-spec)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.04em',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}>
+                  <Icon name="tag" size={13} />
+                  Add Custom Price Component (Search by Offering Name & Version)
+                </label>
+                <SearchableOfferingPriceSelect
+                  offerings={availableOfferingsList}
+                  onSelectOffering={handleSelectOfferingForPop}
+                  onAddCustomBlank={handleAddPop}
+                  placeholder="Type keystrokes to search offering by name or version (e.g. Glasfaser, v1)..."
+                />
               </div>
 
               {formData.pops.length === 0 ? (
@@ -2621,7 +2939,7 @@ export default function StandardOfferingDetailTemplate({
               <div style={{ position: 'relative', minWidth: '220px', maxWidth: '320px', width: '100%' }}>
                 <input
                   type="text"
-                  placeholder="Filter characteristics..."
+                  placeholder="Filter by characteristic name..."
                   value={charSearch}
                   onChange={(e) => setCharSearch(e.target.value)}
                   style={{
@@ -2836,67 +3154,29 @@ export default function StandardOfferingDetailTemplate({
                 )}
               </div>
 
-              {/* Add Category Selector Bar */}
+              {/* Searchable Add Category Selector Bar */}
               <div style={{
                 display: 'flex',
-                gap: '10px',
-                alignItems: 'center',
+                flexDirection: 'column',
+                gap: '8px',
                 paddingTop: '12px',
-                borderTop: `1px solid ${C.cardBorder}`,
-                flexWrap: 'wrap'
+                borderTop: `1px solid ${C.cardBorder}`
               }}>
-                <div style={{ flex: '1 1 280px' }}>
-                  <select
-                    value={selectedCatToAdd}
-                    onChange={(e) => setSelectedCatToAdd(e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '7px 10px',
-                      fontSize: '12px',
-                      borderRadius: '6px',
-                      border: `1px solid ${C.cardBorder}`,
-                      background: '#ffffff',
-                      color: C.text,
-                      outline: 'none'
-                    }}
-                  >
-                    <option value="">Select a catalog category to assign...</option>
-                    {allCatalogCategories
-                      .filter(cat => !formData.categories.some(c => (c?.id || c) === cat.id))
-                      .map(cat => (
-                        <option key={cat.id} value={cat.id}>
-                          {cat.id} — {cat.name} {cat.parentId ? `(under ${cat.parentId})` : ''}
-                        </option>
-                      ))}
-                  </select>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (selectedCatToAdd) {
-                      handleAddCategory(selectedCatToAdd);
-                    }
-                  }}
-                  disabled={!selectedCatToAdd}
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    background: selectedCatToAdd ? 'var(--ds-brand)' : 'var(--ds-surface-subtle)',
-                    color: selectedCatToAdd ? '#ffffff' : C.muted,
-                    border: 'none',
-                    padding: '7px 14px',
-                    borderRadius: '6px',
-                    fontSize: '12px',
-                    fontWeight: '600',
-                    cursor: selectedCatToAdd ? 'pointer' : 'not-allowed',
-                    transition: 'all 0.15s ease'
-                  }}
-                >
-                  <Icon name="plus" size={13} />
-                  Assign Category
-                </button>
+                <label style={{
+                  fontSize: '11px',
+                  fontWeight: '700',
+                  color: 'var(--ds-brand-dark)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.04em'
+                }}>
+                  Search & Assign Category (type name or FN code)
+                </label>
+                <SearchableCategorySelect
+                  categories={availableCategoriesList}
+                  assignedCategoryIds={formData.categories}
+                  onSelectCategory={handleAddCategory}
+                  placeholder="Type keystrokes to search category (e.g. FN12, FTTH, Mobile, Hardware)..."
+                />
               </div>
             </div>
           )}
@@ -3113,28 +3393,75 @@ export default function StandardOfferingDetailTemplate({
                                   </div>
                                 </div>
 
-                                {(onNavigateToCategory || onNavigateToEntity) && (
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      if (onNavigateToCategory) onNavigateToCategory(cat.raw || cat);
-                                      else if (onNavigateToEntity) onNavigateToEntity(cat.raw || cat, 'Category');
-                                    }}
-                                    style={{
-                                      background: 'rgba(230,0,0,0.06)',
-                                      border: '1px solid var(--ds-brand)',
-                                      color: 'var(--ds-brand)',
-                                      padding: '3px 8px',
-                                      borderRadius: '4px',
-                                      fontSize: '11px',
-                                      fontWeight: '600',
-                                      cursor: 'pointer',
-                                      flexShrink: 0
-                                    }}
-                                  >
-                                    View →
-                                  </button>
-                                )}
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+                                  {isEditing && (
+                                    (formData.categories || []).some(c => (typeof c === 'string' ? c : (c?.id || c?.name)) === cat.id) ? (
+                                      <button
+                                        type="button"
+                                        onClick={() => handleRemoveCategory(cat.id)}
+                                        title={`Remove ${cat.name} from assignments`}
+                                        style={{
+                                          background: 'rgba(230,0,0,0.08)',
+                                          border: '1px solid rgba(230,0,0,0.25)',
+                                          color: 'var(--ds-brand-dark)',
+                                          padding: '3px 8px',
+                                          borderRadius: '4px',
+                                          fontSize: '11px',
+                                          fontWeight: '600',
+                                          cursor: 'pointer',
+                                          display: 'inline-flex',
+                                          alignItems: 'center',
+                                          gap: '4px'
+                                        }}
+                                      >
+                                        ✕ Remove
+                                      </button>
+                                    ) : (
+                                      <button
+                                        type="button"
+                                        onClick={() => handleAddCategory(cat)}
+                                        title={`Assign ${cat.name}`}
+                                        style={{
+                                          background: 'rgba(16,185,129,0.08)',
+                                          border: '1px solid rgba(16,185,129,0.3)',
+                                          color: 'var(--ds-ok)',
+                                          padding: '3px 8px',
+                                          borderRadius: '4px',
+                                          fontSize: '11px',
+                                          fontWeight: '600',
+                                          cursor: 'pointer',
+                                          display: 'inline-flex',
+                                          alignItems: 'center',
+                                          gap: '4px'
+                                        }}
+                                      >
+                                        + Assign
+                                      </button>
+                                    )
+                                  )}
+
+                                  {(onNavigateToCategory || onNavigateToEntity) && (
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        if (onNavigateToCategory) onNavigateToCategory(cat.raw || cat);
+                                        else if (onNavigateToEntity) onNavigateToEntity(cat.raw || cat, 'Category');
+                                      }}
+                                      style={{
+                                        background: 'rgba(230,0,0,0.06)',
+                                        border: '1px solid var(--ds-brand)',
+                                        color: 'var(--ds-brand)',
+                                        padding: '3px 8px',
+                                        borderRadius: '4px',
+                                        fontSize: '11px',
+                                        fontWeight: '600',
+                                        cursor: 'pointer'
+                                      }}
+                                    >
+                                      View →
+                                    </button>
+                                  )}
+                                </div>
                               </div>
                             ))}
                           </div>

@@ -394,17 +394,20 @@ export default function DnextRuleEngineView() {
       </div>
 
       {/* Rule Detail & Authoring Drawer */}
-      <RuleDetailDrawer
-        rule={selectedRule}
-        isOpen={isDrawerOpen}
-        onClose={() => {
-          setIsDrawerOpen(false);
-          setSelectedRule(null);
-        }}
-        onSaveRule={handleSaveRule}
-        onDeleteRule={handleDeleteRule}
-        isSaving={isSaving}
-      />
+      {isDrawerOpen && selectedRule && (
+        <RuleDetailDrawer
+          key={selectedRule.id || 'new-rule'}
+          rule={selectedRule}
+          isOpen={isDrawerOpen}
+          onClose={() => {
+            setIsDrawerOpen(false);
+            setSelectedRule(null);
+          }}
+          onSaveRule={handleSaveRule}
+          onDeleteRule={handleDeleteRule}
+          isSaving={isSaving}
+        />
+      )}
     </div>
   );
 }

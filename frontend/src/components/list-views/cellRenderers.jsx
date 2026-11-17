@@ -122,7 +122,9 @@ export function SpeedCell({ profile, compact = false }) {
   if (!profile || !profile.numericDown) return <Empty />;
   const { numericDown, numericUp, tech } = profile;
   const pct = Math.max(6, Math.min(100, Math.round((Math.log10(numericDown) / 3) * 100))); // log scale up to 1 Gbit/s
-  const tip = `${fmtMbit(numericDown)} down / ${numericUp ? fmtMbit(numericUp) : '?'} up`;
+  const tip = numericUp
+    ? `${fmtMbit(numericDown)} down / ${fmtMbit(numericUp)} up`
+    : `${fmtMbit(numericDown)} down`;
 
   return (
     <div className={`ds-speed${compact ? ' ds-speed--compact' : ''}`} title={tip}>

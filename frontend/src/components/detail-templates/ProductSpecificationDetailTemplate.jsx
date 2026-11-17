@@ -56,7 +56,7 @@ export default function ProductSpecificationDetailTemplate({ item }) {
             type="text"
             value={filterQuery}
             onChange={e => setFilterQuery(e.target.value)}
-            placeholder="Search characteristics…"
+            placeholder="Filter by characteristic name..."
             style={{ padding: '6px 12px', borderRadius: '6px', border: `1px solid ${C.cardBorder}`, background: '#ffffff', color: C.text, fontSize: '12px', width: '220px' }}
           />
         </div>

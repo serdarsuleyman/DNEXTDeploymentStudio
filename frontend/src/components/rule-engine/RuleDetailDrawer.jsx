@@ -44,6 +44,168 @@ const C = {
   info: 'var(--ds-info)'
 };
 
+const RULE_CHARACTERISTIC_SPECS = [
+  {
+    key: 'package_type',
+    name: 'package_type',
+    label: 'Package Type / Product Domain',
+    section: 'Commercial Scope',
+    description: 'Product technology family (DSL, Fiber / GPON, Cable, Mobile) governing line qualification.',
+    type: 'select',
+    options: ['DSL', 'Fiber / GPON', 'Cable', 'Mobile', 'Convergent', 'Generic'],
+    icon: 'package'
+  },
+  {
+    key: 'description',
+    name: 'description',
+    label: 'Rule Description',
+    section: 'Commercial Scope',
+    description: 'Commercial and operational rule explanation describing the policy requirement.',
+    type: 'textarea',
+    icon: 'clipboard'
+  },
+  {
+    key: 'business_intent',
+    name: 'business_intent',
+    label: 'Plain Language Business Intent',
+    section: 'Commercial Scope',
+    description: 'High-level commercial intent and rationale evaluated by sales catalog journeys.',
+    type: 'textarea',
+    icon: 'info'
+  },
+  {
+    key: 'source_type',
+    name: 'source_type',
+    label: 'Source Entity Type',
+    section: 'Commercial Scope',
+    description: 'Triggering entity domain that initiates rule evaluation (Service, Product, Customer).',
+    type: 'select',
+    options: ['Service', 'Product', 'Customer', 'Resource'],
+    icon: 'layers'
+  },
+  {
+    key: 'priority',
+    name: 'priority',
+    label: 'Evaluation Priority',
+    section: 'Execution Guardrails',
+    description: 'Execution priority weight (1 highest, 10 lowest) for rule conflict resolution.',
+    type: 'number',
+    min: 1,
+    max: 10,
+    icon: 'sliders'
+  },
+  {
+    key: 'operation_type',
+    name: 'operation_type',
+    label: 'Operation Boundary Type',
+    section: 'Execution Guardrails',
+    description: 'Boundary between trigger and target entities (e.g. Service-Service, Service-Product).',
+    type: 'select',
+    options: ['Service-Service', 'Service-Product', 'Product-Product', 'Product-Service', 'Customer-Product'],
+    icon: 'repeat'
+  },
+  {
+    key: 'effective_date',
+    name: 'effective_date',
+    label: 'Effective Date',
+    section: 'Execution Guardrails',
+    description: 'Calendar date from which this rule policy takes operational effect.',
+    type: 'date',
+    icon: 'calendar'
+  },
+  {
+    key: 'channels',
+    name: 'channels',
+    label: 'Eligible Sales Channels',
+    section: 'Execution Guardrails',
+    description: 'Sales distribution channels (* for all channels, or comma-separated: OSE, Retail, Telesales).',
+    type: 'channels',
+    icon: 'globe'
+  },
+  {
+    key: 'process_contexts',
+    name: 'process_contexts',
+    label: 'Business Process Contexts',
+    section: 'Execution Guardrails',
+    description: 'Comma-separated process codes triggering the rule (ILSBLU, MOVBLU, ACQ, MIGCOC, New_Order, Upgrade).',
+    type: 'contexts',
+    icon: 'cpu'
+  },
+  {
+    key: 'operation_value',
+    name: 'operation.value',
+    label: 'Compatibility Action Outcome',
+    section: 'Action & Behavior',
+    description: 'Enforcement outcome in cart: Allowed, Defaulted, Defaulted-Obligated, Incompatible, etc.',
+    type: 'select',
+    options: ['Allowed', 'Defaulted', 'Defaulted-Obligated', 'Incompatible', 'Removal Not Allowed', 'Requires-Defaulted'],
+    icon: 'zap'
+  },
+  {
+    key: 'ask_confirmation_first',
+    name: 'operation.askconfirmationfirst',
+    label: 'Prompt User Confirmation',
+    section: 'Action & Behavior',
+    description: 'Requires customer or sales agent to confirm with a prompt dialog before applying action.',
+    type: 'boolean',
+    icon: 'alert'
+  },
+  {
+    key: 'override_initial_selectable',
+    name: 'operation.overrideinitialselectable',
+    label: 'Override Initial Selectable State',
+    section: 'Action & Behavior',
+    description: 'Overrides whether the target product item appears selectable on initial page load.',
+    type: 'boolean',
+    icon: 'check'
+  }
+];
+
+const STANDARD_KEYS = new Set([
+  'package_type', 'description', 'business_intent', 'source_type',
+  'priority', 'operation_type', 'effective_date', 'operation.value',
+  'operation.askconfirmationfirst', 'operation.overrideinitialselectable',
+  'channels', 'process_contexts'
+]);
+
+function buildInitialFormData(rule) {
+  if (!rule) return null;
+  return {
+    id: rule.id || '',
+    name: rule.name || '',
+    ruleType: rule.ruleType || 'FORALL',
+    conditionVariantType: rule.conditionVariantType || 'expression',
+    condition: Array.isArray(rule.condition) ? [...rule.condition] : [],
+    category: Array.isArray(rule.category) ? rule.category[0] || 'implicitCompatibility' : (rule.category || 'implicitCompatibility'),
+    status: rule.status || 'draft',
+    stateCategory: rule.stateCategory || 'Initial'
+  };
+}
+
+function buildInitialCharsData(rule) {
+  if (!rule) return null;
+  const initialChars = extractCompatibilityCharacteristics(rule);
+  const refDef = (rule.id && RULE_COMMERCIAL_DEFINITIONS[rule.id]) || null;
+  if (refDef?.businessDefinition) {
+    initialChars.description = refDef.businessDefinition;
+  }
+  if (refDef?.plainLanguageIntent) {
+    initialChars.business_intent = refDef.plainLanguageIntent;
+  }
+  return initialChars;
+}
+
+function buildInitialCustomChars(rule) {
+  if (!rule) return [];
+  return (Array.isArray(rule.ruleCharacteristic) ? rule.ruleCharacteristic : [])
+    .filter(c => c && c.name && !STANDARD_KEYS.has(c.name))
+    .map(c => ({
+      name: c.name,
+      value: c.value !== undefined ? String(c.value) : '',
+      valueType: c.valueType || 'String'
+    }));
+}
+
 export default function RuleDetailDrawer({
   rule,
   isOpen,
@@ -53,7 +215,7 @@ export default function RuleDetailDrawer({
   isSaving = false
 }) {
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [activeTab, setActiveTab] = useState('visual'); // 'visual' | 'json'
+  const [activeTab, setActiveTab] = useState('visual'); // 'visual' | 'characteristics' | 'json'
   const [copiedId, setCopiedId] = useState(false);
 
   const [showCategoryHelp, setShowCategoryHelp] = useState(false);
@@ -63,42 +225,32 @@ export default function RuleDetailDrawer({
   const [savedReferenceFeedback, setSavedReferenceFeedback] = useState(false);
 
   // Form State
-  const [formData, setFormData] = useState(null);
-  const [charsData, setCharsData] = useState(null);
-  const [targetsData, setTargetsData] = useState(null);
-  const [rawJsonText, setRawJsonText] = useState('');
+  const [formData, setFormData] = useState(() => buildInitialFormData(rule));
+  const [charsData, setCharsData] = useState(() => buildInitialCharsData(rule));
+  const [customChars, setCustomChars] = useState(() => buildInitialCustomChars(rule));
+  const [charSearch, setCharSearch] = useState('');
+  const [selectedCharSection, setSelectedCharSection] = useState('All');
+  const [newCustomCharName, setNewCustomCharName] = useState('');
+  const [newCustomCharValue, setNewCustomCharValue] = useState('');
+  const [targetsData, setTargetsData] = useState(() => rule ? extractResultTargets(rule) : null);
+  const [rawJsonText, setRawJsonText] = useState(() => rule ? JSON.stringify(rule, null, 2) : '');
   const [jsonError, setJsonError] = useState(null);
 
-  // Initialize form state when rule opens
+  // Sync form state when rule or isOpen changes
   useEffect(() => {
-    if (rule) {
-      setFormData({
-        id: rule.id || '',
-        name: rule.name || '',
-        ruleType: rule.ruleType || 'FORALL',
-        conditionVariantType: rule.conditionVariantType || 'expression',
-        condition: Array.isArray(rule.condition) ? [...rule.condition] : [],
-        category: Array.isArray(rule.category) ? rule.category[0] || 'implicitCompatibility' : 'implicitCompatibility',
-        status: rule.status || 'draft',
-        stateCategory: rule.stateCategory || 'Initial'
-      });
-
-      const initialChars = extractCompatibilityCharacteristics(rule);
-      const refDef = (rule.id && RULE_COMMERCIAL_DEFINITIONS[rule.id]) || null;
-      if (refDef?.businessDefinition) {
-        initialChars.description = refDef.businessDefinition;
-      }
-      if (refDef?.plainLanguageIntent) {
-        initialChars.business_intent = refDef.plainLanguageIntent;
-      }
-      setCharsData(initialChars);
-
+    if (rule && isOpen) {
+      setFormData(buildInitialFormData(rule));
+      setCharsData(buildInitialCharsData(rule));
+      setCustomChars(buildInitialCustomChars(rule));
       setTargetsData(extractResultTargets(rule));
       setRawJsonText(JSON.stringify(rule, null, 2));
       setJsonError(null);
-      setActiveTab('visual');
+      setCharSearch('');
+      setSelectedCharSection('All');
+      setNewCustomCharName('');
+      setNewCustomCharValue('');
     }
-  }, [rule?.id, rule?.updatedDate]);
+  }, [rule, isOpen]);
 
   // Keep Raw JSON in sync with visual edits
   const currentMergedRule = useMemo(() => {
@@ -144,9 +296,16 @@ export default function RuleDetailDrawer({
       category: [formData.category],
       status: formData.status,
       stateCategory: formData.stateCategory,
-      ruleCharacteristic: serializeCompatibilityCharacteristics(charsData)
+      ruleCharacteristic: [
+        ...serializeCompatibilityCharacteristics(charsData),
+        ...(customChars || []).map(c => ({
+          name: c.name,
+          value: String(c.value !== undefined ? c.value : ''),
+          ...(c.valueType ? { valueType: c.valueType } : {})
+        }))
+      ]
     };
-  }, [formData, charsData, targetsData]);
+  }, [formData, charsData, targetsData, customChars]);
 
   // Plain-Language Rule Summary generated live with Category Resolution
   const humanRuleSummary = useMemo(() => {
@@ -270,10 +429,83 @@ export default function RuleDetailDrawer({
       });
       setCharsData(extractCompatibilityCharacteristics(parsed));
       setTargetsData(extractResultTargets(parsed));
+
+      const standardKeys = new Set([
+        'package_type', 'description', 'business_intent', 'source_type',
+        'priority', 'operation_type', 'effective_date', 'operation.value',
+        'operation.askconfirmationfirst', 'operation.overrideinitialselectable',
+        'channels', 'process_contexts'
+      ]);
+      if (Array.isArray(parsed.ruleCharacteristic)) {
+        const parsedCustom = parsed.ruleCharacteristic
+          .filter(c => c && c.name && !standardKeys.has(c.name))
+          .map(c => ({
+            name: c.name,
+            value: c.value !== undefined ? String(c.value) : '',
+            valueType: c.valueType || 'String'
+          }));
+        setCustomChars(parsedCustom);
+      }
     } catch (err) {
       setJsonError(err.message);
     }
   };
+
+  const updateCharVal = (key, value) => {
+    setCharsData(prev => ({
+      ...prev,
+      [key]: value
+    }));
+  };
+
+  const handleAddCustomChar = () => {
+    if (!newCustomCharName.trim()) return;
+    const name = newCustomCharName.trim();
+    const value = newCustomCharValue.trim();
+    setCustomChars(prev => {
+      const filtered = prev.filter(c => c.name !== name);
+      return [...filtered, { name, value, valueType: 'String' }];
+    });
+    setNewCustomCharName('');
+    setNewCustomCharValue('');
+  };
+
+  const handleRemoveCustomChar = (name) => {
+    setCustomChars(prev => prev.filter(c => c.name !== name));
+  };
+
+  const handleUpdateCustomCharVal = (name, value) => {
+    setCustomChars(prev => prev.map(c => c.name === name ? { ...c, value } : c));
+  };
+
+  // Filtered characteristics for the Characteristics tab
+  const filteredStandardSpecs = useMemo(() => {
+    return RULE_CHARACTERISTIC_SPECS.filter(spec => {
+      if (selectedCharSection !== 'All' && selectedCharSection !== 'Custom' && spec.section !== selectedCharSection) {
+        return false;
+      }
+      if (selectedCharSection === 'Custom') {
+        return false;
+      }
+      if (charSearch.trim()) {
+        const q = charSearch.toLowerCase().trim();
+        const curVal = String(charsData?.[spec.key] !== undefined ? (Array.isArray(charsData[spec.key]) ? charsData[spec.key].join(', ') : charsData[spec.key]) : '').toLowerCase();
+        const nameMatch = spec.name.toLowerCase().includes(q);
+        const labelMatch = spec.label.toLowerCase().includes(q);
+        const descMatch = (spec.description || '').toLowerCase().includes(q);
+        const valMatch = curVal.includes(q);
+        return nameMatch || labelMatch || descMatch || valMatch;
+      }
+      return true;
+    });
+  }, [charSearch, selectedCharSection, charsData]);
+
+  const filteredCustomChars = useMemo(() => {
+    if (selectedCharSection !== 'All' && selectedCharSection !== 'Custom') return [];
+    if (!charSearch.trim()) return customChars;
+    const q = charSearch.toLowerCase().trim();
+    return customChars.filter(c => (c.name || '').toLowerCase().includes(q) || (c.value || '').toLowerCase().includes(q));
+  }, [customChars, charSearch, selectedCharSection]);
 
   const handleSave = () => {
     if (activeTab === 'json') {
@@ -605,50 +837,6 @@ export default function RuleDetailDrawer({
 
             {/* Header Right Actions */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              {/* Tab Switcher: Visual Editor vs Raw JSON */}
-              <div style={{ display: 'inline-flex', background: 'var(--ds-surface-2)', borderRadius: '6px', padding: '2px', border: `1px solid ${C.border}` }}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setRawJsonText(JSON.stringify(currentMergedRule, null, 2));
-                    setActiveTab('visual');
-                  }}
-                  style={{
-                    background: activeTab === 'visual' ? '#ffffff' : 'transparent',
-                    border: 'none',
-                    borderRadius: '4px',
-                    color: activeTab === 'visual' ? 'var(--ds-brand)' : C.muted,
-                    fontWeight: activeTab === 'visual' ? '700' : '500',
-                    fontSize: '11px',
-                    padding: '4px 10px',
-                    cursor: 'pointer',
-                    boxShadow: activeTab === 'visual' ? '0 1px 2px rgba(0,0,0,0.08)' : 'none'
-                  }}
-                >
-                  Visual Authoring
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setRawJsonText(JSON.stringify(currentMergedRule, null, 2));
-                    setActiveTab('json');
-                  }}
-                  style={{
-                    background: activeTab === 'json' ? '#ffffff' : 'transparent',
-                    border: 'none',
-                    borderRadius: '4px',
-                    color: activeTab === 'json' ? 'var(--ds-brand)' : C.muted,
-                    fontWeight: activeTab === 'json' ? '700' : '500',
-                    fontSize: '11px',
-                    padding: '4px 10px',
-                    cursor: 'pointer',
-                    boxShadow: activeTab === 'json' ? '0 1px 2px rgba(0,0,0,0.08)' : 'none'
-                  }}
-                >
-                  Raw TMF JSON
-                </button>
-              </div>
-
               {/* Fullscreen Button */}
               <button
                 type="button"
@@ -727,6 +915,97 @@ export default function RuleDetailDrawer({
           </div>
         </div>
 
+        {/* ─── Dedicated Navigation Tab Bar ─── */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          borderBottom: `1px solid ${C.border}`,
+          background: '#ffffff',
+          padding: '0 24px',
+          gap: '12px',
+          flexShrink: 0
+        }}>
+          <button
+            type="button"
+            onClick={() => {
+              setRawJsonText(JSON.stringify(currentMergedRule, null, 2));
+              setActiveTab('visual');
+            }}
+            style={{
+              padding: '10px 14px',
+              fontSize: '13px',
+              fontWeight: activeTab === 'visual' ? '700' : '600',
+              color: activeTab === 'visual' ? 'var(--ds-brand)' : C.muted,
+              background: 'none',
+              border: 'none',
+              borderBottom: `2.5px solid ${activeTab === 'visual' ? 'var(--ds-brand)' : 'transparent'}`,
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            <Icon name="sliders" size={14} />
+            <span>Visual Authoring</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setRawJsonText(JSON.stringify(currentMergedRule, null, 2));
+              setActiveTab('characteristics');
+            }}
+            style={{
+              padding: '10px 14px',
+              fontSize: '13px',
+              fontWeight: activeTab === 'characteristics' ? '700' : '600',
+              color: activeTab === 'characteristics' ? 'var(--ds-brand)' : C.muted,
+              background: 'none',
+              border: 'none',
+              borderBottom: `2.5px solid ${activeTab === 'characteristics' ? 'var(--ds-brand)' : 'transparent'}`,
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            <Icon name="clipboard" size={14} />
+            <span>Characteristics</span>
+            <span style={{
+              fontSize: '11px',
+              background: activeTab === 'characteristics' ? 'rgba(230,0,0,0.1)' : 'var(--ds-surface-2)',
+              color: activeTab === 'characteristics' ? 'var(--ds-brand)' : C.muted,
+              padding: '1px 7px',
+              borderRadius: '10px',
+              fontWeight: '700'
+            }}>
+              {RULE_CHARACTERISTIC_SPECS.length + customChars.length}
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setRawJsonText(JSON.stringify(currentMergedRule, null, 2));
+              setActiveTab('json');
+            }}
+            style={{
+              padding: '10px 14px',
+              fontSize: '13px',
+              fontWeight: activeTab === 'json' ? '700' : '600',
+              color: activeTab === 'json' ? 'var(--ds-brand)' : C.muted,
+              background: 'none',
+              border: 'none',
+              borderBottom: `2.5px solid ${activeTab === 'json' ? 'var(--ds-brand)' : 'transparent'}`,
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            <Icon name="file" size={14} />
+            <span>Raw TMF JSON</span>
+          </button>
+        </div>
+
         {/* ─── Drawer Body ─── */}
         <div style={{ flex: 1, overflowY: 'auto', padding: isFullscreen ? '24px 48px' : '20px 24px', background: C.bg }}>
           {activeTab === 'json' ? (
@@ -760,6 +1039,595 @@ export default function RuleDetailDrawer({
                   resize: 'none'
                 }}
               />
+            </div>
+          ) : activeTab === 'characteristics' ? (
+            /* ── Characteristics Tab (for view / edit / new) ── */
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              {/* Header Card with Stats & Controls */}
+              <div style={{
+                background: C.panel,
+                border: `1px solid ${C.border}`,
+                borderRadius: '10px',
+                padding: '16px 20px',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
+                  <div>
+                    <h3 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: '700', color: C.text, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <Icon name="clipboard" size={16} color="var(--ds-brand)" />
+                      <span>Rule Characteristics & Policy Parameters</span>
+                    </h3>
+                    <p style={{ margin: 0, fontSize: '12px', color: C.muted }}>
+                      TMForum TMF620 Compatibility Governance Metadata and Custom Attributes (<code>ruleCharacteristic</code>).
+                    </p>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                    <span style={{
+                      fontSize: '11.5px',
+                      fontWeight: '700',
+                      color: 'var(--ds-brand-dark)',
+                      background: 'rgba(230,0,0,0.08)',
+                      border: '1px solid rgba(230,0,0,0.2)',
+                      padding: '3px 10px',
+                      borderRadius: '6px'
+                    }}>
+                      {RULE_CHARACTERISTIC_SPECS.length + customChars.length} Total Parameters
+                    </span>
+                    <span style={{
+                      fontSize: '11.5px',
+                      fontWeight: '700',
+                      color: 'var(--ds-spec)',
+                      background: 'rgba(124,58,237,0.08)',
+                      border: '1px solid rgba(124,58,237,0.25)',
+                      padding: '3px 10px',
+                      borderRadius: '6px'
+                    }}>
+                      {customChars.length} Custom Attributes
+                    </span>
+                  </div>
+                </div>
+
+                {/* Controls Bar: Search Filter & Section Quick-Select */}
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  gap: '12px',
+                  marginTop: '16px',
+                  paddingTop: '14px',
+                  borderTop: `1px solid ${C.border}`,
+                  flexWrap: 'wrap'
+                }}>
+                  {/* Search Filter Input */}
+                  <div style={{ position: 'relative', width: '100%', maxWidth: '340px' }}>
+                    <input
+                      type="text"
+                      placeholder="Type keystrokes to filter characteristics..."
+                      value={charSearch}
+                      onChange={e => setCharSearch(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '7px 30px 7px 10px',
+                        fontSize: '12px',
+                        borderRadius: '6px',
+                        border: `1px solid ${C.border}`,
+                        background: 'var(--ds-surface-subtle)',
+                        outline: 'none',
+                        color: C.text
+                      }}
+                    />
+                    {charSearch ? (
+                      <button
+                        type="button"
+                        onClick={() => setCharSearch('')}
+                        style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: C.muted, cursor: 'pointer', fontSize: '12px' }}
+                      >
+                        ✕
+                      </button>
+                    ) : (
+                      <span style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', color: C.muted, pointerEvents: 'none' }}>
+                        <Icon name="search" size={13} />
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Section Category Filter Pills */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                    {['All', 'Commercial Scope', 'Execution Guardrails', 'Action & Behavior', 'Custom'].map(sec => {
+                      const count = sec === 'All'
+                        ? RULE_CHARACTERISTIC_SPECS.length + customChars.length
+                        : sec === 'Custom'
+                          ? customChars.length
+                          : RULE_CHARACTERISTIC_SPECS.filter(s => s.section === sec).length;
+                      const isSel = selectedCharSection === sec;
+                      return (
+                        <button
+                          key={sec}
+                          type="button"
+                          onClick={() => setSelectedCharSection(sec)}
+                          style={{
+                            background: isSel ? 'var(--ds-brand)' : 'var(--ds-surface-2)',
+                            color: isSel ? '#ffffff' : C.text,
+                            border: `1px solid ${isSel ? 'var(--ds-brand)' : C.border}`,
+                            padding: '4px 10px',
+                            borderRadius: '14px',
+                            fontSize: '11px',
+                            fontWeight: isSel ? '700' : '500',
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px'
+                          }}
+                        >
+                          <span>{sec}</span>
+                          <span style={{
+                            fontSize: '10px',
+                            opacity: 0.85,
+                            background: isSel ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.06)',
+                            padding: '1px 5px',
+                            borderRadius: '10px'
+                          }}>
+                            {count}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              {/* Sections Breakdown */}
+              {['Commercial Scope', 'Execution Guardrails', 'Action & Behavior'].map(secName => {
+                const specs = filteredStandardSpecs.filter(s => s.section === secName);
+                if (specs.length === 0) return null;
+
+                return (
+                  <div
+                    key={secName}
+                    style={{
+                      background: C.panel,
+                      border: `1px solid ${C.border}`,
+                      borderRadius: '10px',
+                      overflow: 'hidden',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.03)'
+                    }}
+                  >
+                    <div style={{
+                      padding: '12px 18px',
+                      background: 'var(--ds-surface-subtle)',
+                      borderBottom: `1px solid ${C.border}`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '13px', fontWeight: '700', color: C.text }}>
+                          {secName}
+                        </span>
+                        <span style={{ fontSize: '11px', color: C.muted }}>
+                          ({specs.length} {specs.length === 1 ? 'parameter' : 'parameters'})
+                        </span>
+                      </div>
+                    </div>
+
+                    <div style={{ padding: '16px 18px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '14px' }}>
+                      {specs.map(spec => {
+                        const val = charsData?.[spec.key];
+
+                        return (
+                          <div
+                            key={spec.key}
+                            style={{
+                              background: '#ffffff',
+                              border: `1px solid ${C.border}`,
+                              borderRadius: '8px',
+                              padding: '12px 14px',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: '8px',
+                              boxShadow: '0 1px 2px rgba(0,0,0,0.02)'
+                            }}
+                          >
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <Icon name={spec.icon} size={14} color="var(--ds-brand)" />
+                                <span style={{ fontSize: '12.5px', fontWeight: '700', color: C.text }}>
+                                  {spec.label}
+                                </span>
+                              </div>
+                              <code style={{
+                                fontSize: '11px',
+                                color: 'var(--ds-brand-dark)',
+                                background: 'rgba(230,0,0,0.06)',
+                                border: '1px solid rgba(230,0,0,0.2)',
+                                padding: '1px 5px',
+                                borderRadius: '4px',
+                                fontFamily: 'var(--ds-font-mono)'
+                              }}>
+                                {spec.name}
+                              </code>
+                            </div>
+
+                            <p style={{ margin: 0, fontSize: '11px', color: C.muted, lineHeight: '1.4' }}>
+                              {spec.description}
+                            </p>
+
+                            {/* Control based on spec.type */}
+                            <div style={{ marginTop: '4px' }}>
+                              {spec.type === 'select' && (
+                                <select
+                                  value={val || spec.options[0]}
+                                  onChange={e => updateCharVal(spec.key, e.target.value)}
+                                  style={{
+                                    width: '100%',
+                                    padding: '6px 8px',
+                                    fontSize: '12px',
+                                    fontWeight: '600',
+                                    borderRadius: '5px',
+                                    border: `1px solid ${C.border}`,
+                                    background: '#ffffff',
+                                    color: C.text,
+                                    outline: 'none'
+                                  }}
+                                >
+                                  {spec.options.map(opt => (
+                                    <option key={opt} value={opt}>{opt}</option>
+                                  ))}
+                                </select>
+                              )}
+
+                              {spec.type === 'textarea' && (
+                                <textarea
+                                  rows={2}
+                                  value={val || ''}
+                                  onChange={e => updateCharVal(spec.key, e.target.value)}
+                                  placeholder={`Enter ${spec.label.toLowerCase()}...`}
+                                  style={{
+                                    width: '100%',
+                                    padding: '6px 8px',
+                                    fontSize: '12px',
+                                    borderRadius: '5px',
+                                    border: `1px solid ${C.border}`,
+                                    background: '#ffffff',
+                                    color: C.text,
+                                    outline: 'none',
+                                    resize: 'vertical',
+                                    lineHeight: '1.4'
+                                  }}
+                                />
+                              )}
+
+                              {spec.type === 'number' && (
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                  <input
+                                    type="number"
+                                    min={spec.min}
+                                    max={spec.max}
+                                    value={val !== undefined ? val : 5}
+                                    onChange={e => updateCharVal(spec.key, parseInt(e.target.value, 10))}
+                                    style={{
+                                      width: '90px',
+                                      padding: '6px 8px',
+                                      fontSize: '12px',
+                                      fontWeight: '700',
+                                      borderRadius: '5px',
+                                      border: `1px solid ${C.border}`,
+                                      background: '#ffffff',
+                                      color: C.text
+                                    }}
+                                  />
+                                  <span style={{ fontSize: '11px', color: C.muted }}>
+                                    Weight (1 = Top Evaluation, 10 = Lowest)
+                                  </span>
+                                </div>
+                              )}
+
+                              {spec.type === 'date' && (
+                                <input
+                                  type="date"
+                                  value={val || ''}
+                                  onChange={e => updateCharVal(spec.key, e.target.value)}
+                                  style={{
+                                    padding: '5px 8px',
+                                    fontSize: '12px',
+                                    borderRadius: '5px',
+                                    border: `1px solid ${C.border}`,
+                                    background: '#ffffff',
+                                    color: C.text
+                                  }}
+                                />
+                              )}
+
+                              {spec.type === 'boolean' && (
+                                <button
+                                  type="button"
+                                  onClick={() => updateCharVal(spec.key, !val)}
+                                  style={{
+                                    background: val ? 'rgba(16,185,129,0.1)' : 'var(--ds-surface-2)',
+                                    border: `1px solid ${val ? 'var(--ds-ok)' : C.border}`,
+                                    color: val ? 'var(--ds-ok)' : C.muted,
+                                    padding: '6px 14px',
+                                    borderRadius: '5px',
+                                    fontSize: '11.5px',
+                                    fontWeight: '700',
+                                    cursor: 'pointer',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '6px',
+                                    transition: 'all 0.15s ease'
+                                  }}
+                                >
+                                  <span>{val ? '✓ True (Active)' : '✕ False (Inactive)'}</span>
+                                </button>
+                              )}
+
+                              {spec.type === 'channels' && (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                  <input
+                                    type="text"
+                                    value={val || '*'}
+                                    onChange={e => updateCharVal(spec.key, e.target.value)}
+                                    placeholder="Channels (e.g. *, OSE, Retail, Telesales)"
+                                    style={{
+                                      width: '100%',
+                                      padding: '6px 8px',
+                                      fontSize: '12px',
+                                      borderRadius: '5px',
+                                      border: `1px solid ${C.border}`,
+                                      background: '#ffffff',
+                                      color: C.text
+                                    }}
+                                  />
+                                  <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                                    {['* (All)', 'OSE', 'Retail', 'Telesales', 'Care'].map(chTag => (
+                                      <button
+                                        key={chTag}
+                                        type="button"
+                                        onClick={() => {
+                                          const rawTag = chTag.startsWith('*') ? '*' : chTag;
+                                          updateCharVal(spec.key, rawTag);
+                                        }}
+                                        style={{
+                                          background: 'var(--ds-surface-2)',
+                                          border: `1px solid ${C.border}`,
+                                          padding: '2px 6px',
+                                          borderRadius: '4px',
+                                          fontSize: '10px',
+                                          cursor: 'pointer',
+                                          color: C.text
+                                        }}
+                                      >
+                                        {chTag}
+                                      </button>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+
+                              {spec.type === 'contexts' && (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                  <input
+                                    type="text"
+                                    value={Array.isArray(val) ? val.join(', ') : (val || '')}
+                                    onChange={e => {
+                                      const arr = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
+                                      updateCharVal(spec.key, arr);
+                                    }}
+                                    placeholder="Contexts (e.g. ILSBLU, MOVBLU, ACQ, MIGCOC)"
+                                    style={{
+                                      width: '100%',
+                                      padding: '6px 8px',
+                                      fontSize: '12px',
+                                      borderRadius: '5px',
+                                      border: `1px solid ${C.border}`,
+                                      background: '#ffffff',
+                                      color: C.text
+                                    }}
+                                  />
+                                  <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                                    {['ILSBLU', 'MOVBLU', 'ACQ', 'MIGCOC', 'New_Order', 'Upgrade'].map(ctxTag => (
+                                      <button
+                                        key={ctxTag}
+                                        type="button"
+                                        onClick={() => {
+                                          const currentArr = Array.isArray(val) ? [...val] : String(val || '').split(',').map(s => s.trim()).filter(Boolean);
+                                          if (!currentArr.includes(ctxTag)) {
+                                            updateCharVal(spec.key, [...currentArr, ctxTag]);
+                                          }
+                                        }}
+                                        style={{
+                                          background: 'var(--ds-surface-2)',
+                                          border: `1px solid ${C.border}`,
+                                          padding: '2px 6px',
+                                          borderRadius: '4px',
+                                          fontSize: '10px',
+                                          cursor: 'pointer',
+                                          color: C.text
+                                        }}
+                                      >
+                                        + {ctxTag}
+                                      </button>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* Custom & Extended Characteristics Section */}
+              {(selectedCharSection === 'All' || selectedCharSection === 'Custom') && (
+                <div style={{
+                  background: C.panel,
+                  border: `1px solid ${C.border}`,
+                  borderRadius: '10px',
+                  overflow: 'hidden',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.03)'
+                }}>
+                  <div style={{
+                    padding: '12px 18px',
+                    background: 'var(--ds-surface-subtle)',
+                    borderBottom: `1px solid ${C.border}`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    flexWrap: 'wrap',
+                    gap: '8px'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <Icon name="tag" size={14} color="var(--ds-spec)" />
+                      <span style={{ fontSize: '13px', fontWeight: '700', color: C.text }}>
+                        Custom & Extended Characteristics
+                      </span>
+                      <span style={{ fontSize: '11px', color: C.muted }}>
+                        ({customChars.length} {customChars.length === 1 ? 'custom attribute' : 'custom attributes'})
+                      </span>
+                    </div>
+                    <span style={{ fontSize: '11px', color: C.muted }}>
+                      Extra TMF key-value parameters persisted in <code>ruleCharacteristic</code>
+                    </span>
+                  </div>
+
+                  <div style={{ padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    {filteredCustomChars.length === 0 ? (
+                      <div style={{ padding: '16px', textAlign: 'center', color: C.muted, fontSize: '12px', fontStyle: 'italic', background: 'var(--ds-surface-subtle)', borderRadius: '6px' }}>
+                        {customChars.length === 0
+                          ? 'No custom characteristics currently defined. Add one below to extend this rule.'
+                          : `No custom characteristics matching "${charSearch}".`}
+                      </div>
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        {filteredCustomChars.map((cc, ccIdx) => (
+                          <div
+                            key={ccIdx}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              background: 'var(--ds-surface-subtle)',
+                              border: `1px solid ${C.border}`,
+                              borderRadius: '6px',
+                              padding: '8px 12px',
+                              gap: '12px',
+                              flexWrap: 'wrap'
+                            }}
+                          >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: '180px' }}>
+                              <code style={{ fontSize: '12px', fontWeight: '700', color: 'var(--ds-spec)', fontFamily: 'var(--ds-font-mono)' }}>
+                                {cc.name}
+                              </code>
+                              <span style={{ fontSize: '10px', color: C.muted, background: 'var(--ds-surface-2)', padding: '1px 5px', borderRadius: '4px' }}>
+                                {cc.valueType || 'String'}
+                              </span>
+                            </div>
+
+                            <div style={{ flex: 1, minWidth: '200px' }}>
+                              <input
+                                type="text"
+                                value={cc.value}
+                                onChange={e => handleUpdateCustomCharVal(cc.name, e.target.value)}
+                                placeholder="Value..."
+                                style={{
+                                  width: '100%',
+                                  padding: '5px 8px',
+                                  fontSize: '12px',
+                                  borderRadius: '4px',
+                                  border: `1px solid ${C.border}`,
+                                  background: '#ffffff',
+                                  color: C.text
+                                }}
+                              />
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveCustomChar(cc.name)}
+                              style={{
+                                background: 'rgba(230,0,0,0.06)',
+                                border: '1px solid rgba(230,0,0,0.2)',
+                                color: 'var(--ds-brand)',
+                                padding: '4px 8px',
+                                borderRadius: '4px',
+                                fontSize: '11px',
+                                cursor: 'pointer'
+                              }}
+                              title="Remove custom characteristic"
+                            >
+                              <Icon name="trash" size={12} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Quick Add Custom Characteristic Bar */}
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '10px',
+                      paddingTop: '12px',
+                      borderTop: `1px solid ${C.border}`,
+                      flexWrap: 'wrap'
+                    }}>
+                      <input
+                        type="text"
+                        placeholder="Name (e.g. policyTag, legalNotice)"
+                        value={newCustomCharName}
+                        onChange={e => setNewCustomCharName(e.target.value)}
+                        style={{
+                          flex: '1 1 180px',
+                          padding: '6px 10px',
+                          fontSize: '12px',
+                          borderRadius: '5px',
+                          border: `1px solid ${C.border}`,
+                          background: '#ffffff',
+                          color: C.text
+                        }}
+                      />
+                      <input
+                        type="text"
+                        placeholder="Value (e.g. GigaKombi_Broadband)"
+                        value={newCustomCharValue}
+                        onChange={e => setNewCustomCharValue(e.target.value)}
+                        style={{
+                          flex: '1 1 200px',
+                          padding: '6px 10px',
+                          fontSize: '12px',
+                          borderRadius: '5px',
+                          border: `1px solid ${C.border}`,
+                          background: '#ffffff',
+                          color: C.text
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={handleAddCustomChar}
+                        disabled={!newCustomCharName.trim()}
+                        style={{
+                          background: newCustomCharName.trim() ? 'var(--ds-spec)' : 'var(--ds-surface-2)',
+                          color: newCustomCharName.trim() ? '#ffffff' : C.muted,
+                          border: 'none',
+                          padding: '6px 14px',
+                          borderRadius: '5px',
+                          fontSize: '11px',
+                          fontWeight: '700',
+                          cursor: newCustomCharName.trim() ? 'pointer' : 'not-allowed',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px'
+                        }}
+                      >
+                        <span>+</span> Add Custom Characteristic
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             /* ── Visual Authoring: WHEN → IF → THEN Flow ── */
@@ -873,28 +1741,6 @@ export default function RuleDetailDrawer({
                         📋 Policy: {currentReferenceDef.policyTag}
                       </span>
                     )}
-                    {currentReferenceDef?.regulatoryRef && (
-                      <span style={{
-                        fontSize: '10px',
-                        color: C.muted,
-                        background: 'var(--ds-surface-subtle)',
-                        border: `1px solid ${C.border}`,
-                        padding: '2px 8px',
-                        borderRadius: '4px'
-                      }}>
-                        ⚖️ {currentReferenceDef.regulatoryRef}
-                      </span>
-                    )}
-                    <span style={{
-                      fontSize: '10px',
-                      color: 'var(--ds-ok)',
-                      background: 'rgba(16,185,129,0.06)',
-                      border: '1px solid rgba(16,185,129,0.2)',
-                      padding: '2px 8px',
-                      borderRadius: '4px'
-                    }}>
-                      {currentReferenceDef?.userOverridden ? '✍️ User Curated' : '🤖 LLM Generated Reference'}
-                    </span>
                   </div>
                 </div>
 

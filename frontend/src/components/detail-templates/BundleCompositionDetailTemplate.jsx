@@ -460,12 +460,12 @@ export default function BundleCompositionDetailTemplate({
               </div>
             </div>
 
-            {chars.length > 4 && (
+            {chars.length > 0 && (
               <input
                 type="text"
                 value={searchChar}
                 onChange={e => setSearchChar(e.target.value)}
-                placeholder="Filter characteristics…"
+                placeholder="Filter by characteristic name..."
                 style={{
                   padding: '5px 10px',
                   borderRadius: '6px',
@@ -474,7 +474,7 @@ export default function BundleCompositionDetailTemplate({
                   color: C.text,
                   fontSize: '12px',
                   outline: 'none',
-                  width: '200px'
+                  width: '220px'
                 }}
               />
             )}
