@@ -20,6 +20,7 @@ backend/logs/*.log
 
 # SQLite & local databases
 *.db
+!reference_data/2_reference_db/vfde_catalog_reference.db
 *.db-journal
 *.db-wal
 *.db-shm
