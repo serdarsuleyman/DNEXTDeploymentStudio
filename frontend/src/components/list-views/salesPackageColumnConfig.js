@@ -1,11 +1,11 @@
 // salesPackageColumnConfig.js
 // Configurable Column Schema, JSONPath Evaluator, and Filters for SalesPackagesListView
 import { extractNgnPacketCodes, extractBitstreamPacketCodes, extractVpnPacketCodes } from '../../services/psmStructureService.js';
-import { evaluateJsonPath } from '../../utils/jsonPath';
+import { evaluateJsonPath } from '../../utils/jsonPath.js';
 
 export { evaluateJsonPath };
 
-export const DEFAULT_COLUMN_KEYS = ['id', 'name', 'psm_code', 'ngn_packet_codes', 'bitstream_packet_codes', 'sku', 'maf', 'spec', 'start_date', 'end_date', 'version', 'lifecycle'];
+export const DEFAULT_COLUMN_KEYS = ['id', 'name', 'portfolio_id', 'network_type', 'psm_code', 'ngn_packet_codes', 'bitstream_packet_codes', 'sku', 'maf', 'spec', 'start_date', 'end_date', 'version', 'lifecycle'];
 
 /**
  * Extracts speed profile via JSONPath from characteristics, with fallback to spec/offer names
@@ -88,6 +88,151 @@ export function detectAccessTechnology(item) {
 }
 
 /**
+ * Resolves the Network Type (DSL or Fiber) based on the specification.
+ * Decided strictly based on specification, with fallback to offer name if spec is generic.
+ */
+export function extractNetworkType(item) {
+  if (!item) return '';
+  const spec = item.productSpecification || item.raw?.productSpecification;
+  const specStr = `${spec?.name || ''} ${spec?.id || ''}`.toLowerCase();
+
+  // 1. Primary: Decide based on the specification
+  if (/dsl|vdsl|adsl/.test(specStr)) {
+    return 'DSL';
+  }
+  if (/ftth|fiber|fibre|glasfaser/.test(specStr)) {
+    return 'Fiber';
+  }
+
+  // 2. Fallback: If spec is generic (e.g. spec_sales_package, VF_DE_SALES_SPEC), check offer name/id
+  const offerStr = `${item.name || ''} ${item.id || ''}`.toLowerCase();
+  if (/ftth|fiber|fibre|glasfaser/.test(offerStr)) {
+    return 'Fiber';
+  }
+  if (/dsl|vdsl|adsl/.test(offerStr)) {
+    return 'DSL';
+  }
+
+  return '';
+}
+
+/**
+ * Resolves the Portfolio Id from direct offering characteristic "portfolio_id" (productOfferingCharacteristic).
+ * Falls back to prodSpecCharValueUse if characteristic was defined there.
+ */
+export function extractPortfolioId(item) {
+  if (!item) return '';
+
+  // 1. Primary: Direct offering characteristic (productOfferingCharacteristic)
+  const directChars = item.productOfferingCharacteristic || item.raw?.productOfferingCharacteristic;
+  if (Array.isArray(directChars)) {
+    const char = directChars.find(c => (c.name || '').toLowerCase() === 'portfolio_id');
+    if (char) {
+      if (Array.isArray(char.productOfferingCharacteristicValue) && char.productOfferingCharacteristicValue.length > 0) {
+        return char.productOfferingCharacteristicValue.map(v => v?.value !== undefined ? String(v.value) : String(v)).join(', ');
+      }
+      if (Array.isArray(char.productSpecCharacteristicValue) && char.productSpecCharacteristicValue.length > 0) {
+        return char.productSpecCharacteristicValue.map(v => v?.value !== undefined ? String(v.value) : String(v)).join(', ');
+      }
+      if (Array.isArray(char.values) && char.values.length > 0) {
+        return char.values.join(', ');
+      }
+      if (Array.isArray(char.value)) {
+        return char.value.join(', ');
+      }
+      if (char.value !== undefined && char.value !== null) {
+        return String(char.value);
+      }
+    }
+  }
+
+  // 2. Secondary: Direct field on entity or draft data
+  if (item.portfolio_id && String(item.portfolio_id).trim() !== '') {
+    return String(item.portfolio_id).trim();
+  }
+  if (item.raw?.portfolio_id && String(item.raw.portfolio_id).trim() !== '') {
+    return String(item.raw.portfolio_id).trim();
+  }
+
+  // 2. Secondary: Fallback to JSONPath across productOfferingCharacteristic
+  const directVal = evaluateJsonPath(
+    item,
+    '$.productOfferingCharacteristic[?(@.name=="portfolio_id")].productOfferingCharacteristicValue[*].value || ' +
+    '$.productOfferingCharacteristic[?(@.name=="portfolio_id")].value || ' +
+    '$.productOfferingCharacteristic[?(@.name=="portfolio_id")].productSpecCharacteristicValue[*].value'
+  );
+  if (directVal !== null && directVal !== undefined && String(directVal).trim() !== '') {
+    return String(directVal);
+  }
+
+  // 3. Fallback: Check prodSpecCharValueUse in case it was stored there
+  const specVal = evaluateJsonPath(
+    item,
+    '$.prodSpecCharValueUse[?(@.name=="portfolio_id")].productSpecCharacteristicValue[*].value || ' +
+    '$.prodSpecCharValueUse[?(@.name=="portfolio_id")].value'
+  );
+  if (specVal !== null && specVal !== undefined && String(specVal).trim() !== '') {
+    return String(specVal);
+  }
+
+  return '';
+}
+
+/**
+ * Extracts the direct characteristic template_name value from a ProductOffering
+ * (e.g. "PO_GigaZuhause_100_Kabel:(version=1)").
+ */
+export function extractTemplateName(item) {
+  if (!item) return '';
+
+  // 1. Primary: Direct offering characteristic (productOfferingCharacteristic)
+  const directChars = item.productOfferingCharacteristic || item.raw?.productOfferingCharacteristic;
+  if (Array.isArray(directChars)) {
+    const char = directChars.find(c => (c.name || '').toLowerCase() === 'template_name');
+    if (char) {
+      if (Array.isArray(char.productOfferingCharacteristicValue) && char.productOfferingCharacteristicValue.length > 0) {
+        return char.productOfferingCharacteristicValue.map(v => v?.value !== undefined ? String(v.value) : String(v)).join(', ');
+      }
+      if (Array.isArray(char.productSpecCharacteristicValue) && char.productSpecCharacteristicValue.length > 0) {
+        return char.productSpecCharacteristicValue.map(v => v?.value !== undefined ? String(v.value) : String(v)).join(', ');
+      }
+      if (Array.isArray(char.values) && char.values.length > 0) {
+        return char.values.join(', ');
+      }
+      if (Array.isArray(char.value)) {
+        return char.value.join(', ');
+      }
+      if (char.value !== undefined && char.value !== null) {
+        return String(char.value);
+      }
+    }
+  }
+
+  // 2. Secondary: Fallback to JSONPath across productOfferingCharacteristic
+  const directVal = evaluateJsonPath(
+    item,
+    '$.productOfferingCharacteristic[?(@.name=="template_name")].productOfferingCharacteristicValue[*].value || ' +
+    '$.productOfferingCharacteristic[?(@.name=="template_name")].value || ' +
+    '$.productOfferingCharacteristic[?(@.name=="template_name")].productSpecCharacteristicValue[*].value'
+  );
+  if (directVal !== null && directVal !== undefined && String(directVal).trim() !== '') {
+    return String(directVal);
+  }
+
+  // 3. Fallback: Check prodSpecCharValueUse
+  const specVal = evaluateJsonPath(
+    item,
+    '$.prodSpecCharValueUse[?(@.name=="template_name")].productSpecCharacteristicValue[*].value || ' +
+    '$.prodSpecCharValueUse[?(@.name=="template_name")].value'
+  );
+  if (specVal !== null && specVal !== undefined && String(specVal).trim() !== '') {
+    return String(specVal);
+  }
+
+  return '';
+}
+
+/**
  * Resolves a comparable/searchable raw value for a given column definition.
  * Prioritizes declarative JSONPath resolution, with fallbacks to core fields.
  */
@@ -112,6 +257,10 @@ export function getColumnRawValue(item, colDef) {
       return String(item.id || '');
     case 'name':
       return String(item.name || '');
+    case 'portfolio_id':
+      return extractPortfolioId(item);
+    case 'network_type':
+      return extractNetworkType(item);
     case 'spec': {
       const s = item.productSpecification || item.raw?.productSpecification;
       return String(s?.name || s?.id || '');
@@ -168,6 +317,31 @@ export const AVAILABLE_COLUMNS = [
     sortable: true,
     filterable: true,
     filterType: 'text'
+  },
+  {
+    key: 'portfolio_id',
+    label: 'Portfolio Id',
+    description: 'Portfolio identifier mapped from direct offering characteristic portfolio_id',
+    jsonPath: '$.productOfferingCharacteristic[?(@.name=="portfolio_id")].productOfferingCharacteristicValue[*].value || $.productOfferingCharacteristic[?(@.name=="portfolio_id")].value',
+    accessor: (item) => extractPortfolioId(item),
+    width: '150px',
+    minWidth: '130px',
+    defaultVisible: true,
+    sortable: true,
+    filterable: true,
+    filterType: 'text'
+  },
+  {
+    key: 'network_type',
+    label: 'Network Type',
+    description: 'Broadband access network technology (DSL or Fiber) decided based on specification',
+    accessor: (item) => extractNetworkType(item),
+    width: '130px',
+    minWidth: '110px',
+    defaultVisible: true,
+    sortable: true,
+    filterable: true,
+    filterType: 'select'
   },
   {
     key: 'spec',

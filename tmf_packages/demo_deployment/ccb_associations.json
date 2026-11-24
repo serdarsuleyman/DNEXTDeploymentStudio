@@ -1,0 +1,31 @@
+{
+  "tariffs": [
+    {
+      "serviceDomain": "INTERNET",
+      "pricingStructureCode": "IP530",
+      "name": "PK Internet-Flat GZH 300 Glas 10/25",
+      "associatedProductCodes": [
+        "I1204",
+        "I1203"
+      ],
+      "tariffBase": "Standardtarif",
+      "effectiveDate": "",
+      "isEdited": false,
+      "services": []
+    },
+    {
+      "serviceDomain": "VOICE",
+      "pricingStructureCode": "VP530",
+      "name": "PK Allnet-Flat GZH 300 Glas 10/25",
+      "associatedProductCodes": [
+        "VI202",
+        "VI203"
+      ],
+      "tariffBase": "Standardtarif",
+      "effectiveDate": "",
+      "isEdited": false,
+      "services": []
+    }
+  ],
+  "services": []
+}

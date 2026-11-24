@@ -773,61 +773,6 @@ export default function CategoriesListView({
             </div>
           )}
         </div>
-
-        {/* Right Toolbar: Refresh & Cache Status */}
-        {onRefreshCatalog && (
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-            {cacheStatus && (
-              <span
-                style={{
-                  fontSize: '11px',
-                  color: cacheStatus.isCached ? 'var(--ds-ok)' : 'var(--ds-text-2)',
-                  background: cacheStatus.isCached ? 'rgba(16,185,129,0.08)' : 'rgba(0,0,0,0.04)',
-                  border: `1px solid ${cacheStatus.isCached ? 'rgba(16,185,129,0.25)' : 'var(--ds-border)'}`,
-                  padding: '3px 8px',
-                  borderRadius: '4px',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '4px'
-                }}
-                title={cacheStatus.cachedAt ? `Loaded from SQLite backend cache (${new Date(cacheStatus.cachedAt).toLocaleString()})` : 'Live catalog data'}
-              >
-                <span>{cacheStatus.isCached ? 'Cached' : 'Live'}</span>
-                {cacheStatus.cachedAt && (
-                  <span style={{ fontSize: '11px', color: 'var(--ds-text-2)' }}>
-                    ({new Date(cacheStatus.cachedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })})
-                  </span>
-                )}
-              </span>
-            )}
-            <button
-              type="button"
-              onClick={onRefreshCatalog}
-              disabled={isRefreshing}
-              style={{
-                background: 'var(--ds-brand)',
-                border: '1px solid var(--ds-brand-dark)',
-                color: '#ffffff',
-                padding: '4px 12px',
-                borderRadius: '5px',
-                fontSize: '12px',
-                fontWeight: '600',
-                cursor: isRefreshing ? 'not-allowed' : 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                opacity: isRefreshing ? 0.7 : 1,
-                transition: 'all 0.15s ease'
-              }}
-              title="Reload live catalog from DNEXT Direct Cloud Gateway (bypasses cache)"
-            >
-              <span style={{ display: 'inline-block', animation: isRefreshing ? 'spin 1s infinite linear' : 'none' }}>
-                {isRefreshing ? '' : '⟳'}
-              </span>
-              <span>{isRefreshing ? 'Refreshing…' : 'Refresh Catalog'}</span>
-            </button>
-          </div>
-        )}
       </div>
 
       {/* ─── VIEW 1: HIERARCHICAL TREE VIEW ─── */}

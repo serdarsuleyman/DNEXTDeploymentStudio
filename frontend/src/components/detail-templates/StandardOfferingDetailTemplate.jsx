@@ -5,6 +5,7 @@ import SearchableCategorySelect from '../ui/SearchableCategorySelect';
 import SearchableOfferingPriceSelect from '../ui/SearchableOfferingPriceSelect';
 import { LifecyclePill, VersionCell } from '../list-views/cellRenderers';
 import { isOptionSpec, isHardwareSpec } from './viewTemplateRegistry';
+import OfferingSpecificationAndOverridesTab from './OfferingSpecificationAndOverridesTab';
 import { lookupCatalogCategory, getAllCatalogCategories } from '../../utils/categoryResolver';
 
 const C = {
@@ -1186,7 +1187,7 @@ export default function StandardOfferingDetailTemplate({
   const subTabs = useMemo(() => [
     { id: 'overview', label: 'Overview', icon: 'chart' },
     { id: 'pricing', label: `Pricing (${activePopsCount})`, icon: 'tag' },
-    { id: 'characteristics', label: `Characteristics (${activeChars.length})`, icon: 'sliders' },
+    { id: 'characteristics', label: `Specification & Overrides (${activeChars.length})`, icon: 'clipboard' },
     { id: 'categories', label: `Categories (${activeCategoriesCount})`, icon: 'folder' },
     ...(terms.length > 0 ? [{ id: 'terms', label: `Contract Terms (${terms.length})`, icon: 'edit' }] : [])
   ], [activePopsCount, activeChars.length, activeCategoriesCount, terms.length]);
@@ -2770,9 +2771,17 @@ export default function StandardOfferingDetailTemplate({
       )}
 
       {/* ══════════════════════════════════════════════════════ */}
-      {/* ─── TAB CONTENT 3: CHARACTERISTICS ─── */}
+      {/* ─── TAB CONTENT 3: CHARACTERISTICS / SPECIFICATION & OVERRIDES ─── */}
       {/* ══════════════════════════════════════════════════════ */}
-      {activeSubTab === 'characteristics' && (
+      {activeSubTab === 'characteristics' && !isEditing && (
+        <OfferingSpecificationAndOverridesTab
+          raw={raw}
+          item={item}
+          specObj={activeSpec || specObj}
+          onNavigateToEntity={onNavigateToEntity}
+        />
+      )}
+      {activeSubTab === 'characteristics' && isEditing && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {/* In Edit Mode: Add Characteristic Bar */}
           {isEditing && (

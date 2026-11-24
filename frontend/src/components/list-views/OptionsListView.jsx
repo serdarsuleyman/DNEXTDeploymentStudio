@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import Icon from '../ui/Icon';
-import { CodeList, PriceCell, splitValues, SpecLink, VersionCell, LifecyclePill } from './cellRenderers';
+import { CodeList, PriceCell, splitValues, SpecLink, VersionCell, LifecyclePill, OptionTypeBadge } from './cellRenderers';
 import { C } from './constants';
 import { useColumnConfig } from '../../hooks/useColumnConfig';
 import { useTableFilterSort } from '../../hooks/useTableFilterSort';
@@ -9,6 +9,7 @@ import VersionMenuDropdown from './VersionMenuDropdown';
 import {
   AVAILABLE_COLUMNS,
   DEFAULT_COLUMN_KEYS,
+  extractOptionType,
   evaluateJsonPath,
   getColumnRawValue
 } from './optionColumnConfig';
@@ -18,9 +19,13 @@ const STORAGE_KEY = 'dnext_options_visible_columns';
 function migrateOptionColumns(parsed) {
   const valid = parsed.filter(k => AVAILABLE_COLUMNS.some(c => c.key === k));
   if (valid.length === 0) return parsed;
-  if (DEFAULT_COLUMN_KEYS.includes('sku') && !valid.includes('sku')) {
+  if (DEFAULT_COLUMN_KEYS.includes('option_type') && !valid.includes('option_type')) {
     const nameIdx = valid.indexOf('name');
-    valid.splice(nameIdx !== -1 ? nameIdx + 1 : valid.length, 0, 'sku');
+    valid.splice(nameIdx !== -1 ? nameIdx + 1 : valid.length, 0, 'option_type');
+  }
+  if (DEFAULT_COLUMN_KEYS.includes('sku') && !valid.includes('sku')) {
+    const optIdx = valid.indexOf('option_type');
+    valid.splice(optIdx !== -1 ? optIdx + 1 : valid.length, 0, 'sku');
   }
   if (DEFAULT_COLUMN_KEYS.includes('product_family_name') && !valid.includes('product_family_name')) {
     const skuIdx = valid.indexOf('sku');
@@ -153,6 +158,11 @@ export default function OptionsListView({
         );
       }
 
+      case 'option_type': {
+        const optType = extractOptionType(item);
+        return <OptionTypeBadge type={optType} compact={!isParent} />;
+      }
+
       case 'spec': {
         const spec = item.productSpecification || item.raw?.productSpecification;
         return (
@@ -269,7 +279,7 @@ export default function OptionsListView({
           />
         </div>
 
-        {/* Right: Active Sort Reset & Refresh Catalog Button (aligned right) */}
+        {/* Right: Active Sort Reset */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           {sortConfig.key && (
             <button
@@ -292,62 +302,6 @@ export default function OptionsListView({
               <span>Sorted by: <strong>{AVAILABLE_COLUMNS.find(c => c.key === sortConfig.key)?.label || sortConfig.key}</strong> ({sortConfig.direction === 'asc' ? '▲' : '▼'})</span>
               <span style={{ marginLeft: '4px', fontSize: '12px' }}>✕</span>
             </button>
-          )}
-
-          {/* Refresh Catalog Button aligned on the right side of the row */}
-          {onRefreshCatalog && (
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-              {cacheStatus && (
-                <span
-                  style={{
-                    fontSize: '11px',
-                    color: cacheStatus.isCached ? 'var(--ds-ok)' : 'var(--ds-text-2)',
-                    background: cacheStatus.isCached ? 'rgba(16,185,129,0.08)' : 'rgba(0,0,0,0.04)',
-                    border: `1px solid ${cacheStatus.isCached ? 'rgba(16,185,129,0.25)' : 'var(--ds-border)'}`,
-                    padding: '3px 8px',
-                    borderRadius: '4px',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '4px'
-                  }}
-                  title={cacheStatus.cachedAt ? `Loaded from SQLite backend cache (${new Date(cacheStatus.cachedAt).toLocaleString()})` : 'Live catalog data'}
-                >
-                  <span>{cacheStatus.isCached ? 'Cached' : 'Live'}</span>
-                  {cacheStatus.cachedAt && (
-                    <span style={{ fontSize: '11px', color: 'var(--ds-text-2)' }}>
-                      ({new Date(cacheStatus.cachedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })})
-                    </span>
-                  )}
-                </span>
-              )}
-
-              <button
-                type="button"
-                onClick={onRefreshCatalog}
-                disabled={isRefreshing}
-                style={{
-                  background: 'var(--ds-brand)',
-                  border: '1px solid var(--ds-brand-dark)',
-                  color: '#ffffff',
-                  padding: '4px 12px',
-                  borderRadius: '5px',
-                  fontSize: '12px',
-                  fontWeight: '600',
-                  cursor: isRefreshing ? 'not-allowed' : 'pointer',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  boxShadow: '0 1px 3px rgba(230,0,0,0.25)',
-                  transition: 'all 0.15s ease'
-                }}
-                title="Fetch latest remote entities from active DNEXT environment (bypasses cache)"
-              >
-                <span style={{ display: 'inline-block', animation: isRefreshing ? 'spin 1s infinite linear' : 'none' }}>
-                  {isRefreshing ? '' : '⟳'}
-                </span>
-                <span>{isRefreshing ? 'Refreshing…' : 'Refresh Catalog'}</span>
-              </button>
-            </div>
           )}
         </div>
       </div>

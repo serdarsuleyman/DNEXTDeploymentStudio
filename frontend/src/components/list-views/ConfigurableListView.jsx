@@ -25,7 +25,9 @@ export default function ConfigurableListView({
   onRefreshCatalog,
   isRefreshing = false,
   onOpenDetail,
-  onSpecFilter
+  onSpecFilter,
+  onResumeDraft,
+  onDraftsCountChange
 }) {
   const sampleItem = groups.length > 0 ? groups[0]?.latestItem : null;
   const activeTemplateId = templateId || resolveListViewTemplateId(context, sampleItem);
@@ -48,6 +50,8 @@ export default function ConfigurableListView({
       cacheStatus={effectiveCacheStatus}
       onOpenDetail={onOpenDetail}
       onSpecFilter={onSpecFilter}
+      onResumeDraft={onResumeDraft}
+      onDraftsCountChange={onDraftsCountChange}
     />
   );
 }

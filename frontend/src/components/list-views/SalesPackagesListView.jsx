@@ -1,6 +1,6 @@
 import React, { useMemo, useCallback } from 'react';
 import Icon from '../ui/Icon';
-import { CodeList, SpeedCell, PriceCell, DateCell, ValidityCell, TariffCodes, splitValues, SpecLink, VersionCell, LifecyclePill } from './cellRenderers';
+import { CodeList, SpeedCell, PriceCell, DateCell, ValidityCell, TariffCodes, splitValues, SpecLink, VersionCell, LifecyclePill, NetworkTypeBadge } from './cellRenderers';
 import { C } from './constants';
 import { useColumnConfig } from '../../hooks/useColumnConfig';
 import { useTableFilterSort } from '../../hooks/useTableFilterSort';
@@ -10,6 +10,7 @@ import {
   AVAILABLE_COLUMNS,
   DEFAULT_COLUMN_KEYS,
   extractSpeedProfile,
+  extractNetworkType,
   evaluateJsonPath,
   getColumnRawValue
 } from './salesPackageColumnConfig';
@@ -29,7 +30,8 @@ function migrateSalesPackageColumns(parsed) {
     }
   };
 
-  insertAfter('psm_code', 'name');
+  insertAfter('network_type', 'name');
+  insertAfter('psm_code', 'network_type');
   if (DEFAULT_COLUMN_KEYS.includes('sku') && !valid.includes('sku')) {
     const psmIdx = valid.indexOf('psm_code');
     if (psmIdx !== -1) valid.splice(psmIdx + 1, 0, 'sku');
@@ -169,6 +171,11 @@ export default function SalesPackagesListView({
             {item.name || '-'}
           </div>
         );
+      }
+
+      case 'network_type': {
+        const netType = extractNetworkType(item);
+        return <NetworkTypeBadge type={netType} compact={!isParent} />;
       }
 
       case 'spec': {

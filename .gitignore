@@ -31,3 +31,7 @@ backend/data/vfde_catalog_reference.db
 *.tmp
 *.swp
 agent.md
+
+# Large reference XML (analysis-only)
+reference_data/2_reference_data/FN_Mapper_2026_08_21_17_13.xml
+**/FN_Mapper_*.xml

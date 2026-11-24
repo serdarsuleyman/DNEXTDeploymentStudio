@@ -111,6 +111,7 @@ export default function DnextDeploymentDashboard({ selectedEnv, environments: pr
   const [bulkLoading,       setBulkLoading]       = useState(false);
   const [syncStatusLoading, setSyncStatusLoading] = useState(false);
   const [syncStatusMsg,     setSyncStatusMsg]     = useState('');
+  const [catalogRefreshing, setCatalogRefreshing] = useState(false);
 
   // Debug panel ----------------------------------------------------------------
   const [debugItem,      setDebugItem]      = useState(null);
@@ -238,7 +239,13 @@ export default function DnextDeploymentDashboard({ selectedEnv, environments: pr
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to scan package files');
       await Promise.all([loadPackages(), loadItems()]);
-      showToast(`✓ Scanned & synchronized ${data.count} items from "${data.file_path}"`, 'success');
+      if (data.deleted_count > 0 && data.count === 0) {
+        showToast(`✓ Directory empty: removed ${data.deleted_count} items from registry`, 'success');
+      } else if (data.deleted_count > 0) {
+        showToast(`✓ Scanned ${data.count} items from "${data.file_path}" (${data.deleted_count} deleted items removed)`, 'success');
+      } else {
+        showToast(`✓ Scanned & synchronized ${data.count} items from "${data.file_path}"`, 'success');
+      }
     } catch (e) {
       showToast(`Scan error: ${e.message}`, 'error');
     } finally {
@@ -337,7 +344,7 @@ export default function DnextDeploymentDashboard({ selectedEnv, environments: pr
     const pathSeg = TYPE_TO_PATH[item.dnext_entity_type] || 'product-offerings';
     try {
       const res = await fetch(
-        `/api/dnext/${pathSeg}?id=${encodeURIComponent(id)}&limit=1`,
+        `/api/dnext/${pathSeg}?id=${encodeURIComponent(id)}&lifecycleStatus=In%20study,In%20test,Launched,Retired,Obsolete&limit=1`,
         { headers: getDnextHeaders(token, null) }
       );
       const data = await res.json();
@@ -376,42 +383,49 @@ export default function DnextDeploymentDashboard({ selectedEnv, environments: pr
   };
 
   // ─── Purge single item from DNEXT ─────────────────────────────────────────
-  // Uses /api/dnext/purge-entity to purge all versions from remote DNEXT
-  // and resets local sync_status to 'pending'
-  const purgeAndResetItem = async (item) => {
+  // ─── Delete item permanently from disk, registry & remote DNEXT ──────────
+  const deleteItemPermanently = async (item) => {
     const id = item.dnext_entity_id;
     setActionState(s => ({ ...s, [id]: 'deleting' }));
 
+    let remotePurgeWarning = null;
     try {
-      // 1. Purge from remote DNEXT if connected (tolerates 404/already gone)
-      if (token && existsMap[id] !== false) {
-        const purgeRes = await fetch('/api/dnext/purge-entity', {
-          method: 'POST',
-          headers: getDnextHeaders(token),
-          body: JSON.stringify({
-            objectType: item.dnext_entity_type,
-            id,
-          }),
-        });
-
-        // 404 / notFound = already not in DNEXT — that is fine, continue with local status reset
-        if (!purgeRes.ok && purgeRes.status !== 404) {
-          const errData = await purgeRes.json().catch(() => ({}));
-          if (!errData.notFound && !errData.error?.toLowerCase().includes('not found')) {
-            throw new Error(errData.error || `Purge failed (HTTP ${purgeRes.status})`);
+      // 1. Purge from remote DNEXT (always attempt if token is available)
+      if (token) {
+        try {
+          const purgeRes = await fetch('/api/dnext/purge-entity', {
+            method: 'POST',
+            headers: getDnextHeaders(token),
+            body: JSON.stringify({
+              objectType: item.dnext_entity_type,
+              id,
+            }),
+          });
+          if (!purgeRes.ok && purgeRes.status !== 404) {
+            const errData = await purgeRes.json().catch(() => ({}));
+            remotePurgeWarning = errData.error || `Remote purge returned HTTP ${purgeRes.status}`;
+            console.warn(`[Delete] Remote purge failed for ${id}:`, remotePurgeWarning);
           }
+        } catch (purgeErr) {
+          remotePurgeWarning = purgeErr.message;
+          console.warn(`[Delete] Remote purge error for ${id}:`, purgeErr);
         }
+      } else {
+        remotePurgeWarning = 'Not connected to DNEXT; item removed locally only.';
       }
 
-      // 2. Reset local registry sync_status to 'pending'
-      await fetch(`/api/dnext-deployment-item/${encodeURIComponent(id)}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sync_status: 'pending' }),
+      // 2. Delete item from registry AND delete its JSON file from disk
+      const delRes = await fetch(`/api/dnext-deployment-item/${encodeURIComponent(id)}?deleteFile=true`, {
+        method: 'DELETE',
       });
+      if (!delRes.ok) {
+        const errData = await delRes.json().catch(() => ({}));
+        throw new Error(errData.error || `Delete failed (HTTP ${delRes.status})`);
+      }
 
       setExistsMap(m => ({ ...m, [id]: false }));
       setActionState(s => ({ ...s, [id]: 'done' }));
+      return { success: true, remotePurgeWarning };
     } catch (e) {
       setActionState(s => ({ ...s, [id]: 'error' }));
       throw e;
@@ -419,13 +433,17 @@ export default function DnextDeploymentDashboard({ selectedEnv, environments: pr
   };
 
   const handleDelete = async (item) => {
-    if (!window.confirm(`Purge ALL versions of "${item.dnext_entity_id}" from remote DNEXT?\n\nThis will purge every version from remote DNEXT and reset local status to pending.`)) return;
+    if (!window.confirm(`Delete "${item.dnext_entity_id}" permanently?\n\nThis will remove the item from the deployment package, delete the JSON file from disk, and purge it from remote DNEXT.`)) return;
     try {
-      await purgeAndResetItem(item);
-      showToast(`✓ Purged all versions of ${item.dnext_entity_id} from DNEXT`, 'success');
-      loadItems();
+      const res = await deleteItemPermanently(item);
+      if (res?.remotePurgeWarning) {
+        showToast(`✓ Deleted locally (warning: ${res.remotePurgeWarning})`, 'warning');
+      } else {
+        showToast(`✓ Deleted and purged ${item.dnext_entity_id}`, 'success');
+      }
+      await Promise.all([loadPackages(), loadItems()]);
     } catch (e) {
-      showToast(`Purge failed: ${e.message}`, 'error');
+      showToast(`Delete failed: ${e.message}`, 'error');
     }
   };
 
@@ -493,24 +511,47 @@ export default function DnextDeploymentDashboard({ selectedEnv, environments: pr
     loadItems();
   };
 
-  // ─── Bulk purge selected from DNEXT ──────────────────────────────────────
+  // ─── Bulk delete selected from disk, registry & remote DNEXT ────────────
   const handleBulkDelete = async () => {
     if (selected.size === 0) { showToast('Select at least one item.', 'error'); return; }
-    if (!window.confirm(`Purge ALL versions of the ${selected.size} selected items from remote DNEXT?\n\nThis will purge every version from remote DNEXT and reset local status to pending.`)) return;
+    if (!window.confirm(`Delete the ${selected.size} selected items permanently?\n\nThis will remove them from the deployment package, delete their JSON files from disk, and purge them from remote DNEXT.`)) return;
     setBulkLoading(true);
     const targets = items.filter(i => selected.has(i.dnext_entity_id));
+    const wasFilteringSearch = !!searchQ.trim();
+    const hadSelectedAllVisible = visibleItems.length > 0 && selected.size >= visibleItems.length;
+    const hadSelectedAllItems = items.length > 0 && selected.size >= items.length;
+
     let ok = 0, fail = 0;
     for (const item of targets) {
       try {
-        await purgeAndResetItem(item);
+        await deleteItemPermanently(item);
         ok++;
       } catch (e) {
         fail++;
       }
     }
     setBulkLoading(false);
-    showToast(`Bulk purge complete: ${ok} purged from DNEXT, ${fail} failed`, fail > 0 ? 'error' : 'success');
-    loadItems();
+    setSelected(new Set());
+
+    // If search query was filtering and all visible items were deleted, clear search so remaining items are shown
+    if (wasFilteringSearch && hadSelectedAllVisible) {
+      setSearchQ('');
+    }
+
+    // If all items under an active filter were deleted, reset filter to 'all' so user is not stuck on an empty list
+    if (hadSelectedAllItems) {
+      if (filterOffer !== 'all') setFilterOffer('all');
+      if (filterType !== 'all') setFilterType('all');
+      if (filterStatus !== 'all') setFilterStatus('all');
+    }
+
+    // Refresh both deployment items registry AND deployment package counts
+    await Promise.all([loadPackages(), loadItems()]);
+
+    const msg = wasFilteringSearch && hadSelectedAllVisible
+      ? `Bulk delete complete: ${ok} deleted, ${fail} failed. Search filter was cleared to show remaining items.`
+      : `Bulk delete complete: ${ok} deleted, ${fail} failed`;
+    showToast(msg, fail > 0 ? 'warning' : 'success');
   };
 
   // ─── Reset registry ───────────────────────────────────────────────────────
@@ -554,17 +595,18 @@ export default function DnextDeploymentDashboard({ selectedEnv, environments: pr
       setExistsMap(m => ({ ...m, [id]: 'checking' }));
 
       try {
-        // Query DNEXT: look up entity by id AND lifecycleStatus=Launched
+        // Query DNEXT: look up entity by id across active lifecycle statuses
         const res  = await fetch(
-          `/api/dnext/${pathSeg}?id=${encodeURIComponent(id)}&lifecycleStatus=Launched&limit=1`,
+          `/api/dnext/${pathSeg}?id=${encodeURIComponent(id)}&lifecycleStatus=Launched,In%20study,In%20test&limit=1`,
           { headers: getDnextHeaders(token, null) }
         );
         const data = await res.json();
 
-        // Determine if the entity exists in DNEXT with Launched status
+        // Determine if the entity exists in DNEXT
+        const validStatuses = ['Launched', 'In study', 'In test'];
         const found = Array.isArray(data)
-          ? data.some(d => d.lifecycleStatus === 'Launched')
-          : (data?.id && data?.lifecycleStatus === 'Launched');
+          ? data.some(d => validStatuses.includes(d.lifecycleStatus))
+          : (data?.id && (!data.lifecycleStatus || validStatuses.includes(data?.lifecycleStatus)));
 
         const newStatus = found ? 'synced' : 'pending';
         setExistsMap(m => ({ ...m, [id]: found }));
@@ -590,6 +632,37 @@ export default function DnextDeploymentDashboard({ selectedEnv, environments: pr
     const msg = `✓ Status refreshed — ${synced} Launched, ${pending} not found, ${errors} errors`;
     setSyncStatusMsg(msg);
     showToast(msg, errors > 0 ? 'error' : 'success');
+  };
+
+  // ─── Refresh Remote Catalog Cache ───────────────────────────────────────────
+  const handleRefreshCatalog = async () => {
+    if (!token) {
+      if (openLoginModal) {
+        openLoginModal();
+      } else {
+        showToast('Please connect to Keycloak/DNEXT to refresh remote catalog.', 'error');
+      }
+      return;
+    }
+    setCatalogRefreshing(true);
+    try {
+      const headers = getDnextHeaders(token);
+      // Query remote catalog endpoints with &refresh=true to bypass and update SQLite catalog cache
+      await Promise.allSettled([
+        fetch('/api/dnext/product-offerings?limit=1000&refresh=true', { headers }),
+        fetch('/api/dnext/product-offering-prices?limit=1000&refresh=true', { headers }),
+        fetch('/api/dnext/product-specifications?limit=1000&refresh=true', { headers }),
+        fetch('/api/dnext/categories?limit=1000&refresh=true', { headers }),
+      ]);
+      setExistsMap({});
+      await loadItems();
+      showToast('✓ Remote catalog refreshed successfully', 'success');
+    } catch (err) {
+      console.error('Failed to refresh remote catalog:', err);
+      showToast(`Refresh catalog failed: ${err.message}`, 'error');
+    } finally {
+      setCatalogRefreshing(false);
+    }
   };
 
 
@@ -985,11 +1058,32 @@ export default function DnextDeploymentDashboard({ selectedEnv, environments: pr
       {/* ── Toolbar ────────────────────────────────────────────────────── */}
       <div style={{ padding: '12px 28px', borderBottom: `1px solid ${C.border}`, display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap', flexShrink: 0, background: '#ffffff' }}>
 
-        {/* Search */}
-        <input
-          value={searchQ} onChange={e => setSearchQ(e.target.value)} placeholder="Search by ID, type…"
-          style={{ padding: '7px 12px', borderRadius: '6px', border: `1px solid ${C.border}`, background: '#ffffff', color: C.text, fontSize: '12px', width: '220px' }}
-        />
+        {/* Search with quick clear */}
+        <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
+          <input
+            value={searchQ} onChange={e => setSearchQ(e.target.value)} placeholder="Search by ID, type…"
+            style={{ padding: '7px 26px 7px 12px', borderRadius: '6px', border: `1px solid ${C.border}`, background: '#ffffff', color: C.text, fontSize: '12px', width: '220px' }}
+          />
+          {searchQ && (
+            <button
+              onClick={() => setSearchQ('')}
+              title="Clear search"
+              style={{
+                position: 'absolute',
+                right: '7px',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                color: C.muted,
+                padding: '2px 4px',
+                fontSize: '12px',
+                lineHeight: 1
+              }}
+            >
+              ✕
+            </button>
+          )}
+        </div>
 
         {/* Entity type filter */}
         <select value={filterType} onChange={e => { setFilterType(e.target.value); setSelected(new Set()); }}
@@ -1014,6 +1108,23 @@ export default function DnextDeploymentDashboard({ selectedEnv, environments: pr
           <option value="error">Error</option>
         </select>
 
+        {/* Clear filters shortcut */}
+        {Boolean(searchQ.trim() || filterType !== 'all' || filterOffer !== 'all' || filterStatus !== 'all') && (
+          <button
+            onClick={() => {
+              setSearchQ('');
+              setFilterType('all');
+              setFilterOffer('all');
+              setFilterStatus('all');
+            }}
+            style={btn({ fontSize: '11px', padding: '6px 10px', color: C.muted })}
+            className="dep-btn"
+            title="Reset search and filters to view all items in active package"
+          >
+            ✕ Reset Filters
+          </button>
+        )}
+
         <div style={{ flex: 1 }} />
 
         {/* Bulk sync / delete */}
@@ -1030,7 +1141,7 @@ export default function DnextDeploymentDashboard({ selectedEnv, environments: pr
               onClick={handleBulkDelete} disabled={bulkLoading}
               style={btn({ background: 'rgba(239,68,68,0.1)', borderColor: 'rgba(239,68,68,0.3)', color: 'var(--ds-danger)', opacity: bulkLoading ? 0.6 : 1 })}
               className="dep-btn"
-              title="Delete selected items from remote DNEXT and reset local sync status to pending"
+              title="Delete selected items permanently from disk, registry, and remote DNEXT"
             >
               {bulkLoading ? 'Deleting…' : `Delete Selected (${selected.size})`}
             </button>
@@ -1038,8 +1149,37 @@ export default function DnextDeploymentDashboard({ selectedEnv, environments: pr
         )}
 
         {/* Reload */}
-        <button onClick={loadItems} disabled={isLoading} style={btn()} className="dep-btn">
-          {isLoading ? '…' : '↻ Reload'}
+        <button
+          onClick={() => { loadPackages(); loadItems(); }}
+          disabled={isLoading || packagesLoading}
+          style={btn()}
+          className="dep-btn"
+          title="Reload local deployment registry and package counts"
+        >
+          {(isLoading || packagesLoading) ? '…' : '↻ Reload'}
+        </button>
+
+        {/* Refresh Catalog */}
+        <button
+          onClick={handleRefreshCatalog}
+          disabled={catalogRefreshing}
+          style={btn({
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            opacity: catalogRefreshing ? 0.6 : 1,
+          })}
+          className="dep-btn"
+          title={!token ? 'Log in to Keycloak to refresh remote catalog' : 'Fetch latest remote catalog entities from active DNEXT environment (bypasses cache)'}
+        >
+          {catalogRefreshing ? (
+            <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ display: 'inline-block', width: '10px', height: '10px', border: '2px solid rgba(0,0,0,0.25)', borderTopColor: 'var(--ds-brand)', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+              Refreshing…
+            </span>
+          ) : (
+            '⟳ Refresh Catalog'
+          )}
         </button>
 
         {/* Sync Status */}
@@ -1133,9 +1273,78 @@ export default function DnextDeploymentDashboard({ selectedEnv, environments: pr
             )}
 
             {!isLoading && visibleItems.length === 0 && (
-              <tr><td colSpan={11} style={{ padding: '48px', textAlign: 'center', color: C.muted }}>
-                No items match the current filters.
-              </td></tr>
+              <tr>
+                <td colSpan={11} style={{ padding: '56px 24px', textAlign: 'center', background: '#fafafa', borderBottom: `1px solid ${C.border}` }}>
+                  <div style={{ maxWidth: '540px', margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+                    <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'var(--ds-surface-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.muted, border: `1px solid ${C.border}` }}>
+                      <Icon name="search" size={22} />
+                    </div>
+
+                    <div style={{ fontSize: '15px', fontWeight: 600, color: C.text }}>
+                      {items.length > 0 && searchQ.trim()
+                        ? `No items match search "${searchQ}"`
+                        : selectedPackageId
+                        ? `Deployment package "${packages.find(p => p.id === selectedPackageId)?.name || selectedPackageId}" contains no items`
+                        : (filterType !== 'all' || filterOffer !== 'all' || filterStatus !== 'all')
+                        ? 'No items match the active filters'
+                        : 'No deployment items found'}
+                    </div>
+
+                    <p style={{ fontSize: '12px', color: C.muted, margin: 0, lineHeight: 1.5 }}>
+                      {items.length > 0 && searchQ.trim()
+                        ? `There are ${items.length} items in this view that do not match "${searchQ}". Clear the search query to view them.`
+                        : selectedPackageId
+                        ? 'All items in this package may have been removed, or the package directory has not been scanned.'
+                        : 'Try resetting the filters or scanning a deployment package directory.'}
+                    </p>
+
+                    <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center', marginTop: '8px' }}>
+                      {searchQ.trim() && (
+                        <button
+                          onClick={() => setSearchQ('')}
+                          style={btn({ background: 'var(--ds-brand)', borderColor: 'var(--ds-brand-dark)', color: '#ffffff', fontSize: '12px', padding: '6px 14px' })}
+                          className="dep-btn"
+                        >
+                          Clear Search ({items.length} items available)
+                        </button>
+                      )}
+
+                      {(filterType !== 'all' || filterOffer !== 'all' || filterStatus !== 'all') && (
+                        <button
+                          onClick={() => { setFilterType('all'); setFilterOffer('all'); setFilterStatus('all'); }}
+                          style={btn({ background: '#ffffff', borderColor: C.border, color: C.text, fontSize: '12px', padding: '6px 14px' })}
+                          className="dep-btn"
+                        >
+                          Reset Filters (Type, Offer, Status)
+                        </button>
+                      )}
+
+                      {selectedPackageId && (
+                        <button
+                          onClick={() => { setSelectedPackageId(null); setSearchQ(''); setFilterType('all'); setFilterOffer('all'); setFilterStatus('all'); }}
+                          style={btn({ background: 'var(--ds-brand)', borderColor: 'var(--ds-brand-dark)', color: '#ffffff', fontSize: '12px', padding: '6px 14px' })}
+                          className="dep-btn"
+                        >
+                          View All Packages ({packages.reduce((sum, p) => sum + (p.item_count || 0), 0)} items)
+                        </button>
+                      )}
+
+                      {selectedPackageId && (() => {
+                        const activePkg = packages.find(p => p.id === selectedPackageId);
+                        return activePkg?.file_path ? (
+                          <button
+                            onClick={() => handleScanPackage(activePkg.id)}
+                            style={btn({ background: 'rgba(16,185,129,0.1)', borderColor: 'rgba(16,185,129,0.3)', color: 'var(--ds-ok)', fontSize: '12px', padding: '6px 14px' })}
+                            className="dep-btn"
+                          >
+                            Rescan Package Directory
+                          </button>
+                        ) : null;
+                      })()}
+                    </div>
+                  </div>
+                </td>
+              </tr>
             )}
 
             {!isLoading && visibleItems.map(item => {
@@ -1157,7 +1366,33 @@ export default function DnextDeploymentDashboard({ selectedEnv, environments: pr
 
                   {/* DNEXT Entity ID */}
                   <td style={{ padding: '10px 12px' }}>
-                    <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: 'var(--ds-brand-dark)', fontWeight: 600 }}>{id}</span>
+                    <a
+                      href={`#/catalog?id=${encodeURIComponent(id)}&search=${encodeURIComponent(id)}&type=${encodeURIComponent(item.dnext_entity_type || 'all')}`}
+                      title={`View ${item.dnext_entity_type || 'entity'} "${id}" in Live Catalog`}
+                      style={{
+                        fontFamily: "'JetBrains Mono', monospace",
+                        fontSize: '11px',
+                        color: 'var(--ds-brand)',
+                        fontWeight: 600,
+                        textDecoration: 'none',
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        transition: 'color 0.15s ease, text-decoration 0.15s ease'
+                      }}
+                      onMouseEnter={e => {
+                        e.currentTarget.style.textDecoration = 'underline';
+                        e.currentTarget.style.color = 'var(--ds-brand-dark, #b91c1c)';
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.textDecoration = 'none';
+                        e.currentTarget.style.color = 'var(--ds-brand)';
+                      }}
+                    >
+                      {id}
+                      <span style={{ fontSize: '10px', opacity: 0.65 }}>↗</span>
+                    </a>
                   </td>
 
                   {/* Entity Name */}
@@ -1263,7 +1498,7 @@ export default function DnextDeploymentDashboard({ selectedEnv, environments: pr
                       <button
                         onClick={() => handleDelete(item)} disabled={isAct}
                         className="dep-btn"
-                        title="Remove from registry"
+                        title="Delete item permanently from disk, registry, and remote DNEXT"
                         style={btn({
                           background: 'rgba(239,68,68,0.1)',
                           borderColor: 'rgba(239,68,68,0.35)',

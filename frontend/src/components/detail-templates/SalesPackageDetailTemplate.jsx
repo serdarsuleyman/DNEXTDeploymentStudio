@@ -3,6 +3,9 @@ import Icon from '../ui/Icon';
 import { LifecyclePill, VersionCell, CodeChip } from '../list-views/cellRenderers';
 import { C } from '../../styles/theme';
 import BandwidthSkuDetailModal from './BandwidthSkuDetailModal';
+import BundledPopsTable from './BundledPopsTable';
+import OfferingSpecificationAndOverridesTab from './OfferingSpecificationAndOverridesTab';
+import { extractPortfolioId } from '../list-views/salesPackageColumnConfig';
 import {
   extractPsmStructure,
   detectTechnology,
@@ -30,6 +33,8 @@ export default function SalesPackageDetailTemplate({
   const itemName = String(item?.name || '').toLowerCase();
   const specId = String(specObj?.id || specObj?.['@id'] || '').toLowerCase();
   const specName = String(specObj?.name || '').toLowerCase();
+
+  const portfolioId = extractPortfolioId(item);
 
   const isFTTH = specId.includes('ftth') || specName.includes('ftth') || itemId.includes('ftth') || itemName.includes('ftth');
 
@@ -75,9 +80,20 @@ export default function SalesPackageDetailTemplate({
     return Array.isArray(raw.category) ? raw.category : [];
   }, [raw]);
 
-  const chars = Array.isArray(raw.prodSpecCharValueUse)
-    ? raw.prodSpecCharValueUse
-    : (Array.isArray(raw.productSpecCharacteristic) ? raw.productSpecCharacteristic : []);
+  const specChars = useMemo(() => {
+    if (Array.isArray(raw.prodSpecCharValueUse)) return raw.prodSpecCharValueUse;
+    if (Array.isArray(item?.prodSpecCharValueUse)) return item.prodSpecCharValueUse;
+    if (Array.isArray(raw.productSpecCharacteristic)) return raw.productSpecCharacteristic;
+    return [];
+  }, [raw, item]);
+
+  const directChars = useMemo(() => {
+    if (Array.isArray(raw.productOfferingCharacteristic)) return raw.productOfferingCharacteristic;
+    if (Array.isArray(item?.productOfferingCharacteristic)) return item.productOfferingCharacteristic;
+    return [];
+  }, [raw, item]);
+
+  const chars = specChars;
 
   const [activeSubTab, setActiveSubTab] = useState('overview');
   const [categoryFilter, setCategoryFilter] = useState('');
@@ -241,11 +257,11 @@ export default function SalesPackageDetailTemplate({
     { id: 'terms', label: `Contract Terms (${effectiveTerms.length})`, icon: 'edit' }
   ];
 
-  // Filtered characteristics for Specification & Overrides tab
-  const filteredChars = useMemo(() => {
-    if (!charSearch.trim()) return chars;
+  // Filtered spec characteristics for Specification & Overrides tab
+  const filteredSpecChars = useMemo(() => {
+    if (!charSearch.trim()) return specChars;
     const q = charSearch.toLowerCase().trim();
-    return chars.filter(c => {
+    return specChars.filter(c => {
       const nameMatch = (c.name || '').toLowerCase().includes(q);
       const valMatch = (
         Array.isArray(c.productSpecCharacteristicValue)
@@ -254,13 +270,35 @@ export default function SalesPackageDetailTemplate({
       ).some(v => String(v || '').toLowerCase().includes(q));
       return nameMatch || valMatch;
     });
-  }, [chars, charSearch]);
+  }, [specChars, charSearch]);
+
+  // Filtered direct offering characteristics for Specification & Overrides tab
+  const filteredDirectChars = useMemo(() => {
+    if (!charSearch.trim()) return directChars;
+    const q = charSearch.toLowerCase().trim();
+    return directChars.filter(c => {
+      const nameMatch = (c.name || '').toLowerCase().includes(q);
+      const valMatch = (
+        Array.isArray(c.productOfferingCharacteristicValue)
+          ? c.productOfferingCharacteristicValue.map(v => (v?.value !== undefined ? v.value : v))
+          : (Array.isArray(c.productSpecCharacteristicValue)
+            ? c.productSpecCharacteristicValue.map(v => (v?.value !== undefined ? v.value : v))
+            : (Array.isArray(c.value) ? c.value : [c.value]))
+      ).some(v => String(v || '').toLowerCase().includes(q));
+      return nameMatch || valMatch;
+    });
+  }, [directChars, charSearch]);
+
+  const filteredChars = filteredSpecChars;
 
   const getCharValues = (charName) => {
-    const target = (chars || []).find(c => (c.name || '').toLowerCase() === charName.toLowerCase());
+    const target = [...specChars, ...directChars].find(c => (c.name || '').toLowerCase() === charName.toLowerCase());
     if (!target) return [];
     if (Array.isArray(target.productSpecCharacteristicValue)) {
       return target.productSpecCharacteristicValue.map(v => v.value !== undefined ? v.value : v);
+    }
+    if (Array.isArray(target.productOfferingCharacteristicValue)) {
+      return target.productOfferingCharacteristicValue.map(v => v.value !== undefined ? v.value : v);
     }
     if (target.value !== undefined) return [target.value];
     return [];
@@ -421,12 +459,30 @@ export default function SalesPackageDetailTemplate({
         const spds = detectSpeeds(rawE);
         const skuVal = extractChar(rawE, 'sku') || extractChar(rawE, 'CFS_Specification_Code') || '';
         const svcCode = extractChar(rawE, 'service_code') || '';
+        const realBandwidth = svcCode || (skuVal && !/^(IP|VP)\d{3}/i.test(skuVal) ? skuVal : '');
+
+        // Filter out bandwidths associated with tariffs to show only real bandwidths
+        const hasTariffChar = Boolean(
+          extractChar(rawE, 'tariff_code') ||
+          extractChar(rawE, 'internettariffcode') ||
+          extractChar(rawE, 'voicetariffcode') ||
+          extractChar(rawE, 'tariff')
+        );
+        const isTariffPrefixedSku = skuVal && /^(IP|VP)\d{3}/i.test(skuVal);
+        const hasTariffNameOrSpec = /tariff|tarif/i.test(entity?.name || rawE?.name || '') ||
+                                    /tariff|tarif/i.test(specNameStr) ||
+                                    /tariff|tarif/i.test(specIdStr);
+
+        if (hasTariffChar || isTariffPrefixedSku || hasTariffNameOrSpec) {
+          return;
+        }
+
         map.set(id, {
           id,
           name: entity.name || rawE.name || id,
-          sku: skuVal,
-          serviceCode: svcCode,
-          realBandwidth: svcCode || skuVal,
+          sku: realBandwidth || skuVal,
+          serviceCode: svcCode || realBandwidth,
+          realBandwidth: realBandwidth || svcCode || skuVal,
           speeds: spds,
           raw: rawE
         });
@@ -438,15 +494,15 @@ export default function SalesPackageDetailTemplate({
         { id: 'po_IG006_FN_Options_Bandwidth', name: 'Glasfaser Bandbreite 1000 Mbit/s', sku: 'IG006', serviceCode: 'IG006', realBandwidth: 'IG006', speeds: { down: 1000, up: 200 } },
         { id: 'po_IG019_FN_Options_Bandwidth', name: 'Glasfaser Bandbreite 600 Mbit/s', sku: 'IG019', serviceCode: 'IG019', realBandwidth: 'IG019', speeds: { down: 600, up: 100 } },
         { id: 'po_IG018_FN_Options_Bandwidth', name: 'Glasfaser Bandbreite 300 Mbit/s', sku: 'IG018', serviceCode: 'IG018', realBandwidth: 'IG018', speeds: { down: 300, up: 50 } },
-        { id: 'po_V018V_FN_Options_Bandwidth', name: 'DSL Bandbreite 250 Mbit/s', sku: 'IP077V018VIB', serviceCode: 'V018V', realBandwidth: 'V018V', speeds: { down: 250, up: 40 } },
-        { id: 'po_V018U_FN_Options_Bandwidth', name: 'DSL Bandbreite 175 Mbit/s', sku: 'IP077V018UIB', serviceCode: 'V018U', realBandwidth: 'V018U', speeds: { down: 175, up: 40 } },
-        { id: 'po_V018N_FN_Options_Bandwidth', name: 'DSL Bandbreite 100 Mbit/s', sku: 'IP076V018NIB', serviceCode: 'V018N', realBandwidth: 'V018N', speeds: { down: 100, up: 40 } },
-        { id: 'po_V018H_FN_Options_Bandwidth', name: 'DSL Bandbreite 50 Mbit/s', sku: 'IP074V018HIB', serviceCode: 'V018H', realBandwidth: 'V018H', speeds: { down: 50, up: 10 } },
-        { id: 'po_V018C_FN_Options_Bandwidth', name: 'DSL Bandbreite 16 Mbit/s', sku: 'IP073V018CIB', serviceCode: 'V018C', realBandwidth: 'V018C', speeds: { down: 16, up: 2.4 } },
-        { id: 'po_V0178_FN_Options_Bandwidth', name: 'DSL Bandbreite 6 Mbit/s', sku: 'IP073V0178IB', serviceCode: 'V0178', realBandwidth: 'V0178', speeds: { down: 6, up: 1 } },
-        { id: 'po_V0175_FN_Options_Bandwidth', name: 'DSL Bandbreite 3 Mbit/s', sku: 'IP073V0175IB', serviceCode: 'V0175', realBandwidth: 'V0175', speeds: { down: 3, up: 0.5 } },
-        { id: 'po_V0174_FN_Options_Bandwidth', name: 'DSL Bandbreite 2 Mbit/s', sku: 'IP073V0174IB', serviceCode: 'V0174', realBandwidth: 'V0174', speeds: { down: 2, up: 0.5 } },
-        { id: 'po_V0118_FN_Options_Bandwidth', name: 'DSL Bandbreite 1 Mbit/s', sku: 'IP073V0118IB', serviceCode: 'V0118', realBandwidth: 'V0118', speeds: { down: 1, up: 0.25 } }
+        { id: 'po_V018V-generic_FN_Options_Bandwidth', name: 'Bandbreite 250 Mbit/s', sku: 'V018V', serviceCode: 'V018V', realBandwidth: 'V018V', speeds: { down: 250, up: 40 } },
+        { id: 'po_V018U-generic_FN_Options_Bandwidth', name: 'Bandbreite 175 Mbit/s', sku: 'V018U', serviceCode: 'V018U', realBandwidth: 'V018U', speeds: { down: 175, up: 40 } },
+        { id: 'po_V018N-generic_FN_Options_Bandwidth', name: 'Bandbreite 100 Mbit/s', sku: 'V018N', serviceCode: 'V018N', realBandwidth: 'V018N', speeds: { down: 100, up: 40 } },
+        { id: 'po_V018H-generic_FN_Options_Bandwidth', name: 'Bandbreite 50 Mbit/s', sku: 'V018H', serviceCode: 'V018H', realBandwidth: 'V018H', speeds: { down: 50, up: 10 } },
+        { id: 'po_V018C-generic_FN_Options_Bandwidth', name: 'Bandbreite 16 Mbit/s', sku: 'V018C', serviceCode: 'V018C', realBandwidth: 'V018C', speeds: { down: 16, up: 2.4 } },
+        { id: 'po_V0178-generic_FN_Options_Bandwidth', name: 'Bandbreite 6 Mbit/s', sku: 'V0178', serviceCode: 'V0178', realBandwidth: 'V0178', speeds: { down: 6, up: 1 } },
+        { id: 'po_V0175-generic_FN_Options_Bandwidth', name: 'Bandbreite 3 Mbit/s', sku: 'V0175', serviceCode: 'V0175', realBandwidth: 'V0175', speeds: { down: 3, up: 0.5 } },
+        { id: 'po_V0174-generic_FN_Options_Bandwidth', name: 'Bandbreite 2 Mbit/s', sku: 'V0174', serviceCode: 'V0174', realBandwidth: 'V0174', speeds: { down: 2, up: 0.5 } },
+        { id: 'po_V0118-generic_FN_Options_Bandwidth', name: 'Bandbreite 1 Mbit/s', sku: 'V0118', serviceCode: 'V0118', realBandwidth: 'V0118', speeds: { down: 1, up: 0.25 } }
       ];
       fallbacks.forEach(f => map.set(f.id, f));
     }
@@ -515,7 +571,9 @@ export default function SalesPackageDetailTemplate({
         (String(rawPop.name || rawPop.id).match(/_(\d+)(?:_|$)/)?.[1]) || 
         (speedVal ? String(speedVal) : '-');
 
-      const playType = extractChar(rawPop, 'play_type') || '-';
+      const playType = extractChar(rawPop, 'play_type') || 
+        (String(rawPop.name || rawPop.id).includes('_pt1_') ? '1' : 
+         String(rawPop.name || rawPop.id).includes('_pt2_') ? '2' : '2');
 
       // Check if this specific POP supports NGN / Bitstream
       const rawPopPsmNgn = extractChar(rawPop, 'psm_sales_packet_code_internet_ngn') || 
@@ -880,6 +938,19 @@ export default function SalesPackageDetailTemplate({
                     <span style={{ fontSize: '11px', color: C.muted }}>Spec ID:</span>
                     <code style={{ fontSize: '12px', color: 'var(--ds-spec)', background: 'rgba(124,58,237,0.06)', border: '1px solid rgba(124,58,237,0.2)', padding: '2px 6px', borderRadius: '4px', fontFamily: 'var(--ds-font-mono)' }}>
                       {specObj.id}
+                    </code>
+                  </div>
+                </>
+              )}
+
+              {/* Portfolio ID Badge */}
+              {portfolioId && (
+                <>
+                  <span style={{ color: 'var(--ds-border-strong)' }}>•</span>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                    <span style={{ fontSize: '11px', color: C.muted }}>Portfolio ID:</span>
+                    <code style={{ fontSize: '12px', color: 'var(--ds-text)', background: 'var(--ds-surface-subtle)', border: '1px solid var(--ds-border-strong)', padding: '2px 6px', borderRadius: '4px', fontFamily: 'var(--ds-font-mono)', fontWeight: '600' }}>
+                      {portfolioId}
                     </code>
                   </div>
                 </>
@@ -1346,9 +1417,9 @@ export default function SalesPackageDetailTemplate({
                 </div>
               </div>
 
-              {/* Display Configured Fallback Profiles Only */}
+              {/* Display Configured Fallback Profiles Only - 4 cards in a row */}
               {resolvedFallbackBandwidths.length > 0 ? (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '12px' }}>
                   {resolvedFallbackBandwidths.map(speed => {
                     const tier = VODAFONE_DSL_FALLBACK_TIERS.find(t => t.speed === speed);
                     const matchingOffer = (bandwidthOptionOffers || []).find(o => o.speeds?.down === speed || (tier?.svcBw && (o.serviceCode === tier.svcBw || o.realBandwidth === tier.svcBw)));
@@ -1394,75 +1465,40 @@ export default function SalesPackageDetailTemplate({
                           </span>
                         </div>
 
-                        {/* Profile & Code Details */}
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '11.5px', borderTop: `1px solid ${C.border}`, paddingTop: '8px' }}>
-                          {tier?.svcBw && (
-                            <div>
-                              <span style={{ color: C.muted, display: 'block', fontSize: '10.5px', fontWeight: '600' }}>Real Bandwidth:</span>
-                              <button
-                                type="button"
-                                onClick={() => setInspectedBandwidth({ tier, matchingOffer })}
-                                style={{
-                                  background: 'none',
-                                  border: 'none',
-                                  padding: 0,
-                                  margin: 0,
-                                  cursor: 'pointer',
-                                  display: 'inline-flex',
-                                  alignItems: 'center',
-                                  gap: '4px'
-                                }}
-                                title={`Click to view details for Real Bandwidth ${tier.svcBw}`}
-                              >
-                                <code style={{
-                                  fontWeight: '800',
-                                  color: 'var(--ds-brand)',
-                                  fontFamily: 'var(--ds-font-mono)',
-                                  fontSize: '12px',
-                                  textDecoration: 'underline',
-                                  textDecorationColor: 'rgba(230,0,0,0.35)',
-                                  textUnderlineOffset: '2px'
-                                }}>
-                                  {tier.svcBw}
-                                </code>
-                                <Icon name="arrowUpRight" size={11} style={{ color: 'var(--ds-brand)' }} />
-                              </button>
-                            </div>
-                          )}
-                          {tier?.sku && (
-                            <div>
-                              <span style={{ color: C.muted, display: 'block', fontSize: '10.5px', fontWeight: '600' }}>Offer SKU:</span>
-                              <button
-                                type="button"
-                                onClick={() => setInspectedBandwidth({ tier, matchingOffer })}
-                                style={{
-                                  background: 'none',
-                                  border: 'none',
-                                  padding: 0,
-                                  margin: 0,
-                                  cursor: 'pointer',
-                                  display: 'inline-flex',
-                                  alignItems: 'center',
-                                  gap: '4px'
-                                }}
-                                title={`Click to view details for Offer SKU ${tier.sku}`}
-                              >
-                                <code style={{
-                                  fontWeight: '700',
-                                  color: '#d97706',
-                                  fontFamily: 'var(--ds-font-mono)',
-                                  fontSize: '11.5px',
-                                  textDecoration: 'underline',
-                                  textDecorationColor: 'rgba(217, 119, 6, 0.4)',
-                                  textUnderlineOffset: '2px'
-                                }}>
-                                  {tier.sku}
-                                </code>
-                                <Icon name="arrowUpRight" size={11} style={{ color: '#d97706' }} />
-                              </button>
-                            </div>
-                          )}
-                        </div>
+                        {/* Profile & Real Bandwidth Details */}
+                        {tier?.svcBw && (
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '11.5px', borderTop: `1px solid ${C.border}`, paddingTop: '8px' }}>
+                            <span style={{ color: C.muted, fontSize: '10.5px', fontWeight: '600' }}>Real Bandwidth:</span>
+                            <button
+                              type="button"
+                              onClick={() => setInspectedBandwidth({ tier, matchingOffer })}
+                              style={{
+                                background: 'none',
+                                border: 'none',
+                                padding: 0,
+                                margin: 0,
+                                cursor: 'pointer',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '4px'
+                              }}
+                              title={`Click to view details for Real Bandwidth ${tier.svcBw}`}
+                            >
+                              <code style={{
+                                fontWeight: '800',
+                                color: 'var(--ds-brand)',
+                                fontFamily: 'var(--ds-font-mono)',
+                                fontSize: '12px',
+                                textDecoration: 'underline',
+                                textDecorationColor: 'rgba(230,0,0,0.35)',
+                                textUnderlineOffset: '2px'
+                              }}>
+                                {tier.svcBw}
+                              </code>
+                              <Icon name="arrowUpRight" size={11} style={{ color: 'var(--ds-brand)' }} />
+                            </button>
+                          </div>
+                        )}
 
                         {tier?.desc && (
                           <div style={{ fontSize: '11px', color: C.muted, lineHeight: '1.4' }}>
@@ -1652,133 +1688,13 @@ export default function SalesPackageDetailTemplate({
 
             {/* Sales Packet Codes Matrix (Dynamic across all resolved bundle POPs) */}
             <div style={{ background: '#ffffff', border: `1px solid ${C.cardBorder}`, borderRadius: '8px', padding: '12px 16px' }}>
-              <div style={{
-                overflowX: 'auto',
-                overflowY: 'auto',
-                maxHeight: '280px',
-                border: `1px solid ${C.cardBorder}`,
-                borderRadius: '6px'
-              }}>
-                <table style={{ width: '100%', minWidth: '650px', borderCollapse: 'collapse', fontSize: '12px', textAlign: 'left' }}>
-                  <thead style={{ position: 'sticky', top: 0, zIndex: 2, background: '#f8fafc', borderBottom: `1px solid ${C.cardBorder}` }}>
-                    <tr style={{ color: C.muted, fontSize: '11px', textTransform: 'uppercase' }}>
-                      <th style={{ padding: '8px 10px', width: '32px', textAlign: 'center' }}></th>
-                      <th style={{ padding: '8px 12px' }}>Bundle POP Name</th>
-                      <th style={{ padding: '8px 12px' }}>Monthly Total</th>
-                      <th style={{ padding: '8px 12px' }}>Bandwith Service ID</th>
-                      <th style={{ padding: '8px 12px' }}>NGN Packet Code</th>
-                      <th style={{ padding: '8px 12px' }}>Bitstream Packet Code</th>
-                      <th style={{ padding: '8px 12px' }}>Internet Tariff Code</th>
-                      <th style={{ padding: '8px 12px' }}>Voice Tariff Code</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {resolvedPops.length === 0 ? (
-                      <tr>
-                        <td colSpan={8} style={{ padding: '16px', textAlign: 'center', color: C.muted, fontStyle: 'italic' }}>
-                          No pricing variants attached to this offering.
-                        </td>
-                      </tr>
-                    ) : (
-                      resolvedPops.map((pop, pIdx) => {
-                        const isComfort = pop.connectionType === 'comfort';
-                        const isSelected = activeSelectedPopId === pop.id;
-                        return (
-                          <tr
-                            key={pop.id || pIdx}
-                            onClick={() => scrollToPop(pop.id)}
-                            style={{
-                              borderBottom: `1px solid ${C.cardBorder}`,
-                              background: isSelected ? 'var(--ds-info-soft)' : (pIdx % 2 === 0 ? '#ffffff' : 'var(--ds-surface-subtle)'),
-                              cursor: 'pointer',
-                              transition: 'background 0.15s ease'
-                            }}
-                            onMouseEnter={(e) => {
-                              if (!isSelected) e.currentTarget.style.background = 'rgba(2,132,199,0.06)';
-                            }}
-                            onMouseLeave={(e) => {
-                              if (!isSelected) e.currentTarget.style.background = pIdx % 2 === 0 ? '#ffffff' : 'var(--ds-surface-subtle)';
-                            }}
-                            title="Click to select and view this POP's decomposition below"
-                          >
-                            <td style={{ padding: '8px 10px', textAlign: 'center' }}>
-                              <input
-                                type="radio"
-                                name="selectedPopRadioPsmTable"
-                                checked={isSelected}
-                                onChange={() => scrollToPop(pop.id)}
-                                onClick={(e) => e.stopPropagation()}
-                                style={{ accentColor: '#2563eb', cursor: 'pointer', width: '15px', height: '15px' }}
-                                title="Select this POP"
-                              />
-                            </td>
-                            <td style={{ padding: '8px 12px', fontWeight: '700', color: isComfort ? 'var(--ds-spec)' : 'var(--ds-info)' }}>
-                              <span>{isComfort ? '' : ''}{pop.name || pop.id}</span>
-                            </td>
-                            <td style={{ padding: '8px 12px', fontWeight: '800', color: 'var(--ds-warn)' }}>
-                              {pop.totalPrice !== null ? `€${Number(pop.totalPrice).toFixed(2)}` : '-'}
-                            </td>
-                            <td style={{ padding: '8px 12px' }}>
-                              {pop.bandwidthServiceId ? (
-                                <code style={{
-                                  fontFamily: 'var(--ds-font-mono)',
-                                  fontSize: '12px',
-                                  fontWeight: '700',
-                                  color: 'var(--ds-warn)',
-                                  background: 'var(--ds-surface-2)',
-                                  border: '1px solid rgba(245, 158, 11, 0.25)',
-                                  padding: '2px 8px',
-                                  borderRadius: '4px'
-                                }}>
-                                  {pop.bandwidthServiceId}
-                                </code>
-                              ) : (
-                                <span style={{ color: C.muted, fontSize: '11px' }}>-</span>
-                              )}
-                            </td>
-                            <td style={{ padding: '8px 12px' }}>
-                              {pop.psmNgn ? (
-                                <code style={{ background: 'rgba(2,132,199,0.08)', color: 'var(--ds-info)', border: '1px solid rgba(2,132,199,0.2)', padding: '2px 8px', borderRadius: '4px', fontWeight: '700', fontFamily: 'var(--ds-font-mono)' }}>
-                                  {pop.psmNgn}
-                                </code>
-                              ) : (
-                                <span style={{ color: C.muted, fontSize: '11px' }}>-</span>
-                              )}
-                            </td>
-                            <td style={{ padding: '8px 12px' }}>
-                              {pop.psmBitstream ? (
-                                <code style={{ background: 'rgba(124,58,237,0.08)', color: 'var(--ds-spec)', border: '1px solid rgba(124,58,237,0.2)', padding: '2px 8px', borderRadius: '4px', fontWeight: '700', fontFamily: 'var(--ds-font-mono)' }}>
-                                  {pop.psmBitstream}
-                                </code>
-                              ) : (
-                                <span style={{ color: C.muted, fontSize: '11px' }}>-</span>
-                              )}
-                            </td>
-                            <td style={{ padding: '8px 12px' }}>
-                              {pop.tariffInternet ? (
-                                <code style={{ background: 'rgba(59,130,246,0.08)', color: '#2563eb', border: '1px solid rgba(59,130,246,0.2)', padding: '2px 8px', borderRadius: '4px', fontWeight: '700', fontFamily: 'var(--ds-font-mono)' }}>
-                                  {pop.tariffInternet}
-                                </code>
-                              ) : (
-                                <span style={{ color: C.muted, fontSize: '11px' }}>-</span>
-                              )}
-                            </td>
-                            <td style={{ padding: '8px 12px' }}>
-                              {pop.tariffVoice ? (
-                                <code style={{ background: 'rgba(16,185,129,0.08)', color: '#059669', border: '1px solid rgba(16,185,129,0.2)', padding: '2px 8px', borderRadius: '4px', fontWeight: '700', fontFamily: 'var(--ds-font-mono)' }}>
-                                  {pop.tariffVoice}
-                                </code>
-                              ) : (
-                                <span style={{ color: C.muted, fontSize: '11px' }}>-</span>
-                              )}
-                            </td>
-                          </tr>
-                        );
-                      })
-                    )}
-                  </tbody>
-                </table>
-              </div>
+              <BundledPopsTable
+                pops={resolvedPops}
+                selectedPopId={activeSelectedPopId}
+                onSelectPop={scrollToPop}
+                isEditMode={false}
+                maxHeight="280px"
+              />
             </div>
 
             {/* Dynamic Speed Fallback Matrix: shown only when multiple bandwidth variants exist */}
@@ -2112,6 +2028,21 @@ export default function SalesPackageDetailTemplate({
                             {/* POP Details as in above table */}
                             <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap', marginTop: '6px' }}>
                               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                                <span style={{ fontSize: '11px', color: C.muted, fontWeight: '600' }}>Play Type:</span>
+                                <span style={{
+                                  fontSize: '11px',
+                                  fontWeight: '700',
+                                  color: (pop.playType === '1' || pop.playType === '1-Play') ? 'var(--ds-text-2)' : 'var(--ds-spec)',
+                                  background: (pop.playType === '1' || pop.playType === '1-Play') ? 'var(--ds-surface-2)' : 'rgba(124,58,237,0.1)',
+                                  border: `1px solid ${(pop.playType === '1' || pop.playType === '1-Play') ? 'var(--ds-border)' : 'rgba(124,58,237,0.25)'}`,
+                                  padding: '1px 6px',
+                                  borderRadius: '4px'
+                                }}>
+                                  {(pop.playType === '1' || pop.playType === '1-Play') ? '1-Play' : '2-Play'}
+                                </span>
+                              </div>
+
+                              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
                                 <span style={{ fontSize: '11px', color: C.muted, fontWeight: '600' }}>Bandwith Service ID:</span>
                                 {pop.bandwidthServiceId ? (
                                   <code style={{
@@ -2294,9 +2225,6 @@ export default function SalesPackageDetailTemplate({
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                   <span style={{ fontSize: '12px', fontWeight: '800', color: 'var(--ds-text-2)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                                     Atomic Components ({pop.id})
-                                  </span>
-                                  <span style={{ fontSize: '11px', color: 'var(--ds-text-3)' }}>
-                                    TMF620 bundledPopRelationship (Standalone & Unlocked)
                                   </span>
                                 </div>
 
@@ -3661,124 +3589,12 @@ export default function SalesPackageDetailTemplate({
 
       {/* ─── TAB CONTENT 3: SPECIFICATION & OVERRIDES ─── */}
       {activeSubTab === 'network' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {/* Associated Product Specification Card */}
-          {specObj && (
-            <div style={{ background: C.panel, border: `1px solid ${C.cardBorder}`, borderRadius: '10px', padding: '18px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-              <h3 style={{ margin: '0 0 10px 0', fontSize: '13.5px', fontWeight: '700', color: C.text, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span><Icon name="clipboard" size={14} /> Associated Product Specification</span>
-              </h3>
-              <div style={{
-                background: 'rgba(124,58,237,0.06)',
-                border: '1px solid rgba(124,58,237,0.2)',
-                borderRadius: '8px',
-                padding: '12px 16px',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                flexWrap: 'wrap',
-                gap: '10px'
-              }}>
-                <div>
-                  <div style={{ fontSize: '13px', fontWeight: '700', color: 'var(--ds-spec)' }}>
-                    {specObj.name || specObj.id}
-                  </div>
-                  <div style={{ fontSize: '11px', color: C.muted, fontFamily: 'var(--ds-font-mono)', marginTop: '2px' }}>
-                    ID: {specObj.id}
-                  </div>
-                </div>
-                {specObj.version && (
-                  <span style={{ fontSize: '11px', background: 'rgba(124,58,237,0.12)', color: 'var(--ds-spec)', padding: '2px 8px', borderRadius: '4px', fontWeight: '600' }}>
-                    v{specObj.version}
-                  </span>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Characteristics Overrides Grid */}
-          <div style={{ background: C.panel, border: `1px solid ${C.cardBorder}`, borderRadius: '10px', padding: '18px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap', gap: '12px' }}>
-              <div>
-                <h3 style={{ margin: 0, fontSize: '14px', fontWeight: '700', color: C.text, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span><Icon name="settings" size={14} /> Spec Characteristic Overrides</span>
-                  <span style={{ fontSize: '11px', background: 'rgba(2,132,199,0.1)', color: 'var(--ds-info)', padding: '2px 8px', borderRadius: '10px', fontWeight: '700' }}>
-                    {filteredChars.length} / {chars.length}
-                  </span>
-                </h3>
-                <p style={{ margin: '3px 0 0 0', fontSize: '12px', color: C.muted }}>
-                  Characteristic values and parameters configured on this sales package.
-                </p>
-              </div>
-
-              {/* Filter by Characteristic Name */}
-              {chars.length > 0 && (
-                <div style={{ position: 'relative', minWidth: '240px', maxWidth: '340px', width: '100%' }}>
-                  <input
-                    type="text"
-                    placeholder="Filter by characteristic name..."
-                    value={charSearch}
-                    onChange={(e) => setCharSearch(e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '7px 28px 7px 30px',
-                      fontSize: '12px',
-                      borderRadius: '6px',
-                      border: `1px solid ${C.cardBorder}`,
-                      background: 'var(--ds-surface-subtle)',
-                      color: C.text,
-                      outline: 'none',
-                      boxSizing: 'border-box'
-                    }}
-                  />
-                  <span style={{ position: 'absolute', left: '9px', top: '50%', transform: 'translateY(-50%)', color: C.muted, pointerEvents: 'none', display: 'flex', alignItems: 'center' }}>
-                    <Icon name="search" size={13} />
-                  </span>
-                  {charSearch && (
-                    <button
-                      onClick={() => setCharSearch('')}
-                      title="Clear filter"
-                      style={{
-                        position: 'absolute',
-                        right: '8px',
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        background: 'none',
-                        border: 'none',
-                        color: C.muted,
-                        cursor: 'pointer',
-                        fontSize: '13px',
-                        padding: 0,
-                        lineHeight: 1
-                      }}
-                    >
-                      ✕
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {filteredChars.length === 0 ? (
-              <div style={{ padding: '20px', textAlign: 'center', color: C.muted, fontSize: '12px', fontStyle: 'italic', background: 'var(--ds-surface-subtle)', borderRadius: '8px' }}>
-                {charSearch ? `No characteristics matching "${charSearch}".` : 'No characteristic overrides present on this offering.'}
-              </div>
-            ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '8px' }}>
-                {filteredChars.map((char, i) => (
-                  <div key={i} style={{ background: 'var(--ds-surface-subtle)', border: `1px solid ${C.cardBorder}`, borderRadius: '6px', padding: '10px 12px' }}>
-                    <div style={{ fontSize: '12px', fontWeight: '600', color: C.text }}>{char.name}</div>
-                    <div style={{ fontSize: '11px', color: 'var(--ds-info)', marginTop: '2px', wordBreak: 'break-all' }}>
-                      {Array.isArray(char.productSpecCharacteristicValue)
-                        ? char.productSpecCharacteristicValue.map(v => v.value).join(', ')
-                        : (char.value || 'N/A')}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
+        <OfferingSpecificationAndOverridesTab
+          raw={raw}
+          item={item}
+          specObj={specObj}
+          onNavigateToEntity={onNavigateToEntity}
+        />
       )}
 
       {/* ─── TAB CONTENT 4: CONTRACT TERMS ─── */}

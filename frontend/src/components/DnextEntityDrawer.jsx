@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Icon from './ui/Icon';
+import JsonTreeViewer from './ui/JsonTreeViewer';
 import { LifecyclePill, EntityTypeBadge, VersionCell } from './list-views/cellRenderers';
 import { resolveTemplateId, getAvailableTemplates, TEMPLATES } from './detail-templates/viewTemplateRegistry';
 import SalesPackageDetailTemplate from './detail-templates/SalesPackageDetailTemplate';
@@ -426,13 +427,35 @@ export default function DnextEntityDrawer({ item, isOpen, onClose, onPurge, allE
 
             {/* Top-Right Action & Window Controls: Always pinned to top right */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
-              {!currentItem.isNew && (
+              <button
+                onClick={() => setActiveTab(activeTab === 'rawJson' ? 'overview' : 'rawJson')}
+                style={{
+                  background: activeTab === 'rawJson' ? 'rgba(230,0,0,0.08)' : '#ffffff',
+                  border: `1px solid ${activeTab === 'rawJson' ? 'var(--ds-brand)' : C.border}`,
+                  color: activeTab === 'rawJson' ? 'var(--ds-brand)' : C.text,
+                  padding: '6px 12px',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                  transition: 'all 0.15s'
+                }}
+                title={activeTab === 'rawJson' ? "Return to Detail View" : "View Raw TMF JSON"}
+              >
+                <span><Icon name="eye" size={14} /></span>
+                <span>{activeTab === 'rawJson' ? 'Detail View' : 'JSON'}</span>
+              </button>
+
+              {currentItem?.synchronousEnvelope && (
                 <button
-                  onClick={() => setActiveTab(activeTab === 'rawJson' ? 'overview' : 'rawJson')}
+                  onClick={() => setActiveTab(activeTab === 'envelopeJson' ? 'overview' : 'envelopeJson')}
                   style={{
-                    background: activeTab === 'rawJson' ? 'rgba(230,0,0,0.08)' : '#ffffff',
-                    border: `1px solid ${activeTab === 'rawJson' ? 'var(--ds-brand)' : C.border}`,
-                    color: activeTab === 'rawJson' ? 'var(--ds-brand)' : C.text,
+                    background: activeTab === 'envelopeJson' ? 'rgba(230,0,0,0.08)' : '#ffffff',
+                    border: `1px solid ${activeTab === 'envelopeJson' ? 'var(--ds-brand)' : C.border}`,
+                    color: activeTab === 'envelopeJson' ? 'var(--ds-brand)' : C.text,
                     padding: '6px 12px',
                     borderRadius: '6px',
                     cursor: 'pointer',
@@ -443,10 +466,10 @@ export default function DnextEntityDrawer({ item, isOpen, onClose, onPurge, allE
                     gap: '5px',
                     transition: 'all 0.15s'
                   }}
-                  title={activeTab === 'rawJson' ? "Return to Detail View" : "View Raw TMF JSON"}
+                  title={activeTab === 'envelopeJson' ? "Return to Detail View" : "View Full Synchronous Envelope JSON"}
                 >
-                  <span><Icon name="eye" size={14} /></span>
-                  <span>{activeTab === 'rawJson' ? 'Detail View' : 'JSON'}</span>
+                  <span><Icon name="layers" size={14} /></span>
+                  <span>{activeTab === 'envelopeJson' ? 'Detail View' : 'Envelope JSON Viewer'}</span>
                 </button>
               )}
 
@@ -685,12 +708,14 @@ export default function DnextEntityDrawer({ item, isOpen, onClose, onPurge, allE
             <DrawerErrorBoundary itemKey={`${currentItem?.id}_${selectedTemplateId}`}>
               {selectedTemplateId === 'sales_package_new' && (
                 <SalesPackageNewDetailTemplate
+                  item={currentItem}
                   allEntities={allEntities}
                   onClose={onClose}
                   onSuccessRefresh={onSuccessRefresh}
                   activeEnv={activeEnv}
                   token={token}
                   onNavigateToEntity={(entity, explicitType) => handleNavigateToEntity(entity, explicitType || 'ProductOffering')}
+                  onUpdateItem={handleUpdateCurrentItem}
                 />
               )}
               {selectedTemplateId === 'sales_package' && (
@@ -1195,11 +1220,38 @@ export default function DnextEntityDrawer({ item, isOpen, onClose, onPurge, allE
                 </button>
               </div>
 
-              <div style={{ flex: 1, background: 'var(--ds-surface-subtle)', border: `1px solid ${C.border}`, borderRadius: '8px', padding: '16px', overflowY: 'auto' }}>
-                <pre style={{ margin: 0, fontFamily: 'var(--ds-font-mono)', fontSize: '12px', color: 'var(--ds-text)', lineHeight: '1.5', whiteSpace: 'pre-wrap' }}>
-                  {JSON.stringify(raw, null, 2)}
-                </pre>
+              <JsonTreeViewer data={raw} defaultExpandedDepth={2} />
+            </div>
+          )}
+
+          {/* TAB 5: SYNCHRONOUS ENVELOPE JSON */}
+          {activeTab === 'envelopeJson' && currentItem?.synchronousEnvelope && (
+            <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                <span style={{ fontSize: '12px', color: C.muted }}>
+                  Full Synchronous TMF620 Deployment Envelope (Offer, Bundle POPs, Simple POPs &amp; CCB Associations)
+                </span>
+                <button
+                  onClick={() => copyToClipboard(JSON.stringify(currentItem.synchronousEnvelope, null, 2), 'envelopeJson')}
+                  style={{
+                    background: 'rgba(230,0,0,0.06)',
+                    border: '1px solid var(--ds-brand)',
+                    color: 'var(--ds-brand)',
+                    padding: '5px 12px',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontSize: '11px',
+                    fontWeight: '600',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  {copiedKey === 'envelopeJson' ? '✓ Copied to Clipboard' : 'Copy Envelope JSON'}
+                </button>
               </div>
+
+              <JsonTreeViewer data={currentItem.synchronousEnvelope} defaultExpandedDepth={2} />
             </div>
           )}
         </div>

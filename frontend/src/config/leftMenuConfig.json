@@ -23,6 +23,25 @@
       ]
     },
     {
+      "id": "workspace",
+      "title": "WORKSPACE",
+      "active": true,
+      "items": [
+        {
+          "id": "drafts",
+          "label": "Drafts",
+          "icon": "edit",
+          "active": true,
+          "filterContext": {
+            "typeFilter": "Draft",
+            "subFilter": null
+          },
+          "targetListViewTemplateId": "drafts",
+          "countKey": "drafts"
+        }
+      ]
+    },
+    {
       "id": "catalog_entities",
       "title": "CATALOG ENTITIES",
       "active": true,

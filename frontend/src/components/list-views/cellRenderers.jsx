@@ -340,3 +340,84 @@ export function EntityTypeBadge({ type, label, icon, isChild = false, compact = 
     </span>
   );
 }
+
+/* ------------------------------------------------------------------ */
+/* Network Type badge (DSL / Fiber)                                   */
+/* ------------------------------------------------------------------ */
+export function NetworkTypeBadge({ type, compact = false }) {
+  if (!type) return <Empty />;
+
+  const isFiber = type.toLowerCase() === 'fiber';
+  const isDsl = type.toLowerCase() === 'dsl';
+
+  const style = isFiber
+    ? {
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '5px',
+        padding: compact ? '1px 6px' : '2px 8px',
+        borderRadius: '4px',
+        fontSize: compact ? '11px' : '12px',
+        fontWeight: 600,
+        background: 'rgba(16,185,129,0.1)',
+        color: 'var(--ds-ok)',
+        border: '1px solid rgba(16,185,129,0.25)',
+        letterSpacing: '0.02em',
+        fontFamily: "'JetBrains Mono', monospace"
+      }
+    : isDsl
+    ? {
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '5px',
+        padding: compact ? '1px 6px' : '2px 8px',
+        borderRadius: '4px',
+        fontSize: compact ? '11px' : '12px',
+        fontWeight: 600,
+        background: 'rgba(2,132,199,0.1)',
+        color: 'var(--ds-info)',
+        border: '1px solid rgba(2,132,199,0.25)',
+        letterSpacing: '0.02em',
+        fontFamily: "'JetBrains Mono', monospace"
+      }
+    : {
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '5px',
+        padding: compact ? '1px 6px' : '2px 8px',
+        borderRadius: '4px',
+        fontSize: compact ? '11px' : '12px',
+        fontWeight: 600,
+        background: 'var(--ds-surface-subtle)',
+        color: 'var(--ds-text)',
+        border: '1px solid var(--ds-border-strong)'
+      };
+
+  return (
+    <span style={style} title={`Network Type: ${type}`}>
+      <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: isFiber ? 'var(--ds-ok)' : isDsl ? 'var(--ds-info)' : 'var(--ds-text-2)' }} />
+      <span>{type}</span>
+    </span>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Option Type cell (Bandwith option, Bandwith/Tariff, etc.)           */
+/* Simple, unboxed typography formatting                               */
+/* ------------------------------------------------------------------ */
+export function OptionTypeBadge({ type, compact = false }) {
+  if (!type) return <Empty />;
+
+  return (
+    <span
+      style={{
+        fontSize: compact ? '11px' : '12px',
+        color: compact ? 'var(--ds-text-2)' : 'var(--ds-text)',
+        fontWeight: compact ? '400' : '500'
+      }}
+      title={`Option Type: ${type}`}
+    >
+      {type}
+    </span>
+  );
+}

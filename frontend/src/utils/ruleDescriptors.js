@@ -6,7 +6,8 @@ export const RULE_CATEGORIES = [
   { id: 'implicitCompatibility', label: 'Implicit Compatibility', color: 'var(--ds-brand)' },
   { id: 'implicitEligibility', label: 'Implicit Eligibility', color: 'var(--ds-spec)' },
   { id: 'pricingLogicAlgorithm', label: 'Pricing Logic Algorithm', color: 'var(--ds-warn)' },
-  { id: 'salesRules', label: 'Sales Rules', color: 'var(--ds-info)' }
+  { id: 'salesRules', label: 'Sales Rules', color: 'var(--ds-info)' },
+  { id: 'mapperRules', label: 'Mapper Rules', color: '#0891b2' }
 ];
 
 export const RULE_STATUSES = [

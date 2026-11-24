@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const { db, queryAll, queryOne, collectRegistryRows, collectRowsForPackage, scanAndSyncPackage } = require('../services/db');
+const fs = require('fs');
+const path = require('path');
+const { db, queryAll, queryOne, collectRegistryRows, collectRowsForPackage, scanAndSyncPackage, invalidateCatalogCache, STUDIO_ROOT } = require('../services/db');
 
 /**
  * GET /api/dnext-deployment-item
@@ -158,39 +160,102 @@ router.patch('/:dnext_entity_id/package', (req, res) => {
 
 /**
  * DELETE /api/dnext-deployment-item/:dnext_entity_id
- * Remove an item from the local deployment registry.
+ * Remove an item from the local deployment registry and delete its file from disk.
  */
 router.delete('/:dnext_entity_id', (req, res) => {
   const { dnext_entity_id } = req.params;
-  db.run('DELETE FROM dnext_deployment_item WHERE dnext_entity_id = ?', [dnext_entity_id], function (err) {
-    if (err) {
-      console.error('[Items] DELETE error:', err.message);
-      return res.status(500).json({ error: err.message });
+  const deleteFile = req.query.deleteFile !== 'false';
+
+  db.get('SELECT file_path FROM dnext_deployment_item WHERE dnext_entity_id = ?', [dnext_entity_id], (lookupErr, row) => {
+    if (lookupErr) {
+      console.error('[Items] DELETE lookup error:', lookupErr.message);
+      return res.status(500).json({ error: lookupErr.message });
     }
-    if (this.changes === 0) {
-      return res.status(404).json({ error: `Entity '${dnext_entity_id}' not found in registry.` });
+
+    let fileDeleted = false;
+    const filePath = row ? row.file_path : null;
+
+    if (deleteFile && filePath) {
+      const candidates = [
+        path.resolve(STUDIO_ROOT, filePath),
+        path.resolve(STUDIO_ROOT, 'tmf_packages', filePath),
+        filePath
+      ];
+      for (const cand of candidates) {
+        if (fs.existsSync(cand)) {
+          try {
+            fs.unlinkSync(cand);
+            fileDeleted = true;
+            console.log(`[Items] Successfully deleted file: ${cand}`);
+            break;
+          } catch (fileErr) {
+            console.warn(`[Items] Could not delete file ${cand}:`, fileErr.message);
+          }
+        }
+      }
     }
-    res.json({ success: true, deleted: dnext_entity_id });
+
+    db.run('DELETE FROM dnext_deployment_item WHERE dnext_entity_id = ?', [dnext_entity_id], async function (delErr) {
+      if (delErr) {
+        console.error('[Items] DELETE error:', delErr.message);
+        return res.status(500).json({ error: delErr.message });
+      }
+      await invalidateCatalogCache(null, dnext_entity_id);
+      res.json({ success: true, deleted: dnext_entity_id, fileDeleted });
+    });
   });
 });
 
 /**
  * POST /api/dnext-deployment-item/bulk-delete
- * Remove multiple items from the local deployment registry.
+ * Remove multiple items from the local deployment registry and delete their files from disk.
  */
 router.post('/bulk-delete', (req, res) => {
-  const { ids } = req.body;
+  const { ids, deleteFile = true } = req.body;
   if (!Array.isArray(ids) || ids.length === 0) {
     return res.status(400).json({ error: '`ids` array is required.' });
   }
 
   const placeholders = ids.map(() => '?').join(',');
-  db.run(`DELETE FROM dnext_deployment_item WHERE dnext_entity_id IN (${placeholders})`, ids, function (err) {
-    if (err) {
-      console.error('[Items] bulk-delete error:', err.message);
-      return res.status(500).json({ error: err.message });
+  db.all(`SELECT dnext_entity_id, file_path FROM dnext_deployment_item WHERE dnext_entity_id IN (${placeholders})`, ids, (lookupErr, rows) => {
+    if (lookupErr) {
+      console.error('[Items] bulk-delete lookup error:', lookupErr.message);
+      return res.status(500).json({ error: lookupErr.message });
     }
-    res.json({ success: true, deletedCount: this.changes });
+
+    if (deleteFile && Array.isArray(rows)) {
+      for (const row of rows) {
+        if (row.file_path) {
+          const candidates = [
+            path.resolve(STUDIO_ROOT, row.file_path),
+            path.resolve(STUDIO_ROOT, 'tmf_packages', row.file_path),
+            row.file_path
+          ];
+          for (const cand of candidates) {
+            if (fs.existsSync(cand)) {
+              try {
+                fs.unlinkSync(cand);
+                console.log(`[Items] Successfully deleted file: ${cand}`);
+                break;
+              } catch (fileErr) {
+                console.warn(`[Items] Could not delete file ${cand}:`, fileErr.message);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    db.run(`DELETE FROM dnext_deployment_item WHERE dnext_entity_id IN (${placeholders})`, ids, async function (delErr) {
+      if (delErr) {
+        console.error('[Items] bulk-delete error:', delErr.message);
+        return res.status(500).json({ error: delErr.message });
+      }
+      for (const id of ids) {
+        await invalidateCatalogCache(null, id);
+      }
+      res.json({ success: true, deletedCount: this.changes });
+    });
   });
 });
 

@@ -2,12 +2,14 @@
 // Configurable Column Schema and Definitions for ProductOfferingsListView
 
 import { evaluateJsonPath } from '../../utils/jsonPath.js';
+import { extractNetworkType } from './salesPackageColumnConfig.js';
 
 export { evaluateJsonPath };
 
 export const DEFAULT_COLUMN_KEYS = [
   'id',
   'name',
+  'network_type',
   'spec',
   'version',
   'lifecycle'
@@ -18,6 +20,10 @@ export const DEFAULT_COLUMN_KEYS = [
  */
 export function getColumnRawValue(item, colDef) {
   if (!item || !colDef) return '';
+
+  if (colDef.accessor) {
+    return colDef.accessor(item);
+  }
 
   if (colDef.jsonPath) {
     const extracted = evaluateJsonPath(item, colDef.jsonPath);
@@ -31,6 +37,8 @@ export function getColumnRawValue(item, colDef) {
       return String(item.id || '');
     case 'name':
       return String(item.name || '');
+    case 'network_type':
+      return extractNetworkType(item);
     case 'spec': {
       const s = item.productSpecification || item.raw?.productSpecification;
       return String(s?.name || s?.id || '');
@@ -78,6 +86,18 @@ export const AVAILABLE_COLUMNS = [
     sortable: true,
     filterable: true,
     filterType: 'text'
+  },
+  {
+    key: 'network_type',
+    label: 'Network Type',
+    description: 'Broadband access network technology (DSL or Fiber) decided based on specification',
+    accessor: (item) => extractNetworkType(item),
+    width: '130px',
+    minWidth: '110px',
+    defaultVisible: true,
+    sortable: true,
+    filterable: true,
+    filterType: 'select'
   },
   {
     key: 'spec',

@@ -140,13 +140,79 @@ db.serialize(() => {
     )
   `);
 
+  db.run(`
+    CREATE TABLE IF NOT EXISTS dnext_drafts (
+      id            TEXT PRIMARY KEY,
+      entity_id     TEXT NOT NULL,
+      entity_name   TEXT NOT NULL,
+      entity_type   TEXT NOT NULL DEFAULT 'ProductOffering',
+      task_type     TEXT NOT NULL DEFAULT 'new_sales_package',
+      portfolio_id  TEXT,
+      technology    TEXT,
+      speed         TEXT,
+      form_data     TEXT NOT NULL,
+      created_at    TEXT NOT NULL,
+      updated_at    TEXT NOT NULL
+    )
+  `);
+
+  // Synchronously ensure task_type column exists on dnext_drafts for existing databases
+  db.run("ALTER TABLE dnext_drafts ADD COLUMN task_type TEXT DEFAULT 'new_sales_package'", () => {
+    // Ignore duplicate column name error if column already exists
+  });
+
+  // Dedicated normalized tables for ~30K Mapper Rules (category = mapperRules)
+  db.run(`
+    CREATE TABLE IF NOT EXISTS dnext_mapper_rules (
+      env_name                    TEXT NOT NULL,
+      id                          TEXT NOT NULL,
+      name                        TEXT,
+      status                      TEXT,
+      state_category              TEXT,
+      rule_type                   TEXT,
+      mapper_type                 TEXT,
+      direction                   TEXT,
+      attribute_code              TEXT,
+      attribute_value             TEXT,
+      attribute_additional_value  TEXT,
+      basket_action               TEXT,
+      attribute_action            TEXT,
+      source_component_id         TEXT,
+      system_name                 TEXT,
+      process_contexts            TEXT,
+      sku_count                   INTEGER NOT NULL DEFAULT 0,
+      sync_state                  TEXT NOT NULL DEFAULT 'synced',
+      payload                     TEXT NOT NULL,
+      updated_at                  TEXT NOT NULL,
+      PRIMARY KEY (env_name, id)
+    )
+  `);
+  db.run('CREATE INDEX IF NOT EXISTS idx_mapper_rules_env_type_dir ON dnext_mapper_rules (env_name, mapper_type, direction)');
+  db.run('CREATE INDEX IF NOT EXISTS idx_mapper_rules_env_attr ON dnext_mapper_rules (env_name, attribute_code)');
+  db.run('CREATE INDEX IF NOT EXISTS idx_mapper_rules_env_status ON dnext_mapper_rules (env_name, status)');
+  db.run('CREATE INDEX IF NOT EXISTS idx_mapper_rules_env_sync ON dnext_mapper_rules (env_name, sync_state)');
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS dnext_mapper_rule_skus (
+      env_name  TEXT NOT NULL,
+      rule_id   TEXT NOT NULL,
+      sku       TEXT NOT NULL,
+      block_id  TEXT NOT NULL DEFAULT '',
+      PRIMARY KEY (env_name, rule_id, sku, block_id)
+    )
+  `);
+  db.run('CREATE INDEX IF NOT EXISTS idx_mapper_rule_skus_lookup ON dnext_mapper_rule_skus (env_name, sku)');
+
   // Default packages & backfilling file_path
   const now = new Date().toISOString();
+  db.run(`INSERT OR IGNORE INTO dnext_deployment_package (id, name, type, description, file_path, created_at, updated_at)
+          VALUES ('demo_deployment', 'Demo Deployment Package', 'Demo', 'Demo deployment package for sales package synchronous envelopes', 'tmf_packages/demo_deployment', '${now}', '${now}')`);
   db.run(`INSERT OR IGNORE INTO dnext_deployment_package (id, name, type, description, file_path, created_at, updated_at)
           VALUES ('vf-germany-poc', 'DNEXT Standard POC Package', 'POC', 'Standard DNEXT TMF 620 POC Entities', 'tmf_packages', '${now}', '${now}')`);
   db.run(`INSERT OR IGNORE INTO dnext_deployment_package (id, name, type, description, file_path, created_at, updated_at)
           VALUES ('POC_V2', 'DNEXT Commercial Bundles (POC_V2)', 'POC', 'Standardized TMF 620 Commercial Bundle Packages', 'tmf_packages/TMFVersion2', '${now}', '${now}')`);
 
+  db.run("UPDATE dnext_deployment_package SET file_path = 'tmf_packages/demo_deployment' WHERE id = 'demo_deployment' AND (file_path IS NULL OR file_path = '')");
   db.run("UPDATE dnext_deployment_package SET file_path = 'tmf_packages' WHERE id = 'vf-germany-poc' AND (file_path IS NULL OR file_path = '')");
   db.run("UPDATE dnext_deployment_package SET file_path = 'tmf_packages/TMFVersion2' WHERE id = 'POC_V2' AND (file_path IS NULL OR file_path = '')");
 });
@@ -416,7 +482,7 @@ function collectRegistryRows(specificPackageId = null) {
 }
 
 /**
- * Scan and upsert items in the DB for a given package
+ * Scan and upsert items in the DB for a given package, reconciling deleted/orphaned files
  */
 async function scanAndSyncPackage(packageId) {
   const pkg = await queryOne('SELECT * FROM dnext_deployment_package WHERE id = ?', [packageId]);
@@ -428,39 +494,63 @@ async function scanAndSyncPackage(packageId) {
   }
 
   const rows = collectRowsForPackage(pkg);
-  if (rows.length === 0) {
-    return { count: 0, message: `No JSON documents found at '${pkg.file_path}'.` };
-  }
-
   const now = new Date().toISOString();
+
   await runSql('BEGIN TRANSACTION');
 
   try {
-    const stmt = db.prepare(`
-      INSERT INTO dnext_deployment_item
-        (dnext_entity_id, dnext_entity_type, dnext_version, vf_de_offer_id,
-         vf_de_offer_type, sync_status, file_path, deployment_package_id, entity_name, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?, ?)
-      ON CONFLICT(dnext_entity_id) DO UPDATE SET
-        dnext_entity_type     = excluded.dnext_entity_type,
-        dnext_version         = excluded.dnext_version,
-        vf_de_offer_id        = excluded.vf_de_offer_id,
-        vf_de_offer_type      = excluded.vf_de_offer_type,
-        file_path             = excluded.file_path,
-        entity_name           = excluded.entity_name,
-        deployment_package_id = excluded.deployment_package_id,
-        updated_at            = excluded.updated_at
-    `);
+    // 1. Fetch existing items in DB belonging to this package
+    const existingItems = await queryAll(
+      'SELECT dnext_entity_id FROM dnext_deployment_item WHERE deployment_package_id = ?',
+      [pkg.id]
+    );
 
-    for (const r of rows) {
-      stmt.run(
-        r.dnext_entity_id, r.dnext_entity_type, r.dnext_version || '0',
-        r.vf_de_offer_id, r.vf_de_offer_type,
-        r.file_path, pkg.id, r.entity_name, now, now
-      );
+    // 2. Identify items that no longer exist on disk and remove them
+    const scannedEntityIds = new Set(rows.map(r => r.dnext_entity_id));
+    const toDeleteIds = existingItems
+      .filter(item => !scannedEntityIds.has(item.dnext_entity_id))
+      .map(item => item.dnext_entity_id);
+
+    if (toDeleteIds.length > 0) {
+      for (let i = 0; i < toDeleteIds.length; i += 500) {
+        const chunk = toDeleteIds.slice(i, i + 500);
+        const placeholders = chunk.map(() => '?').join(',');
+        await runSql(
+          `DELETE FROM dnext_deployment_item WHERE dnext_entity_id IN (${placeholders})`,
+          chunk
+        );
+      }
     }
 
-    await new Promise((res, rej) => stmt.finalize((err) => err ? rej(err) : res()));
+    // 3. Upsert scanned rows if any exist
+    if (rows.length > 0) {
+      const stmt = db.prepare(`
+        INSERT INTO dnext_deployment_item
+          (dnext_entity_id, dnext_entity_type, dnext_version, vf_de_offer_id,
+           vf_de_offer_type, sync_status, file_path, deployment_package_id, entity_name, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?, ?)
+        ON CONFLICT(dnext_entity_id) DO UPDATE SET
+          dnext_entity_type     = excluded.dnext_entity_type,
+          dnext_version         = excluded.dnext_version,
+          vf_de_offer_id        = excluded.vf_de_offer_id,
+          vf_de_offer_type      = excluded.vf_de_offer_type,
+          file_path             = excluded.file_path,
+          entity_name           = excluded.entity_name,
+          deployment_package_id = excluded.deployment_package_id,
+          updated_at            = excluded.updated_at
+      `);
+
+      for (const r of rows) {
+        stmt.run(
+          r.dnext_entity_id, r.dnext_entity_type, r.dnext_version || '0',
+          r.vf_de_offer_id, r.vf_de_offer_type,
+          r.file_path, pkg.id, r.entity_name, now, now
+        );
+      }
+
+      await new Promise((res, rej) => stmt.finalize((err) => err ? rej(err) : res()));
+    }
+
     await runSql('COMMIT');
 
     return {
@@ -468,6 +558,7 @@ async function scanAndSyncPackage(packageId) {
       package_name: pkg.name,
       file_path: pkg.file_path,
       count: rows.length,
+      deleted_count: toDeleteIds.length,
       synced_at: now
     };
   } catch (err) {
@@ -552,6 +643,36 @@ async function clearCatalogCache(envName = null) {
   }
 }
 
+/**
+ * Invalidate cached catalog entries matching an entity endpoint, entity ID, or environment
+ */
+async function invalidateCatalogCache(entityTypeOrEndpoint = null, id = null) {
+  try {
+    if (!entityTypeOrEndpoint && !id) {
+      await runSql('DELETE FROM dnext_catalog_cache');
+      console.log('[DB] Cleared entire catalog cache');
+      return true;
+    }
+    const conditions = [];
+    const params = [];
+    if (entityTypeOrEndpoint) {
+      conditions.push('(endpoint_path LIKE ? OR cache_key LIKE ?)');
+      params.push(`%${entityTypeOrEndpoint}%`, `%${entityTypeOrEndpoint}%`);
+    }
+    if (id) {
+      conditions.push('(payload LIKE ? OR cache_key LIKE ?)');
+      params.push(`%${id}%`, `%${id}%`);
+    }
+    const sql = `DELETE FROM dnext_catalog_cache WHERE ${conditions.join(' OR ')}`;
+    await runSql(sql, params);
+    console.log(`[DB] Invalidated catalog cache for: endpoint=${entityTypeOrEndpoint || '*'}, id=${id || '*'}`);
+    return true;
+  } catch (err) {
+    console.warn('[DB] invalidateCatalogCache error:', err.message);
+    return false;
+  }
+}
+
 module.exports = {
   db,
   queryAll,
@@ -560,6 +681,7 @@ module.exports = {
   getCatalogCache,
   setCatalogCache,
   clearCatalogCache,
+  invalidateCatalogCache,
   collectRegistryRows,
   collectRowsForPackage,
   scanAndSyncPackage,

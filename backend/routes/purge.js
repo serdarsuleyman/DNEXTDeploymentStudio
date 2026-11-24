@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { dnextFetch } = require('../services/dnextClient');
+const { dnextFetch, getAutoToken } = require('../services/dnextClient');
+const { invalidateCatalogCache } = require('../services/db');
 
 const VALID_TYPES = {
   'Category': 'category',
@@ -20,8 +21,8 @@ async function purgeSingleEntity(objectType, id, authHeader) {
     throw new Error(`Invalid objectType: ${objectType}. Must be one of: ${Object.keys(VALID_TYPES).join(', ')}`);
   }
 
-  // 1. Search for all versions
-  const searchUrl = `/api/productCatalogManagement/v4/${apiPathSegment}?id=${encodeURIComponent(id)}`;
+  // 1. Search for all versions across all lifecycle statuses
+  const searchUrl = `/api/productCatalogManagement/v4/${apiPathSegment}?id=${encodeURIComponent(id)}&lifecycleStatus=In study,In test,Launched,Retired,Obsolete`;
   const searchRes = await dnextFetch(searchUrl, {
     headers: {
       'Authorization': authHeader,
@@ -35,26 +36,41 @@ async function purgeSingleEntity(objectType, id, authHeader) {
     list = Array.isArray(data) ? data : [data];
   }
 
-  // If search didn't find anything, try direct get
+  // If search didn't find anything, try direct GETs for common versioned ID patterns
   if (list.length === 0) {
-    const directUrl = `/api/productCatalogManagement/v4/${apiPathSegment}/${encodeURIComponent(id)}`;
-    const directRes = await dnextFetch(directUrl, {
-      headers: { 'Authorization': authHeader, 'Accept': 'application/json' }
-    });
-    if (directRes.ok) {
-      const d = await directRes.json().catch(() => null);
-      if (d) list = [d];
+    const candidateIds = [id, `${id}:(version=0)`, `${id}:(version=1)`, `${id}:(version=0.1)`];
+    for (const candId of candidateIds) {
+      const directUrl = `/api/productCatalogManagement/v4/${apiPathSegment}/${encodeURIComponent(candId)}`;
+      const directRes = await dnextFetch(directUrl, {
+        headers: { 'Authorization': authHeader, 'Accept': 'application/json' }
+      });
+      if (directRes.ok) {
+        const d = await directRes.json().catch(() => null);
+        if (d && d.id) {
+          list.push(d);
+          break;
+        }
+      }
     }
   }
 
   if (list.length === 0) {
-    // If still not found, attempt direct delete
-    const deleteDirect = `/api/productCatalogManagement/v4/${apiPathSegment}/${encodeURIComponent(id)}`;
-    const delRes = await dnextFetch(deleteDirect, {
-      method: 'DELETE',
-      headers: { 'Authorization': authHeader, 'Accept': 'application/json' }
-    });
-    if (delRes.ok || delRes.status === 204) {
+    // If still not found, attempt direct delete candidates
+    const candidateIds = [`${id}:(version=0)`, `${id}:(version=1)`, id];
+    let directDeleted = false;
+    for (const candId of candidateIds) {
+      const deleteDirect = `/api/productCatalogManagement/v4/${apiPathSegment}/${encodeURIComponent(candId)}`;
+      const delRes = await dnextFetch(deleteDirect, {
+        method: 'DELETE',
+        headers: { 'Authorization': authHeader, 'Accept': 'application/json' }
+      });
+      if (delRes.ok || delRes.status === 204) {
+        directDeleted = true;
+        break;
+      }
+    }
+    if (directDeleted) {
+      await invalidateCatalogCache(apiPathSegment, id);
       return { success: true, message: `Deleted ${objectType} "${id}" directly.`, auditTrail: [{ step: 'Direct DELETE succeeded' }] };
     }
     const notFoundErr = new Error(`Record with id "${id}" not found on remote DNEXT gateway.`);
@@ -145,6 +161,9 @@ async function purgeSingleEntity(objectType, id, authHeader) {
     auditTrail.push({ step: `DELETE SUCCEEDED for version ${ver || 'default'}` });
   }
 
+  // Invalidate persistent SQLite catalog cache so queries don't return purged entity
+  await invalidateCatalogCache(apiPathSegment, id);
+
   return { success: true, message: `Successfully purged ${objectType} "${id}" across all versions.`, auditTrail };
 }
 
@@ -154,7 +173,11 @@ async function purgeSingleEntity(objectType, id, authHeader) {
  */
 router.post('/purge-entity', async (req, res) => {
   try {
-    const authHeader = req.headers.authorization;
+    let authHeader = req.headers.authorization;
+    if (!authHeader || authHeader === 'Bearer' || authHeader === 'Bearer null' || authHeader === 'Bearer undefined') {
+      const token = await getAutoToken(req.headers['x-dnext-env-name'], req.headers['x-dnext-api-url'], req.headers['x-dnext-auth-url']);
+      if (token) authHeader = `Bearer ${token}`;
+    }
     if (!authHeader) {
       return res.status(401).json({ error: 'Authorization header is required' });
     }
@@ -179,7 +202,11 @@ router.post('/purge-entity', async (req, res) => {
  */
 router.post('/purge-bulk', async (req, res) => {
   try {
-    const authHeader = req.headers.authorization;
+    let authHeader = req.headers.authorization;
+    if (!authHeader || authHeader === 'Bearer' || authHeader === 'Bearer null' || authHeader === 'Bearer undefined') {
+      const token = await getAutoToken(req.headers['x-dnext-env-name'], req.headers['x-dnext-api-url'], req.headers['x-dnext-auth-url']);
+      if (token) authHeader = `Bearer ${token}`;
+    }
     if (!authHeader) {
       return res.status(401).json({ error: 'Authorization header is required' });
     }
@@ -213,6 +240,20 @@ router.post('/purge-bulk', async (req, res) => {
   } catch (error) {
     console.error('[Bulk Purge] error:', error);
     res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * POST /api/dnext/invalidate-cache
+ */
+router.post('/invalidate-cache', async (req, res) => {
+  try {
+    const { objectType, id } = req.body || {};
+    const apiPathSegment = objectType ? VALID_TYPES[objectType] : null;
+    await invalidateCatalogCache(apiPathSegment, id);
+    res.json({ success: true, message: 'Catalog cache invalidated successfully.' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 

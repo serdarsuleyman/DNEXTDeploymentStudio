@@ -6,7 +6,7 @@
  * and CCB tariff/service codes across Sales Package views and creation workflows.
  */
 
-import referenceValues from '../config/referenceValues.json';
+import referenceValues from '../config/referenceValues.json' with { type: 'json' };
 
 // Certified Vodafone DSL Fallback Tiers & Service Codes paired with network technology (I1204 NGN / I1203 Bitstream)
 export const VODAFONE_DSL_FALLBACK_TIERS = referenceValues.dslFallbackTiers;
@@ -252,7 +252,7 @@ export function extractTermsAndSkus(offering, masterPacketId = null) {
   const rawTerms = Array.isArray(raw.productOfferingTerm) ? raw.productOfferingTerm : [];
   const rawSkus = extractCharValues(raw, 'sku');
 
-  const validDurations = [36, 24, 18, 12];
+  const validDurations = [24, 18, 12];
   let terms = [];
 
   if (rawTerms.length > 0) {
@@ -444,7 +444,13 @@ export function extractPsmStructure(offering, catalogPool = []) {
     const rawPsmIntBs = extractChar(popObj, 'psm_sales_packet_code_internet_bitstream') || compIn?.pktCodeBs || compBw?.pktCodeBs;
     const rawPsmVoiceBs = extractChar(popObj, 'psm_sales_packet_code_voice_bitstream') || compVa?.pktCodeBs || compVt?.pktCodeBs;
     const defaultPsmBs = technology === 'FIBRE'
-      ? (connVar === 'comfort' ? 'PR412' : 'PR411')
+      ? (popSpeed >= 1000
+          ? (connVar === 'comfort' ? 'PR418' : 'PR417')
+          : popSpeed >= 600
+            ? (connVar === 'comfort' ? 'PR414' : 'PR413')
+            : popSpeed >= 300
+              ? (connVar === 'comfort' ? 'PR412' : 'PR411')
+              : (connVar === 'comfort' ? 'PR410' : 'PR409'))
       : (popSpeed >= 250 ? (connVar === 'comfort' ? 'PR404' : 'PR403') : popSpeed >= 100 ? (connVar === 'comfort' ? 'PR394' : 'PR393') : (connVar === 'comfort' ? 'PR384' : 'PR383'));
 
     const psmIntBs = rawPsmIntBs || defaultPsmBs;
@@ -454,7 +460,13 @@ export function extractPsmStructure(offering, catalogPool = []) {
     const rawPsmIntNgn = extractChar(popObj, 'psm_sales_packet_code_internet_ngn') || compIn?.pktCodeNgn || compBw?.pktCodeNgn;
     const rawPsmVoiceNgn = extractChar(popObj, 'psm_sales_packet_code_voice_ngn') || compVa?.pktCodeNgn || compVt?.pktCodeNgn;
     const defaultPsmNgn = technology === 'FIBRE'
-      ? (connVar === 'comfort' ? 'PF341' : 'PF340')
+      ? (popSpeed >= 1000
+          ? (connVar === 'comfort' ? 'PF347' : 'PF346')
+          : popSpeed >= 600
+            ? (connVar === 'comfort' ? 'PF343' : 'PF342')
+            : popSpeed >= 300
+              ? (connVar === 'comfort' ? 'PF341' : 'PF340')
+              : (connVar === 'comfort' ? 'PF339' : 'PF338'))
       : (popSpeed >= 50 ? (connVar === 'comfort' ? 'PI223' : 'PI216') : (connVar === 'comfort' ? 'PI207' : 'PI206'));
 
     const psmInternetNgn = supportedNetworks.hasNgn ? (rawPsmIntNgn || defaultPsmNgn) : '-';
@@ -564,11 +576,69 @@ export function extractPsmStructure(offering, catalogPool = []) {
 }
 
 /**
+ * Extracts a consolidated, deduplicated list of all active PSM Sales Packet codes
+ * (both Vodafone NGN and Telekom Bitstream) across all configured bundled POPs.
+ * 
+ * @param {Array} pops Bundled POP items
+ * @param {Object} supportedNetworks Optional { hasNgn, hasBitstream } network constraint
+ * @returns {Array<string>} Distinct uppercase PSM packet codes
+ */
+export function getConsolidatedPsmCodes(pops = [], supportedNetworks = null) {
+  const psmCodes = new Set();
+  const allowNgn = supportedNetworks ? supportedNetworks.hasNgn !== false : true;
+  const allowBs = supportedNetworks ? supportedNetworks.hasBitstream !== false : true;
+
+  const validCode = (v) => {
+    if (!v) return false;
+    const s = String(v).trim();
+    return s !== '' && s !== '-';
+  };
+
+  const addCodes = (val) => {
+    if (!validCode(val)) return;
+    String(val).split(/[\s,]+/).forEach(token => {
+      const trimmed = token.trim();
+      if (trimmed && trimmed !== '-') {
+        const code = /_v2$/i.test(trimmed)
+          ? `${trimmed.replace(/_v2$/i, '').toUpperCase()}_v2`
+          : trimmed.toUpperCase();
+        psmCodes.add(code);
+      }
+    });
+  };
+
+  (pops || []).forEach(p => {
+    // 1. NGN packet code for this POP
+    if (allowNgn && p.hasNgn !== false) {
+      const ngnCode = p.psmNgn || p.psmInternetNgn || p.ngn?.salesPacketCode || '';
+      addCodes(ngnCode);
+      if (p.psmVoiceNgn && p.psmVoiceNgn !== ngnCode) {
+        addCodes(p.psmVoiceNgn);
+      }
+    }
+    // 2. Bitstream packet code for this POP
+    if (allowBs && p.hasBitstream !== false) {
+      const bsCode = p.psmBitstream || p.psmInternetBitstream || p.bitstream?.salesPacketCode || '';
+      addCodes(bsCode);
+      if (p.psmVoiceBitstream && p.psmVoiceBitstream !== bsCode) {
+        addCodes(p.psmVoiceBitstream);
+      }
+    }
+  });
+
+  return Array.from(psmCodes).sort();
+}
+
+/**
  * Synchronize offering characteristics from resolved POPs and supported networks.
  * Strictly guarantees that non-applicable network codes are NOT injected.
+ * When NGN and Bitstream packet codes are updated on POPs, the consolidated list
+ * is synchronized into the `psm_sales_packet_code` characteristic, removing any replaced codes.
  */
 export function syncPsmCharacteristics(pops, prevCharacteristics = [], supportedNetworks = null) {
   const psmCodes = new Set();
+  const ngnPsmCodes = new Set();
+  const bsPsmCodes = new Set();
   const tariffIntNgn = new Set();
   const tariffIntBs = new Set();
   const tariffVoiceNgn = new Set();
@@ -578,42 +648,55 @@ export function syncPsmCharacteristics(pops, prevCharacteristics = [], supported
   const svcsVoiceNgn = new Set();
   const svcsVoiceBs = new Set();
 
-  const allowNgn = supportedNetworks ? supportedNetworks.hasNgn : true;
-  const allowBs = supportedNetworks ? supportedNetworks.hasBitstream : true;
+  const allowNgn = supportedNetworks ? supportedNetworks.hasNgn !== false : true;
+  const allowBs = supportedNetworks ? supportedNetworks.hasBitstream !== false : true;
 
-  // Preserve existing valid PSM codes
-  const existingPsmChar = prevCharacteristics.find(c => (c.name || '').toLowerCase() === 'psm_sales_packet_code');
-  if (existingPsmChar && Array.isArray(existingPsmChar.values)) {
-    existingPsmChar.values.forEach(v => {
-      const str = String(v).trim();
-      if (str && str !== '-') {
-        if (str.startsWith('PI') && !allowNgn) return;
-        psmCodes.add(str);
+  const validCode = (v) => {
+    if (!v) return false;
+    const s = String(v).trim();
+    return s !== '' && s !== '-';
+  };
+
+  const addCodes = (val, targetSet) => {
+    if (!validCode(val)) return;
+    String(val).split(/[\s,]+/).forEach(token => {
+      const trimmed = token.trim();
+      if (trimmed && trimmed !== '-') {
+        const code = /_v2$/i.test(trimmed)
+          ? `${trimmed.replace(/_v2$/i, '').toUpperCase()}_v2`
+          : trimmed.toUpperCase();
+        targetSet.add(code);
       }
     });
+  };
+
+  // 1. Gather consolidated PSM sales packet codes directly from POPs
+  const consolidatedPsm = getConsolidatedPsmCodes(pops, supportedNetworks);
+  if (pops && pops.length > 0) {
+    // When bundled POPs exist, reflect ONLY the active codes on the POPs. Replaced codes are removed.
+    consolidatedPsm.forEach(code => psmCodes.add(code));
+  } else {
+    // Only fallback to existing PSM codes if no POPs exist at all
+    const existingPsmChar = prevCharacteristics.find(c => (c.name || '').toLowerCase() === 'psm_sales_packet_code');
+    if (existingPsmChar && Array.isArray(existingPsmChar.values)) {
+      existingPsmChar.values.forEach(v => {
+        addCodes(v, psmCodes);
+      });
+    } else if (existingPsmChar?.value) {
+      addCodes(existingPsmChar.value, psmCodes);
+    }
   }
 
-  const validCode = (v) => v && String(v).trim() !== '-' && String(v).trim() !== '';
-
+  // 2. Gather network-specific PSM codes, tariffs and service codes from POPs
   pops.forEach(p => {
-    if (allowBs) {
-      if (validCode(p.psmInternetBitstream)) psmCodes.add(String(p.psmInternetBitstream).trim());
-      if (validCode(p.psmVoiceBitstream)) psmCodes.add(String(p.psmVoiceBitstream).trim());
-      if (validCode(p.tariffInternetBitstream)) tariffIntBs.add(String(p.tariffInternetBitstream).trim());
-      if (validCode(p.tariffVoiceBitstream)) tariffVoiceBs.add(String(p.tariffVoiceBitstream).trim());
-      if (p.serviceInternetBitstream && p.serviceInternetBitstream !== '-') {
-        String(p.serviceInternetBitstream).split(',').forEach(s => s.trim() && s.trim() !== '-' && svcsIntBs.add(s.trim()));
-      }
-      if (p.serviceVoiceBitstream && p.serviceVoiceBitstream !== '-') {
-        String(p.serviceVoiceBitstream).split(',').forEach(s => s.trim() && s.trim() !== '-' && svcsVoiceBs.add(s.trim()));
-      }
-    }
-
     if (allowNgn && p.hasNgn !== false) {
-      if (validCode(p.psmInternetNgn)) psmCodes.add(String(p.psmInternetNgn).trim());
-      if (validCode(p.psmVoiceNgn)) psmCodes.add(String(p.psmVoiceNgn).trim());
-      if (validCode(p.tariffInternetNgn)) tariffIntNgn.add(String(p.tariffInternetNgn).trim());
-      if (validCode(p.tariffVoiceNgn)) tariffVoiceNgn.add(String(p.tariffVoiceNgn).trim());
+      const ngnCode = p.psmNgn || p.psmInternetNgn || p.ngn?.salesPacketCode || '';
+      addCodes(ngnCode, ngnPsmCodes);
+      if (p.psmVoiceNgn && p.psmVoiceNgn !== ngnCode) {
+        addCodes(p.psmVoiceNgn, ngnPsmCodes);
+      }
+      addCodes(p.tariffInternetNgn || p.tariffInternet, tariffIntNgn);
+      addCodes(p.tariffVoiceNgn || p.tariffVoice, tariffVoiceNgn);
       if (p.serviceInternetNgn && p.serviceInternetNgn !== '-') {
         String(p.serviceInternetNgn).split(',').forEach(s => s.trim() && s.trim() !== '-' && svcsIntNgn.add(s.trim()));
       }
@@ -621,18 +704,50 @@ export function syncPsmCharacteristics(pops, prevCharacteristics = [], supported
         String(p.serviceVoiceNgn).split(',').forEach(s => s.trim() && s.trim() !== '-' && svcsVoiceNgn.add(s.trim()));
       }
     }
+
+    if (allowBs && p.hasBitstream !== false) {
+      const bsCode = p.psmBitstream || p.psmInternetBitstream || p.bitstream?.salesPacketCode || '';
+      addCodes(bsCode, bsPsmCodes);
+      if (p.psmVoiceBitstream && p.psmVoiceBitstream !== bsCode) {
+        addCodes(p.psmVoiceBitstream, bsPsmCodes);
+      }
+      addCodes(p.tariffInternetBitstream || p.tariffInternet, tariffIntBs);
+      addCodes(p.tariffVoiceBitstream || p.tariffVoice, tariffVoiceBs);
+      if (p.serviceInternetBitstream && p.serviceInternetBitstream !== '-') {
+        String(p.serviceInternetBitstream).split(',').forEach(s => s.trim() && s.trim() !== '-' && svcsIntBs.add(s.trim()));
+      }
+      if (p.serviceVoiceBitstream && p.serviceVoiceBitstream !== '-') {
+        String(p.serviceVoiceBitstream).split(',').forEach(s => s.trim() && s.trim() !== '-' && svcsVoiceBs.add(s.trim()));
+      }
+    }
   });
 
   const distinctSpeeds = [...new Set(pops.map(p => Number(p.speed)).filter(Boolean))].sort((a, b) => b - a);
 
+  const consolidatedPsmList = Array.from(psmCodes).sort();
+  const ngnList = Array.from(ngnPsmCodes).sort();
+  const bsList = Array.from(bsPsmCodes).sort();
+
   const mapping = {
-    psm_sales_packet_code: Array.from(psmCodes).filter(Boolean),
+    psm_sales_packet_code: consolidatedPsmList,
+    psm_sales_packet_code_ngn: ngnList,
+    psm_sales_packet_code_internet_ngn: ngnList,
+    psm_sales_packet_code_voice_ngn: ngnList,
+    psm_sales_packet_code_bitstream: bsList,
+    psm_sales_packet_code_internet_bitstream: bsList,
+    psm_sales_packet_code_voice_bitstream: bsList,
+    psm_packet_code: consolidatedPsmList,
+    sales_packet_code: consolidatedPsmList,
+    ngn_packet_code: ngnList,
+    bitstream_packet_code: bsList,
     tariff_code_internet_ngn: Array.from(tariffIntNgn).filter(Boolean),
     tariff_code_internet_bitstream: Array.from(tariffIntBs).filter(Boolean),
     tariff_code_internet: Array.from(new Set([...tariffIntNgn, ...tariffIntBs])).filter(Boolean),
+    tariff_internet: Array.from(new Set([...tariffIntNgn, ...tariffIntBs])).filter(Boolean),
     tariff_code_voice_ngn: Array.from(tariffVoiceNgn).filter(Boolean),
     tariff_code_voice_bitstream: Array.from(tariffVoiceBs).filter(Boolean),
     tariff_code_voice: Array.from(new Set([...tariffVoiceNgn, ...tariffVoiceBs])).filter(Boolean),
+    tariff_voice: Array.from(new Set([...tariffVoiceNgn, ...tariffVoiceBs])).filter(Boolean),
     service_code_internet_ngn: Array.from(svcsIntNgn).filter(Boolean),
     service_code_internet_bitstream: Array.from(svcsIntBs).filter(Boolean),
     service_code_internet: Array.from(new Set([...svcsIntNgn, ...svcsIntBs])).filter(Boolean),
@@ -649,18 +764,39 @@ export function syncPsmCharacteristics(pops, prevCharacteristics = [], supported
     }
   }
 
-  return (prevCharacteristics || []).map(ch => {
+  let foundPsmChar = false;
+  const updatedChars = (prevCharacteristics || []).map(ch => {
     const k = (ch.name || '').toLowerCase();
+    if (k === 'psm_sales_packet_code') {
+      foundPsmChar = true;
+    }
     if (mapping[k] !== undefined) {
       const arr = mapping[k];
       return {
         ...ch,
         values: arr.length > 0 ? arr : [''],
-        value: arr.join(', ')
+        value: arr.join(', '),
+        productSpecCharacteristicValue: arr.map(v => ({ value: v, isDefault: true })),
+        isArray: arr.length > 1 || ch.isArray
       };
     }
     return ch;
   });
+
+  // Ensure psm_sales_packet_code is always present in characteristics
+  if (!foundPsmChar) {
+    updatedChars.push({
+      id: 'char_psm_sales_packet_code',
+      name: 'psm_sales_packet_code',
+      values: consolidatedPsmList.length > 0 ? consolidatedPsmList : [''],
+      value: consolidatedPsmList.join(', '),
+      productSpecCharacteristicValue: consolidatedPsmList.map(v => ({ value: v, isDefault: true })),
+      valueType: 'String',
+      isArray: consolidatedPsmList.length > 1
+    });
+  }
+
+  return updatedChars;
 }
 
 /**

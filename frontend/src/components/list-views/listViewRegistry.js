@@ -9,6 +9,7 @@ import OptionsListView from './OptionsListView';
 import HardwareListView from './HardwareListView';
 import ProductOfferingPricesListView from './ProductOfferingPricesListView';
 import CategoriesListView from './CategoriesListView';
+import DraftsListView from './DraftsListView';
 import { isOptionSpec, isSalesPackageSpec, isHardwareSpec } from '../../utils/entityClassifiers';
 
 export { isOptionSpec, isSalesPackageSpec, isHardwareSpec };
@@ -104,6 +105,16 @@ export const LIST_VIEW_TEMPLATES = {
     applicableTypes: ['ProductOfferingPrice'],
     component: ProductOfferingPricesListView,
     matches: (context) => context.typeFilter === 'ProductOfferingPrice'
+  },
+  DRAFTS: {
+    id: 'drafts',
+    name: 'Draft Offerings View',
+    icon: 'edit',
+    badge: 'Drafts',
+    description: 'Workspace for in-progress offering drafts before deployment to the catalog',
+    applicableTypes: ['Draft'],
+    component: DraftsListView,
+    matches: (context) => context.typeFilter === 'Draft' || context.targetListViewTemplateId === 'drafts'
   }
 };
 
@@ -113,6 +124,11 @@ export const LIST_VIEW_TEMPLATES = {
  * 2. Field values / sub-filters / specification values of objects
  */
 export function resolveListViewTemplateId(context = {}, sampleItem = null) {
+  // 0. Drafts Workspace
+  if (context.targetListViewTemplateId === 'drafts' || context.typeFilter === 'Draft') {
+    return 'drafts';
+  }
+
   // 1. Categories
   if (LIST_VIEW_TEMPLATES.CATEGORIES.matches(context, sampleItem)) {
     return 'categories';

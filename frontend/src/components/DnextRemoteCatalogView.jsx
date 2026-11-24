@@ -3,7 +3,8 @@ import Icon from './ui/Icon';
 import { useAuth } from '../context/EnvironmentContext';
 import DnextEntityDrawer from './DnextEntityDrawer';
 import ConfigurableListView from './list-views/ConfigurableListView';
-import { resolveListViewTemplateId, getAvailableListViewTemplates, isSalesPackageSpec, isOptionSpec, isHardwareSpec } from './list-views/listViewRegistry';
+import { resolveListViewTemplateId, getAvailableListViewTemplates, isSalesPackageSpec, isOptionSpec, isHardwareSpec, LIST_VIEW_TEMPLATES } from './list-views/listViewRegistry';
+import ListViewHeader from './list-views/ListViewHeader';
 import ConfigurableLeftMenu from './navigation/ConfigurableLeftMenu';
 
 // ─── Design Tokens ─────────────────────────────────────────────────────────────
@@ -217,6 +218,100 @@ export default function DnextRemoteCatalogView({ selectedEnv: propSelectedEnv, e
   // Inspect Modal & Offer Details Drawer
   const [inspectItem, setInspectItem] = useState(null);
   const [drawerItem, setDrawerItem] = useState(null);
+
+  // In-progress Drafts count & resume handler
+  const [draftsCount, setDraftsCount] = useState(0);
+
+  const fetchDraftsCount = () => {
+    fetch('/api/drafts')
+      .then(res => res.json())
+      .then(data => {
+        if (data && typeof data.total === 'number') {
+          setDraftsCount(data.total);
+        }
+      })
+      .catch(() => {});
+  };
+
+  useEffect(() => {
+    fetchDraftsCount();
+  }, []);
+
+  const handleResumeDraft = (draft) => {
+    if (!draft) return;
+    const formData = draft.form_data || {};
+    const taskType = draft.task_type || formData.task_type || 'new_sales_package';
+    const tplName = formData.template_name || '';
+    const tplId = formData.selectedTemplateId || (tplName ? tplName.replace(/:\(version=[^)]+\)$/i, '') : '');
+    const tplDisplayName = formData.selectedTemplateName || 
+      (tplName ? (tplName.match(/^(.+?):\(version=(.+?)\)$/) ? `${RegExp.$1} (v${RegExp.$2})` : tplName) : tplId);
+
+    const drawerItemPayload = {
+      ...formData,
+      id: draft.entity_id || formData.id || formData.code || 'NEW_SALES_PACKAGE',
+      name: draft.entity_name || formData.name || 'New Sales Package',
+      code: formData.code || draft.entity_id || '',
+      portfolio_id: draft.portfolio_id || formData.portfolio_id || '',
+      template_name: tplName,
+      selectedTemplateId: tplId,
+      selectedTemplateName: tplDisplayName,
+      task_type: taskType,
+      entityType: 'ProductOffering',
+      templateId: 'sales_package_new',
+      isNew: true,
+      isDraft: true,
+      draftId: draft.id,
+      draftData: formData,
+      raw: formData
+    };
+    setDrawerItem(drawerItemPayload);
+  };
+
+  // Deep-link navigation: read target entity ID / search / type from window.location.hash
+  useEffect(() => {
+    const handleUrlParams = () => {
+      const hash = window.location.hash || '';
+      const qIdx = hash.indexOf('?');
+      if (qIdx === -1) return;
+      const searchStr = hash.substring(qIdx + 1);
+      const params = new URLSearchParams(searchStr);
+      const targetId = params.get('id') || params.get('search');
+      const targetType = params.get('type');
+
+      if (targetId) {
+        setSearchQuery(targetId);
+        setUserListTemplateId(null);
+        setSubFilter(null);
+        if (targetType && targetType !== 'all') {
+          const normalizedType = targetType === 'BundledProductOfferingPrice' ? 'ProductOfferingPrice' : targetType;
+          setTypeFilter(normalizedType);
+          setSelectedCategory(normalizedType);
+        } else {
+          setTypeFilter('all');
+          setSelectedCategory('all');
+        }
+      }
+    };
+
+    handleUrlParams();
+    window.addEventListener('hashchange', handleUrlParams);
+    return () => window.removeEventListener('hashchange', handleUrlParams);
+  }, []);
+
+  // When remote entities load, if a target entity ID is in the URL hash, automatically open its detail drawer
+  useEffect(() => {
+    const hash = window.location.hash || '';
+    const qIdx = hash.indexOf('?');
+    if (qIdx === -1) return;
+    const params = new URLSearchParams(hash.substring(qIdx + 1));
+    const targetId = params.get('id') || params.get('search');
+    if (!targetId || entities.length === 0) return;
+
+    const matched = entities.find(e => e.id === targetId || e.raw?.id === targetId);
+    if (matched && (!drawerItem || drawerItem.id !== targetId)) {
+      setDrawerItem(matched);
+    }
+  }, [entities, drawerItem]);
 
   // Deletion / Purge state
   const [isPurging, setIsPurging] = useState(false);
@@ -639,11 +734,12 @@ export default function DnextRemoteCatalogView({ selectedEnv: propSelectedEnv, e
       oneTime,
       specs: fetchStats.specs,
       categories: fetchStats.categories,
+      drafts: draftsCount,
       launched,
       inTestStudy,
       obsolete
     };
-  }, [entities, fetchStats]);
+  }, [entities, fetchStats, draftsCount]);
 
   const handleToggleMenuSection = (sec) => {
     setExpandedMenuSections(prev => {
@@ -950,6 +1046,9 @@ export default function DnextRemoteCatalogView({ selectedEnv: propSelectedEnv, e
     [listContext, sampleListItem]
   );
   const activeListTemplateId = userListTemplateId || autoListTemplateId;
+  const isSalesPackagesView =
+    activeListTemplateId === 'sales_packages' ||
+    subFilter === 'sales_packages';
   const isSpecializedOfferingView =
     activeListTemplateId === 'sales_packages' ||
     activeListTemplateId === 'options' ||
@@ -1081,424 +1180,40 @@ export default function DnextRemoteCatalogView({ selectedEnv: propSelectedEnv, e
         {/* ── Main Content Area: Control Bar + Table ── */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, overflow: 'hidden' }}>
 
-          {/* ── Control Bar: Search & Filters ── */}
-          <div style={{ padding: '12px 28px', borderBottom: `1px solid ${C.border}`, background: '#ffffff', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', flexShrink: 0 }}>
-            
-            {/* Left Filter Group */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-              {/* Search (Hidden in Sales Packages, Options, and Categories Views) */}
-              {!isSpecializedCustomView && (
-                <input
-                  type="text"
-                  placeholder="Search ID, name, status, spec…"
-                  value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
-                  style={{
-                    padding: '7px 12px',
-                    borderRadius: '6px',
-                    border: `1px solid var(--ds-border-strong)`,
-                    background: '#ffffff',
-                    color: C.text,
-                    fontSize: '12px',
-                    width: '230px',
-                    outline: 'none'
-                  }}
-                />
-              )}
-
-              {/* Type Filter Pulldown - Only shown in All Objects view, hidden in Product Offerings */}
-              {typeFilter === 'all' && activeListTemplateId === 'all_objects' && (
-                <select
-                  value={typeFilter}
-                  onChange={e => {
-                    const val = e.target.value;
-                    setTypeFilter(val);
-                    setSelectedCategory(val);
-                    setSubFilter(null);
-                    if (val !== 'ProductOffering') setSpecFilter('all');
-                  }}
-                  style={{
-                    padding: '7px 12px',
-                    borderRadius: '6px',
-                    border: `1px solid var(--ds-border-strong)`,
-                    background: '#ffffff',
-                    color: C.text,
-                    fontSize: '12px',
-                    cursor: 'pointer',
-                    outline: 'none'
-                  }}
-                >
-                  <option value="all">All Entity Types ({entities.length})</option>
-                  <option value="Category">Categories ({fetchStats.categories})</option>
-                  <option value="ProductOffering">Product Offerings ({fetchStats.offerings})</option>
-                  <option value="ProductOfferingPrice">Product Offering Prices ({fetchStats.prices})</option>
-                  <option value="ProductSpecification">Product Specifications ({fetchStats.specs})</option>
-                </select>
-              )}
-
-              {/* Status Filter (Hidden in Sales Packages, Options, and Categories Views) */}
-              {!isSpecializedCustomView && (
-                <select
-                  value={statusFilter}
-                  onChange={e => setStatusFilter(e.target.value)}
-                  style={{
-                    padding: '7px 12px',
-                    borderRadius: '6px',
-                    border: `1px solid var(--ds-border-strong)`,
-                    background: '#ffffff',
-                    color: C.text,
-                    fontSize: '12px',
-                    cursor: 'pointer',
-                    outline: 'none'
-                  }}
-                >
-                  <option value="all">All Statuses</option>
-                  <option value="In study">In study</option>
-                  <option value="Launched">Launched</option>
-                  <option value="Active">✓ Active</option>
-                  <option value="Obsolete">✕ Obsolete</option>
-                </select>
-              )}
-
-              {subFilter && (
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'rgba(230,0,0,0.06)', border: '1px solid var(--ds-brand)', padding: '3px 8px', borderRadius: '4px', fontSize: '11px', color: 'var(--ds-brand)', fontWeight: '600' }}>
-                  <span>Filter: <strong>{subFilter === 'sales_packages' ? 'Sales Packages' : subFilter === 'options' ? 'Options' : subFilter === 'hardware' ? 'Hardware' : subFilter}</strong></span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSubFilter(null);
-                      setSpecSearchQuery('');
-                    }}
-                    style={{ background: 'none', border: 'none', color: 'var(--ds-brand)', cursor: 'pointer', padding: '0 2px', fontSize: '12px', fontWeight: 'bold' }}
-                    title="Remove sub-filter"
-                  >
-                    ✕
-                  </button>
-                </div>
-              )}
-
-              {/* Filterable Specification Search Pulldown */}
-              {(typeFilter === 'ProductOffering' || isSpecializedOfferingView) && (
-                <div ref={specDropdownRef} style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      position: 'relative',
-                      width: '280px'
-                    }}
-                  >
-                    <input
-                      type="text"
-                      placeholder="Filter by Product Specification…"
-                      value={specSearchQuery}
-                      onChange={e => {
-                        setSpecSearchQuery(e.target.value);
-                        if (!isSpecDropdownOpen) setIsSpecDropdownOpen(true);
-                      }}
-                      onFocus={() => setIsSpecDropdownOpen(true)}
-                      style={{
-                        padding: '7px 48px 7px 12px',
-                        borderRadius: '6px',
-                        border: `1px solid ${specSearchQuery ? 'var(--ds-brand)' : (isSpecDropdownOpen ? 'var(--ds-brand)' : 'var(--ds-border-strong)')}`,
-                        background: specSearchQuery ? 'rgba(230,0,0,0.04)' : '#ffffff',
-                        color: C.text,
-                        fontSize: '12px',
-                        width: '100%',
-                        outline: 'none',
-                        boxShadow: isSpecDropdownOpen ? '0 0 0 2px rgba(230,0,0,0.1)' : 'none',
-                        transition: 'all 0.15s ease'
-                      }}
-                      title="Type to filter specifications in real time or select from the pulldown"
-                    />
-
-                    <div style={{ position: 'absolute', right: '6px', display: 'flex', alignItems: 'center', gap: '2px' }}>
-                      {specSearchQuery && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSpecSearchQuery('');
-                          }}
-                          style={{
-                            background: 'transparent',
-                            border: 'none',
-                            color: 'var(--ds-brand)',
-                            cursor: 'pointer',
-                            fontSize: '12px',
-                            padding: '2px 4px',
-                            lineHeight: 1
-                          }}
-                          title="Clear specification filter"
-                        >
-                          ✕
-                        </button>
-                      )}
-                      <button
-                        type="button"
-                        onClick={() => setIsSpecDropdownOpen(prev => !prev)}
-                        style={{
-                          background: 'transparent',
-                          border: 'none',
-                          color: 'var(--ds-text-3)',
-                          cursor: 'pointer',
-                          fontSize: '10px',
-                          padding: '2px 4px',
-                          lineHeight: 1
-                        }}
-                        title={isSpecDropdownOpen ? 'Close specification list' : 'Open specification list'}
-                      >
-                        {isSpecDropdownOpen ? '▲' : '▼'}
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Filterable Dropdown Pulldown Menu */}
-                  {isSpecDropdownOpen && (
-                    <div
-                      style={{
-                        position: 'absolute',
-                        top: 'calc(100% + 4px)',
-                        left: 0,
-                        width: '320px',
-                        background: '#ffffff',
-                        border: '1px solid var(--ds-border-strong)',
-                        borderRadius: '6px',
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
-                        zIndex: 9999,
-                        maxHeight: '260px',
-                        overflowY: 'auto'
-                      }}
-                    >
-                      {/* Option: All Specifications (Reset) */}
-                      <div
-                        onClick={() => {
-                          setSpecSearchQuery('');
-                          setIsSpecDropdownOpen(false);
-                        }}
-                        style={{
-                          padding: '8px 12px',
-                          fontSize: '12px',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                          borderBottom: '1px solid var(--ds-border)',
-                          background: !specSearchQuery ? 'rgba(230,0,0,0.06)' : 'transparent',
-                          fontWeight: !specSearchQuery ? '700' : '500',
-                          color: !specSearchQuery ? 'var(--ds-brand)' : C.text
-                        }}
-                        onMouseEnter={e => { if (specSearchQuery) e.currentTarget.style.background = 'var(--ds-surface-subtle)'; }}
-                        onMouseLeave={e => { if (specSearchQuery) e.currentTarget.style.background = 'transparent'; }}
-                      >
-                        <span>All Specifications ({filteredProductSpecs.reduce((acc, s) => acc + s.count, 0)} offerings)</span>
-                        {!specSearchQuery && <span style={{ color: 'var(--ds-brand)', fontWeight: '800' }}>✓</span>}
-                      </div>
-
-                      {/* Filtered Specification Items */}
-                      {matchingProductSpecs.length === 0 ? (
-                        <div style={{ padding: '12px', fontSize: '12px', color: C.muted, fontStyle: 'italic', textAlign: 'center' }}>
-                          No specifications matching "{specSearchQuery}"
-                        </div>
-                      ) : (
-                        matchingProductSpecs.map(s => {
-                          const isSelected = specSearchQuery.trim().toLowerCase() === s.name.toLowerCase();
-                          return (
-                            <div
-                              key={s.name}
-                              onClick={() => {
-                                setSpecSearchQuery(s.name);
-                                setIsSpecDropdownOpen(false);
-                              }}
-                              style={{
-                                padding: '8px 12px',
-                                fontSize: '12px',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                borderBottom: '1px solid var(--ds-border)',
-                                background: isSelected ? 'rgba(230,0,0,0.06)' : 'transparent',
-                                color: isSelected ? 'var(--ds-brand)' : C.text,
-                                fontWeight: isSelected ? '700' : '400'
-                              }}
-                              onMouseEnter={e => { if (!isSelected) e.currentTarget.style.background = 'var(--ds-surface-subtle)'; }}
-                              onMouseLeave={e => { if (!isSelected) e.currentTarget.style.background = 'transparent'; }}
-                            >
-                              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '230px' }} title={s.name}>
-                                {s.name}
-                              </span>
-                              <span style={{
-                                fontSize: '10px',
-                                padding: '1px 6px',
-                                borderRadius: '10px',
-                                background: isSelected ? 'var(--ds-brand)' : 'var(--ds-surface-2)',
-                                color: isSelected ? '#ffffff' : 'var(--ds-text-2)',
-                                fontWeight: '700'
-                              }}>
-                                {s.count}
-                              </span>
-                            </div>
-                          );
-                        })
-                      )}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* ── Configurable List View Template Selector ── */}
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'var(--ds-surface-subtle)', border: `1px solid var(--ds-border-strong)`, borderRadius: '6px', padding: '2px 8px' }}>
-                <span style={{ fontSize: '11px', color: C.muted, fontWeight: '600' }}>View:</span>
-                <select
-                  value={activeListTemplateId}
-                  onChange={e => setUserListTemplateId(e.target.value)}
-                  style={{
-                    background: 'transparent',
-                    border: 'none',
-                    color: userListTemplateId ? 'var(--ds-brand)' : C.text,
-                    fontSize: '12px',
-                    fontWeight: '700',
-                    cursor: 'pointer',
-                    outline: 'none',
-                    padding: '5px 4px'
-                  }}
-                  title="Configured list view template (Auto-resolved from entity type and field values)"
-                >
-                  {availableListTemplates.map(tpl => (
-                    <option key={tpl.id} value={tpl.id} style={{ background: '#ffffff', color: 'var(--ds-text)' }}>
-                      {tpl.name} {(!userListTemplateId && tpl.id === autoListTemplateId) ? '(Auto)' : ''}
-                    </option>
-                  ))}
-                </select>
-                {userListTemplateId && (
-                  <button
-                    type="button"
-                    onClick={() => setUserListTemplateId(null)}
-                    style={{
-                      background: 'rgba(230,0,0,0.08)',
-                      border: '1px solid rgba(230,0,0,0.2)',
-                      color: 'var(--ds-brand)',
-                      fontSize: '11px',
-                      cursor: 'pointer',
-                      padding: '2px 6px',
-                      borderRadius: '4px',
-                      fontWeight: '700'
-                    }}
-                    title="Reset to Auto-resolved template"
-                  >
-                    ↺ Auto
-                  </button>
-                )}
-              </div>
-            </div>
-
-        {/* Right Bulk Actions Bar */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          {selectedIds.size > 0 && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', padding: '4px 12px', borderRadius: '6px' }}>
-              <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--ds-danger)' }}>
-                {selectedIds.size} selected
-              </span>
-              <button
-                onClick={() => setShowConfirmBulkModal(true)}
-                disabled={isPurging}
-                style={btn({ background: 'var(--ds-danger)', borderColor: 'var(--ds-danger)', color: '#fff', padding: '4px 10px', fontSize: '11px' })}
-                title="Purge selected entities from DNEXT"
-              >
-                <Icon name="trash" size={14} /> Bulk Purge ({selectedIds.size})
-              </button>
-              <button
-                onClick={() => setSelectedIds(new Set())}
-                style={btn({ background: 'transparent', borderColor: 'transparent', color: C.muted, padding: '4px 6px', fontSize: '11px' })}
-              >
-                ✕ Clear
-              </button>
-            </div>
+          {/* ── Common List View Header (Hidden for dedicated Drafts view which has its own header) ── */}
+          {activeListTemplateId !== 'drafts' && (
+            <ListViewHeader
+              title={(() => {
+                const t = Object.values(LIST_VIEW_TEMPLATES).find(tmpl => tmpl.id === activeListTemplateId);
+                return t ? (t.badge || t.name) : 'Catalog Entities';
+              })()}
+              icon={(() => {
+                const t = Object.values(LIST_VIEW_TEMPLATES).find(tmpl => tmpl.id === activeListTemplateId);
+                return t?.icon || 'package';
+              })()}
+              itemCount={filteredGroups.length}
+              cacheStatus={cacheStatus}
+              onRefreshCatalog={() => fetchRemoteEntities(token, activeEnv, false, true)}
+              isRefreshing={loading}
+              disabled={!token}
+              isSalesPackagesView={isSalesPackagesView}
+              onNewSalesPackage={handleOpenNewSalesPackage}
+              selectedCount={selectedIds.size}
+              onBulkPurge={() => setShowConfirmBulkModal(true)}
+              onClearSelection={() => setSelectedIds(new Set())}
+            />
           )}
 
-          {/* Refresh Catalog Button (always visible on this row alongside View Selection popup) */}
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-            {cacheStatus && (
-              <span
-                style={{
-                  fontSize: '11px',
-                  color: cacheStatus.isCached ? 'var(--ds-ok)' : 'var(--ds-text-2)',
-                  background: cacheStatus.isCached ? 'rgba(16,185,129,0.08)' : 'rgba(0,0,0,0.04)',
-                  border: `1px solid ${cacheStatus.isCached ? 'rgba(16,185,129,0.25)' : 'var(--ds-border)'}`,
-                  padding: '3px 8px',
-                  borderRadius: '4px',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '4px'
-                }}
-                title={cacheStatus.cachedAt ? `Loaded from SQLite backend cache (${new Date(cacheStatus.cachedAt).toLocaleString()})` : 'Live catalog data'}
-              >
-                <span>{cacheStatus.isCached ? 'Cached' : 'Live'}</span>
-                {cacheStatus.cachedAt && (
-                  <span style={{ fontSize: '11px', color: 'var(--ds-text-2)' }}>
-                    ({new Date(cacheStatus.cachedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })})
-                  </span>
-                )}
-              </span>
-            )}
-
-            <button
-              type="button"
-              onClick={() => fetchRemoteEntities(token, activeEnv, false, true)}
-              disabled={loading || !token}
-              style={{
-                background: '#ffffff',
-                border: '1px solid var(--ds-border-strong)',
-                color: C.text,
-                padding: '5px 12px',
-                borderRadius: '6px',
-                fontSize: '12px',
-                fontWeight: '600',
-                cursor: loading ? 'not-allowed' : 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                transition: 'all 0.15s ease'
-              }}
-              title="Fetch latest remote entities from active DNEXT environment (bypasses cache)"
-            >
-              <span style={{ display: 'inline-block', animation: loading ? 'spin 1s infinite linear' : 'none' }}>
-                {loading ? '' : '⟳'}
-              </span>
-              <span>{loading ? 'Refreshing…' : 'Refresh Catalog'}</span>
-            </button>
-          </div>
-
-          {/* New Sales Package Button */}
-          <button
-            type="button"
-            onClick={handleOpenNewSalesPackage}
-            style={{
-              background: 'var(--ds-brand)',
-              border: '1px solid var(--ds-brand-dark)',
-              color: '#ffffff',
-              padding: '5px 14px',
-              borderRadius: '6px',
-              fontSize: '12px',
-              fontWeight: '700',
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              boxShadow: '0 1px 3px rgba(230,0,0,0.25)',
-              transition: 'all 0.15s ease'
-            }}
-            title="Create a new commercial Sales Package broadband offer"
-          >
-            <span style={{ fontSize: '14px', lineHeight: 1 }}>+</span>
-            <span>New Sales Package</span>
-          </button>
-        </div>
-      </div>
-
       {/* ── Table Container ── */}
-      <div style={{ flex: 1, overflowY: 'auto', overflowX: 'auto', padding: '0 28px 24px 28px' }}>
-        {loading ? (
+      <div style={{ flex: 1, overflowY: 'auto', overflowX: 'auto', padding: activeListTemplateId === 'drafts' ? '16px 28px 24px 28px' : '0 28px 24px 28px' }}>
+        {activeListTemplateId === 'drafts' ? (
+          <ConfigurableListView
+            templateId="drafts"
+            context={listContext}
+            onResumeDraft={handleResumeDraft}
+            onDraftsCountChange={setDraftsCount}
+          />
+        ) : loading ? (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '300px', gap: '12px', color: C.muted }}>
             <div style={{ fontSize: '24px' }}><Icon name="clock" size={24} /></div>
             <div>Querying remote DNEXT endpoints…</div>
@@ -1526,6 +1241,8 @@ export default function DnextRemoteCatalogView({ selectedEnv: propSelectedEnv, e
             isRefreshing={loading}
             onOpenDetail={setDrawerItem}
             onSpecFilter={(specName) => setSpecSearchQuery(specName)}
+            onResumeDraft={handleResumeDraft}
+            onDraftsCountChange={setDraftsCount}
           />
         )}
       </div>

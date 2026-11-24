@@ -1,0 +1,11 @@
+{
+    "sqltools.useNodeRuntime": true,
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "database": "${workspaceFolder:dnext-deployment-studio}/backend/dnext_deployment.db",
+            "name": "studio_deployment"
+        }
+    ]
+}

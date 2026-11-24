@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from 'react';
 export const AREAS = [
   { id: 'catalog', label: 'Catalog', title: 'Live DNEXT Catalog', icon: 'globe', group: 'main' },
   { id: 'rules', label: 'Rule Engine', title: 'Rule Engine — Compatibility & Eligibility', icon: 'sliders', group: 'main' },
+  { id: 'mapper-rules', label: 'Mapper Rules', title: 'Mapper Rules — Multimapper Enrichment & Recognition', icon: 'layers', group: 'main' },
   { id: 'releases', label: 'Releases', title: 'Deployment Packages', icon: 'rocket', group: 'main' },
 ];
 
