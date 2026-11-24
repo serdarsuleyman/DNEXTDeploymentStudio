@@ -1,0 +1,12 @@
+**/node_modules
+frontend/dist
+.git
+.omc
+.pids
+logs
+backend/logs
+**/*.db
+!reference_data/2_reference_db/vfde_catalog_reference.db
+**/*.db-*
+.env
+.env.*
