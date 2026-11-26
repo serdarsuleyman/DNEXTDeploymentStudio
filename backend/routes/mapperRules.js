@@ -98,11 +98,13 @@ function extractMapperFields(rule) {
   };
 }
 
+let mapperDbWriteQueue = Promise.resolve();
+
 function upsertMapperRulesBatch(envName, rules, syncState = 'synced') {
   if (!Array.isArray(rules) || rules.length === 0) return Promise.resolve(0);
   const now = new Date().toISOString();
 
-  return new Promise((resolve, reject) => {
+  const runBatch = () => new Promise((resolve, reject) => {
     db.serialize(() => {
       db.run('BEGIN TRANSACTION');
 
@@ -146,6 +148,9 @@ function upsertMapperRulesBatch(envName, rules, syncState = 'synced') {
       });
     });
   });
+
+  mapperDbWriteQueue = mapperDbWriteQueue.then(runBatch, runBatch);
+  return mapperDbWriteQueue;
 }
 
 function queryRefDbAll(sql, params = []) {
@@ -220,13 +225,13 @@ router.post('/mapper-rules/sync', async (req, res) => {
   }
 
   const { mapperType, direction } = req.body || {};
-  const pageSize = 200;
+  const pageSize = 100;
   const endpointPath = '/api/ruleEngine/v1/rule';
 
-  const buildPageUrl = (offset) => {
+  const buildPageUrl = (offset, limitVal = pageSize) => {
     const u = new URL(`${druleBaseUrl}${endpointPath}`);
     u.searchParams.set('category', 'mapperRules');
-    u.searchParams.set('limit', String(pageSize));
+    u.searchParams.set('limit', String(limitVal));
     u.searchParams.set('offset', String(offset));
     if (mapperType && mapperType !== 'all') {
       u.searchParams.append('ruleCharacteristic.name', 'mapper_type');
@@ -287,8 +292,13 @@ router.post('/mapper-rules/sync', async (req, res) => {
         syncState.fetched += page0Data.length;
       }
 
+      // Use actual returned page length as stepSize in case drule-api caps limit (e.g. max 100)
+      const stepSize = (page0Data.length > 0 && page0Data.length < totalCount)
+        ? page0Data.length
+        : pageSize;
+
       const offsets = [];
-      for (let off = pageSize; off < totalCount; off += pageSize) {
+      for (let off = stepSize; off < totalCount; off += stepSize) {
         offsets.push(off);
       }
 
@@ -296,6 +306,7 @@ router.post('/mapper-rules/sync', async (req, res) => {
       const CONCURRENCY = 5;
       let cursor = 0;
       let pendingBatch = [];
+      let failedPages = 0;
 
       const flushBatch = async () => {
         if (pendingBatch.length === 0) return;
@@ -304,32 +315,58 @@ router.post('/mapper-rules/sync', async (req, res) => {
         await upsertMapperRulesBatch(envName, toInsert, 'synced');
       };
 
+      const fetchPageWithRetry = async (off) => {
+        for (let attempt = 0; attempt < 3; attempt++) {
+          try {
+            let pRes = await fetch(buildPageUrl(off, stepSize), {
+              headers: { 'Authorization': authToken, 'Accept': 'application/json;charset=utf-8' }
+            });
+            if (pRes.status === 401) {
+              const fresh = await resolveAuthToken(req, envName, apiUrl, authUrl, true);
+              if (fresh) {
+                authToken = fresh;
+                pRes = await fetch(buildPageUrl(off, stepSize), {
+                  headers: { 'Authorization': authToken, 'Accept': 'application/json;charset=utf-8' }
+                });
+              }
+            }
+            if (pRes.ok) {
+              const pData = await pRes.json();
+              if (Array.isArray(pData)) return pData;
+            }
+          } catch (pageErr) {
+            if (attempt === 2) {
+              console.warn(`[MapperRulesSync] Page offset ${off} failed after retries:`, pageErr.message);
+            }
+          }
+          await new Promise(r => setTimeout(r, 300 * (attempt + 1)));
+        }
+        return null;
+      };
+
       const worker = async () => {
         while (cursor < offsets.length) {
           const idx = cursor++;
           const off = offsets[idx];
-          try {
-            const pRes = await fetch(buildPageUrl(off), {
-              headers: { 'Authorization': authToken, 'Accept': 'application/json;charset=utf-8' }
-            });
-            if (pRes.ok) {
-              const pData = await pRes.json();
-              if (Array.isArray(pData) && pData.length > 0) {
-                pendingBatch.push(...pData);
-                syncState.fetched += pData.length;
-                if (pendingBatch.length >= 1000) {
-                  await flushBatch();
-                }
-              }
+          const pData = await fetchPageWithRetry(off);
+          if (pData && pData.length > 0) {
+            pendingBatch.push(...pData);
+            syncState.fetched += pData.length;
+            if (pendingBatch.length >= 1000) {
+              await flushBatch();
             }
-          } catch (pageErr) {
-            console.warn(`[MapperRulesSync] Page offset ${off} failed:`, pageErr.message);
+          } else if (pData === null) {
+            failedPages++;
           }
         }
       };
 
       await Promise.all(Array.from({ length: Math.min(CONCURRENCY, offsets.length) }, () => worker()));
       await flushBatch();
+
+      if (failedPages > 0) {
+        syncState.error = `${failedPages} page(s) failed to fetch during sync; re-run sync to fill gaps.`;
+      }
 
       syncState.inProgress = false;
       syncState.completedAt = new Date().toISOString();

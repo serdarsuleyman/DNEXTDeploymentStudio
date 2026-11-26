@@ -1,0 +1,363 @@
+{
+  "id": "pop_ftth_600_v2_bundle_mcd0_pt1_basic_600_vt",
+  "name": "pop_ftth_600_v2_bundle_mcd0_pt1_basic_600_vt",
+  "description": "Voice Tariff component fee for tariff VP528_v2 (V0017)",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "@baseType": "ProductOfferingPrice",
+  "@type": "ProductOfferingPrice",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productofferingprice.json",
+  "isBundle": false,
+  "priceType": "Recurring charge",
+  "recurringChargePeriodType": "month",
+  "recurringChargePeriodLength": 1,
+  "price": {
+    "unit": "EUR",
+    "value": 0
+  },
+  "validFor": {
+    "startDateTime": "2026-11-25T13:23:01.854Z"
+  },
+  "productOfferingPriceCharacteristic": [
+    {
+      "id": "bandwidth",
+      "name": "bandwidth",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "@type": "ProductOfferingPriceCharacteristic",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "600",
+          "valueType": "string",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "connection_type",
+      "name": "connection_type",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "@type": "ProductOfferingPriceCharacteristic",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "basic",
+          "valueType": "string",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "play_type",
+      "name": "play_type",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "@type": "ProductOfferingPriceCharacteristic",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "1",
+          "valueType": "string",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "tariff_voice",
+      "name": "tariff_voice",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "@type": "ProductOfferingPriceCharacteristic",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "VP528_v2",
+          "valueType": "string",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "tariff_code_voice_ngn",
+      "name": "tariff_code_voice_ngn",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "@type": "ProductOfferingPriceCharacteristic",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "VP528_v2",
+          "valueType": "string",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "tariff_code_voice_bitstream",
+      "name": "tariff_code_voice_bitstream",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "@type": "ProductOfferingPriceCharacteristic",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "VP528_v2",
+          "valueType": "string",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "product_code_voice_ngn",
+      "name": "product_code_voice_ngn",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "@type": "ProductOfferingPriceCharacteristic",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "VI202",
+          "valueType": "string",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "product_code_voice_bitstream",
+      "name": "product_code_voice_bitstream",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "@type": "ProductOfferingPriceCharacteristic",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "VI203",
+          "valueType": "string",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "service_code_vt",
+      "name": "service_code_vt",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "@type": "ProductOfferingPriceCharacteristic",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "V0017",
+          "valueType": "string",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "service_code_voice_ngn",
+      "name": "service_code_voice_ngn",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "@type": "ProductOfferingPriceCharacteristic",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "V0017",
+          "valueType": "string",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "service_code_voice_bitstream",
+      "name": "service_code_voice_bitstream",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "@type": "ProductOfferingPriceCharacteristic",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "V0017",
+          "valueType": "string",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "psm_sales_packet_code_voice_ngn",
+      "name": "psm_sales_packet_code_voice_ngn",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "@type": "ProductOfferingPriceCharacteristic",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "PF336_v2",
+          "valueType": "string",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "psm_sales_packet_code_voice_bitstream",
+      "name": "psm_sales_packet_code_voice_bitstream",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "@type": "ProductOfferingPriceCharacteristic",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "PR413_v2",
+          "valueType": "string",
+          "isDefault": true
+        }
+      ]
+    }
+  ],
+  "prodSpecCharValueUse": [
+    {
+      "name": "bandwidth",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "600",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "name": "connection_type",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "basic",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "name": "play_type",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "1",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "name": "tariff_voice",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "VP528_v2",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "name": "tariff_code_voice_ngn",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "VP528_v2",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "name": "tariff_code_voice_bitstream",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "VP528_v2",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "name": "product_code_voice_ngn",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "VI202",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "name": "product_code_voice_bitstream",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "VI203",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "name": "service_code_vt",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "V0017",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "name": "service_code_voice_ngn",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "V0017",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "name": "service_code_voice_bitstream",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "V0017",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "name": "psm_sales_packet_code_voice_ngn",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "PF336_v2",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "name": "psm_sales_packet_code_voice_bitstream",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "PR413_v2",
+          "isDefault": true
+        }
+      ]
+    }
+  ]
+}

@@ -423,6 +423,28 @@ export function buildCompositeBundlePop(bundlePopId, popData = {}, simplePops = 
     version: '0'
   }));
 
+  const selectedAawPacketId = String(popData.aawPacketId || popData.packetId || '').trim();
+  const productOfferingPriceCharacteristic = selectedAawPacketId
+    ? [
+        {
+          id: 'psm_aaw_packet_id',
+          name: 'psm_aaw_packet_id',
+          valueType: 'string',
+          characteristicType: 'Choice',
+          configurable: true,
+          extensible: true,
+          "@type": 'ProductOfferingPriceCharacteristic',
+          productOfferingPriceCharacteristicValue: [
+            {
+              value: selectedAawPacketId,
+              valueType: 'string',
+              isDefault: true
+            }
+          ]
+        }
+      ]
+    : [];
+
   return {
     id: bundlePopId,
     name: popData.name || bundlePopId,
@@ -436,6 +458,7 @@ export function buildCompositeBundlePop(bundlePopId, popData = {}, simplePops = 
     validFor: {
       startDateTime: now
     },
+    ...(productOfferingPriceCharacteristic.length > 0 ? { productOfferingPriceCharacteristic } : {}),
     bundledPopRelationship
   };
 }

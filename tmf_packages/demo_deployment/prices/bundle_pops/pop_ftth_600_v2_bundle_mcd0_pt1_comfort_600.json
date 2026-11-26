@@ -1,0 +1,58 @@
+{
+  "id": "pop_ftth_600_v2_bundle_mcd0_pt1_comfort_600",
+  "name": "pop_ftth_600_v2_bundle_mcd0_pt1_comfort_600",
+  "version": "0",
+  "description": "GigaZuhause 600 Glasfaser v2 bundled composite price container for Comfort (ISDN) variant aggregating 4 atomic sub-prices (_bw, _in, _va, _vt)",
+  "lifecycleStatus": "In study",
+  "@baseType": "ProductOfferingPrice",
+  "@type": "ProductOfferingPrice",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/bundledproductofferingprice.json",
+  "isBundle": true,
+  "validFor": {
+    "startDateTime": "2026-11-25T13:23:01.854Z"
+  },
+  "productOfferingPriceCharacteristic": [
+    {
+      "id": "psm_aaw_packet_id",
+      "name": "psm_aaw_packet_id",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "@type": "ProductOfferingPriceCharacteristic",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "R026.5000000528",
+          "valueType": "string",
+          "isDefault": true
+        }
+      ]
+    }
+  ],
+  "bundledPopRelationship": [
+    {
+      "id": "pop_ftth_600_v2_bundle_mcd0_pt1_comfort_600_bw",
+      "href": "/api/productCatalogManagement/v4/productOfferingPrice/pop_ftth_600_v2_bundle_mcd0_pt1_comfort_600_bw:(version=0)",
+      "name": "pop_ftth_600_v2_bundle_mcd0_pt1_comfort_600_bw",
+      "version": "0"
+    },
+    {
+      "id": "pop_ftth_600_v2_bundle_mcd0_pt1_comfort_600_in",
+      "href": "/api/productCatalogManagement/v4/productOfferingPrice/pop_ftth_600_v2_bundle_mcd0_pt1_comfort_600_in:(version=0)",
+      "name": "pop_ftth_600_v2_bundle_mcd0_pt1_comfort_600_in",
+      "version": "0"
+    },
+    {
+      "id": "pop_ftth_600_v2_bundle_mcd0_pt1_comfort_600_va",
+      "href": "/api/productCatalogManagement/v4/productOfferingPrice/pop_ftth_600_v2_bundle_mcd0_pt1_comfort_600_va:(version=0)",
+      "name": "pop_ftth_600_v2_bundle_mcd0_pt1_comfort_600_va",
+      "version": "0"
+    },
+    {
+      "id": "pop_ftth_600_v2_bundle_mcd0_pt1_comfort_600_vt",
+      "href": "/api/productCatalogManagement/v4/productOfferingPrice/pop_ftth_600_v2_bundle_mcd0_pt1_comfort_600_vt:(version=0)",
+      "name": "pop_ftth_600_v2_bundle_mcd0_pt1_comfort_600_vt",
+      "version": "0"
+    }
+  ]
+}

@@ -1,0 +1,419 @@
+{
+  "id": "pop_ftth_600_v2_bundle_mcd0_pt2_basic_600_bw",
+  "name": "pop_ftth_600_v2_bundle_mcd0_pt2_basic_600_bw",
+  "description": "Bandwidth Option fee for 600 Mbit/s downstream (IG019)",
+  "version": "0",
+  "lifecycleStatus": "In study",
+  "@baseType": "ProductOfferingPrice",
+  "@type": "ProductOfferingPrice",
+  "@schemaLocation": "/api/productCatalogManagement/v4/schema/productofferingprice.json",
+  "isBundle": false,
+  "priceType": "Recurring charge",
+  "recurringChargePeriodType": "month",
+  "recurringChargePeriodLength": 1,
+  "price": {
+    "unit": "EUR",
+    "value": 20
+  },
+  "validFor": {
+    "startDateTime": "2026-11-25T13:23:01.854Z"
+  },
+  "productOfferingPriceCharacteristic": [
+    {
+      "id": "bandwidth_option_name",
+      "name": "bandwidth_option_name",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "@type": "ProductOfferingPriceCharacteristic",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "Bandbreite 600 Mbit/s",
+          "valueType": "string",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "bandwidth",
+      "name": "bandwidth",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "@type": "ProductOfferingPriceCharacteristic",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "600",
+          "valueType": "string",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "downstream_max",
+      "name": "downstream_max",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "@type": "ProductOfferingPriceCharacteristic",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "600",
+          "valueType": "string",
+          "isDefault": true,
+          "unitOfMeasure": "Mbps"
+        }
+      ]
+    },
+    {
+      "id": "upstream_max",
+      "name": "upstream_max",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "@type": "ProductOfferingPriceCharacteristic",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "300",
+          "valueType": "string",
+          "isDefault": true,
+          "unitOfMeasure": "Mbps"
+        }
+      ]
+    },
+    {
+      "id": "connection_type",
+      "name": "connection_type",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "@type": "ProductOfferingPriceCharacteristic",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "basic",
+          "valueType": "string",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "play_type",
+      "name": "play_type",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "@type": "ProductOfferingPriceCharacteristic",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "2",
+          "valueType": "string",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "bandwith_sku_code",
+      "name": "bandwith_sku_code",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "@type": "ProductOfferingPriceCharacteristic",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "IG019",
+          "valueType": "string",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "service_code_internet_ngn",
+      "name": "service_code_internet_ngn",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "@type": "ProductOfferingPriceCharacteristic",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "IG019",
+          "valueType": "string",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "service_code_internet_bitstream",
+      "name": "service_code_internet_bitstream",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "@type": "ProductOfferingPriceCharacteristic",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "IG019",
+          "valueType": "string",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "product_code_internet_ngn",
+      "name": "product_code_internet_ngn",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "@type": "ProductOfferingPriceCharacteristic",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "I1204",
+          "valueType": "string",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "product_code_internet_bitstream",
+      "name": "product_code_internet_bitstream",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "@type": "ProductOfferingPriceCharacteristic",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "I1203",
+          "valueType": "string",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "tariff_code_internet_ngn",
+      "name": "tariff_code_internet_ngn",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "@type": "ProductOfferingPriceCharacteristic",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "IP531_v2",
+          "valueType": "string",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "tariff_code_internet_bitstream",
+      "name": "tariff_code_internet_bitstream",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "@type": "ProductOfferingPriceCharacteristic",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "IP531_v2",
+          "valueType": "string",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "psm_sales_packet_code_internet_ngn",
+      "name": "psm_sales_packet_code_internet_ngn",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "@type": "ProductOfferingPriceCharacteristic",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "PF342_v2",
+          "valueType": "string",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "id": "psm_sales_packet_code_internet_bitstream",
+      "name": "psm_sales_packet_code_internet_bitstream",
+      "valueType": "string",
+      "characteristicType": "Choice",
+      "configurable": true,
+      "extensible": true,
+      "@type": "ProductOfferingPriceCharacteristic",
+      "productOfferingPriceCharacteristicValue": [
+        {
+          "value": "PR413_v2",
+          "valueType": "string",
+          "isDefault": true
+        }
+      ]
+    }
+  ],
+  "prodSpecCharValueUse": [
+    {
+      "name": "bandwidth_option_name",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "Bandbreite 600 Mbit/s",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "name": "bandwidth",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "600",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "name": "downstream_max",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "600",
+          "isDefault": true,
+          "unitOfMeasure": "Mbps"
+        }
+      ]
+    },
+    {
+      "name": "upstream_max",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "300",
+          "isDefault": true,
+          "unitOfMeasure": "Mbps"
+        }
+      ]
+    },
+    {
+      "name": "connection_type",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "basic",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "name": "play_type",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "2",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "name": "bandwith_sku_code",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "IG019",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "name": "service_code_internet_ngn",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "IG019",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "name": "service_code_internet_bitstream",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "IG019",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "name": "product_code_internet_ngn",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "I1204",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "name": "product_code_internet_bitstream",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "I1203",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "name": "tariff_code_internet_ngn",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "IP531_v2",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "name": "tariff_code_internet_bitstream",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "IP531_v2",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "name": "psm_sales_packet_code_internet_ngn",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "PF342_v2",
+          "isDefault": true
+        }
+      ]
+    },
+    {
+      "name": "psm_sales_packet_code_internet_bitstream",
+      "valueType": "string",
+      "productSpecCharacteristicValue": [
+        {
+          "value": "PR413_v2",
+          "isDefault": true
+        }
+      ]
+    }
+  ]
+}

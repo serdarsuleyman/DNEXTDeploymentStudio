@@ -354,3 +354,27 @@ test('createSalesPackageDeploymentEnvelope wires portfolio_id from productOfferi
   assert.ok(portfolioChar);
   assert.equal(portfolioChar.productOfferingCharacteristicValue[0].value, 'PF_FROM_DIRECT_CHARS');
 });
+
+test('createSalesPackageDeploymentEnvelope includes selected aawPacketId in bundlePop productOfferingPriceCharacteristic', async () => {
+  const { createSalesPackageDeploymentEnvelope } = await import('../../services/salesPackageBuilderService.js');
+  const envelope = createSalesPackageDeploymentEnvelope({
+    id: 'po_test_pkg',
+    name: 'Test Package',
+    bundledPops: [
+      {
+        id: 'pop_test_bundle_1',
+        name: 'Test Bundle POP',
+        speed: 250,
+        contractTerm: 24,
+        playType: '2',
+        connectionVariant: 'basic',
+        aawPacketId: 'R025.5000000530-24'
+      }
+    ]
+  });
+
+  assert.equal(envelope.bundlePops.length, 1);
+  const aawChar = envelope.bundlePops[0].productOfferingPriceCharacteristic?.find(c => c.name === 'psm_aaw_packet_id');
+  assert.ok(aawChar);
+  assert.equal(aawChar.productOfferingPriceCharacteristicValue[0].value, 'R025.5000000530-24');
+});
